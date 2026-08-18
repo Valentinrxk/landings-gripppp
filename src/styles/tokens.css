@@ -1,0 +1,39 @@
+/* ── tokens: dos mundos, una imprenta ───────────────────────────
+   máquina (valentín): plata, acero, cromo, mono, minúscula
+   tinta (grip): papel, negro, rojo, celeste, lima, sellos, desregistro   */
+:root {
+  --papel: #f4f1ea;
+  --negro: #111111;
+  --rojo: #f0403c;
+  --celeste: #5fa8e0;
+  --lima: #d9e355;
+
+  --plata: #cfd0d6;
+  --plata-2: #e6e7eb;
+  --acero: #75767f;
+  --acero-2: #4c4d55;
+  --grafito: #232327;
+  --cromo: linear-gradient(178deg, #55565e 0%, #2c2c31 34%, #83848d 50%, #303036 62%, #4c4d55 100%);
+  --cromo-h: linear-gradient(90deg, #e6e7eb 0%, #83848d 18%, #f4f5f7 40%, #4c4d55 62%, #cfd0d6 100%);
+
+  --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, monospace;
+
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  --hud-h: 46px;
+
+  --z-world: 1;
+  --z-texture: 50;
+  --z-hud: 60;
+  --z-toggle: 70;
+  --z-racleta: 90;
+  --z-splash: 100;
+
+  --j1x: 0px; --j1y: 0px; --j1r: 0deg;
+  --j2x: 0px; --j2y: 0px; --j2r: 0deg;
+  --j3x: 0px; --j3y: 0px; --j3r: 0deg;
+  --j4x: 0px; --j4y: 0px; --j4r: 0deg;
+  --slip: 0px;
+  --mis-x: 1px;
+  --mis-y: -1px;
+}

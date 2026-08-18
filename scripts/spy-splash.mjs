@@ -1,0 +1,15 @@
+import { chromium } from 'playwright-core';
+const SHOTS = process.env.SHOTS_DIR || 'shots';
+const browser = await chromium.launch({ channel: 'msedge', headless: true });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+page.on('pageerror', (e) => console.log('PAGEERROR', e.message));
+await page.goto(process.env.URL || 'http://localhost:5174/');
+await page.waitForTimeout(500);
+await page.screenshot({ path: `${SHOTS}/splash-a.png` });
+await page.waitForTimeout(500);
+await page.screenshot({ path: `${SHOTS}/splash-b.png` });
+await page.waitForTimeout(1500);
+const gone = await page.evaluate(() => !document.getElementById('splash'));
+console.log('splash removido:', gone);
+await page.screenshot({ path: `${SHOTS}/splash-after.png` });
+await browser.close();
