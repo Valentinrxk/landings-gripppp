@@ -30,6 +30,7 @@ import { initIdle } from './systems/idle.js';
 import { initSheets } from './systems/sheet.js';
 import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
+import { initContacto } from './sections/contacto.js';
 import { initProceso } from './sections/proceso.js';
 import { initPliegos } from './sections/pliegos.js';
 import { initAntes } from './sections/antes.js';
@@ -105,6 +106,7 @@ if (ctx.tier === 'static') {
   initIdle(ctx);
   initSplash(ctx);
   initHero(ctx);
+  initContacto(ctx);
   initProceso(ctx);
   initPliegos(ctx);
   initAntes(ctx);

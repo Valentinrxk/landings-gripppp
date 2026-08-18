@@ -1,0 +1,40 @@
+/* ── hero: la palabra impresa, la ficha viva, el sello ─────────────
+   carga después de sections.css: acá se pisan las reglas del hero.   */
+.s-hero { height: 160svh; }
+.hero-title { cursor: pointer; }
+/* el kicker es otra capa impresa: queda por encima del lienzo de la tirada */
+.s-hero .kicker { position: relative; z-index: 2; }
+/* pasada fantasma (idle): un cuadro de tinta separada en una sola letra */
+.hero-title span.ghost {
+  text-shadow: 5px 0 var(--rojo), -5px 0 var(--celeste);
+}
+/* la palabra junta hereda el tic (desregistro como evento de tiempo) */
+.hero-title.is-joined { animation: tic 8s steps(1, end) 3s infinite; }
+
+.hero-claim { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -0.03em; max-width: 24ch; }
+.hero-hint { color: var(--acero); }
+
+/* ficha técnica: se apoya sobre la mesa (sombra) y tiembla con el canal 1 */
+.hero-ficha { box-shadow: var(--shadow-mesa); }
+.hero-ficha dd { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* sello "registrado": aplicado a mano en la línea de base de la palabra */
+.hero-sello {
+  position: absolute; left: 0; bottom: 0; z-index: 2;
+  pointer-events: none; white-space: nowrap;
+}
+.hero-sello .sello {
+  position: static; display: inline-block; opacity: 1;
+  border: 2px solid var(--rojo); color: var(--rojo);
+  padding: 0.22rem 0.55rem; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: lowercase;
+  background: var(--papel);
+  box-shadow: var(--shadow-sello);
+  transform-origin: 50% 60%;
+}
+
+@media (max-width: 720px) {
+  .hero-sello .sello { font-size: 0.6rem; padding: 0.18rem 0.45rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-title.is-joined { animation: none; }
+}

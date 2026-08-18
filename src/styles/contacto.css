@@ -1,0 +1,35 @@
+/* ── contacto: sello, palancas, pie ────────────────────────────────
+   carga después de sections.css/base.css: acá se pisan sus reglas.   */
+.ct-title {
+  scale: var(--stamp, 1);            /* el sello se hace con `scale`, no con transform (el tic usa transform) */
+  transform-origin: 18% 62%;
+  will-change: scale;
+}
+.ct-dot { display: inline-block; color: var(--rojo); transform-origin: 50% 70%; }
+
+/* CTAs: palancas de la prensa. color con ease-smooth; el pulsado hunde 1px */
+.cta {
+  position: relative; overflow: hidden;
+  transition: background 0.25s var(--ease-smooth), color 0.25s var(--ease-smooth), border-color 0.25s var(--ease-smooth);
+  will-change: transform;
+}
+.cta:active, .hud-cta:active { translate: 1px 1px; }
+.cta.big .ic { width: 1.15em; height: 1.15em; transition: transform 0.08s steps(1); }
+.cta.big:hover .ic, .cta.big:focus-visible .ic { transform: rotate(-15deg) scale(1.15); }
+/* la banda cromada de la racleta cruza el botón rojo (idle, 5 poses) */
+.cta.big::after {
+  content: ''; position: absolute; top: -20%; bottom: -20%;
+  left: var(--band, -45%); width: 26%;
+  background: var(--cromo-h); opacity: 0.55; mix-blend-mode: screen;
+  transform: skewX(-14deg); pointer-events: none;
+}
+.hud-cta { will-change: transform; transition: background 0.25s var(--ease-smooth); }
+
+/* pie: el subrayado se dibuja en 4 poses (.u-draw), sin border-bottom */
+.ct-foot a.u-draw { border-bottom: 0; }
+.ct-foot a.u-draw::after { bottom: -1px; }
+.ct-foot a:hover, .ct-foot a:focus-visible { color: var(--rojo); }
+
+@media (prefers-reduced-motion: reduce) {
+  .cta, .cta.big .ic, .hud-cta { transition: none; }
+}
