@@ -181,3 +181,12 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
 #cursor .cur-txt { position: absolute; left: 130%; top: 50%; translate: 0 -50%; font-size: 0.6rem; white-space: nowrap; letter-spacing: 0.04em; color: var(--acero-2); opacity: 0; transition: opacity 0.2s; mix-blend-mode: normal; }
 #cursor.has-txt .cur-txt { opacity: 1; }
 #cursor.is-label .cur-txt { color: var(--rojo); border: 1px solid var(--rojo); padding: 0.1rem 0.35rem; background: var(--papel); }
+
+/* ── splash: la intro es el splash; solo un contador y la firma ── */
+#splash { position: fixed; inset: 0; z-index: 150; pointer-events: auto; }
+#splash .splash-sign, #splash .splash-count { position: absolute; bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--acero-2); }
+#splash .splash-sign { left: var(--gutter); }
+#splash .splash-count { right: var(--gutter); font-variant-numeric: tabular-nums; }
+html.splashing { overflow: hidden; }
+html.splashing .brand, html.splashing #cta-top, html.splashing .marks, html.splashing .beat-hero { opacity: 0; transition: opacity 0.6s var(--ease-smooth); }
+.brand, #cta-top, .marks { transition: opacity 0.6s var(--ease-smooth); }

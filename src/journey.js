@@ -208,7 +208,7 @@ export async function initJourney(ctx) {
     // envión: agitación + desregistro que se relaja al frenar
     const L = Math.abs(scrollLean());
     lean += (L - lean) * 0.12;
-    field.state.turb = Math.min(1, lean * 1.6);
+    field.state.turb = Math.max(0.035 + 0.02 * Math.sin(performance.now() / 1400), Math.min(1, lean * 1.6));
     field.state.mis = Math.min(1, lean * 1.4);
     field.state.mouse = mouse;
     field.render();
@@ -257,6 +257,12 @@ export async function initJourney(ctx) {
     gsap.set(split.lines, { yPercent: 110 });
     const subSplit = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
     gsap.set(subSplit.lines, { yPercent: 110 });
+    bus.on('i18n:changed', () => {
+      // applyLang reemplazó el textContent (las máscaras se fueron): re-splitear ya asentado
+      const s2 = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+      const s3 = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+      gsap.set([...s2.lines, ...s3.lines], { yPercent: 0 });
+    });
     heroIn
       .to(split.lines, { yPercent: 0, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0)
       .to(subSplit.lines, { yPercent: 0, stagger: 0.07, duration: 0.7, ease: 'expo.out' }, 0.25)
@@ -272,22 +278,55 @@ export async function initJourney(ctx) {
     if (introRunning) return;
     origSetPair(a, b);
   };
+  // ── splash: papel vacío, un contador, y la tinta llega de todos lados y forma
+  // la marca en el centro; late; se desarma y viaja al hero. Sin cortina: la
+  // intro ES el splash. Toque/tecla la saltea. ?nosplash la omite.
+  const splash = document.getElementById('splash');
+  const counter = splash?.querySelector('.splash-count');
+  const skipSplash = new URLSearchParams(location.search).has('nosplash') || ctx.reduced;
   const runIntro = () => {
     const A = field.aspect;
     const noise = S.shapeNoise(N, A, 3);
-    origSetPair(noise, shapes[0]);
-    const hold = { t: 0 };
-    gsap.to(hold, {
-      t: 1,
-      duration: 1.9,
-      ease: 'power2.inOut',
-      onUpdate: () => (field.state.t = hold.t),
-      onComplete: () => {
-        introRunning = false;
-        lastBeat = -1;
-        heroIn.play();
-      },
-    });
+    const gripCenter = S.shapeGrip(N, A, { widthFrac: mobile ? 0.86 : 0.5, x: 0, y: mobile ? 8 : 0, seed: 41 });
+    document.documentElement.classList.add('splashing');
+    lenis?.stop();
+    window.scrollTo(0, 0);
+    const finish = () => {
+      introRunning = false;
+      lastBeat = -1;
+      document.documentElement.classList.remove('splashing');
+      splash?.remove();
+      lenis?.start();
+      heroIn.play();
+    };
+    if (skipSplash) {
+      origSetPair(gripCenter, shapes[0]);
+      field.state.t = 1;
+      finish();
+      return;
+    }
+    const hold = { t: 0, n: 0 };
+    const zoom = field.cam.z;
+    field.cam.z = zoom * 0.86;
+    const tl = gsap.timeline({ onComplete: finish });
+    // 1) ruido → marca centrada (la tinta viene de todos lados)
+    origSetPair(noise, gripCenter);
+    tl.to(hold, { t: 1, duration: 1.7, ease: 'power2.inOut', onUpdate: () => (field.state.t = hold.t) }, 0.15)
+      .to(hold, { n: 100, duration: 1.7, ease: 'power1.inOut', onUpdate: () => counter && (counter.textContent = String(Math.round(hold.n)).padStart(3, '0')) }, 0.15)
+      // 2) latido: un cuadro de desregistro y se asienta
+      .to(field.state, { mis: 0.9, duration: 0.08 }, 1.95)
+      .to(field.state, { mis: 0, duration: 0.5, ease: 'expo.out' }, 2.03)
+      // 3) la marca se desarma y viaja a su lugar en el hero; la cámara se acomoda
+      .add(() => { origSetPair(gripCenter, shapes[0]); field.state.t = 0; }, 2.45)
+      .fromTo(hold, { t: 0 }, { t: 1, duration: 1.15, ease: 'power3.inOut', onUpdate: () => (field.state.t = hold.t) }, 2.5)
+      .to(field.cam, { z: zoom, duration: 1.3, ease: 'power2.inOut' }, 2.4)
+      .to(splash, { autoAlpha: 0, duration: 0.4 }, 2.5);
+    const skip = () => {
+      if (tl.progress() >= 1) return;
+      tl.progress(1);
+    };
+    splash?.addEventListener('pointerdown', skip);
+    window.addEventListener('keydown', skip, { once: true });
   };
   document.fonts?.ready.then(runIntro);
 
