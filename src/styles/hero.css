@@ -1,6 +1,6 @@
 /* ── hero: la palabra impresa, la ficha viva, el sello ─────────────
    carga después de sections.css: acá se pisan las reglas del hero.   */
-.s-hero { height: 160svh; }
+.s-hero { --scene-h: 160svh; }
 .hero-title { cursor: pointer; }
 /* el kicker es otra capa impresa: queda por encima del lienzo de la tirada */
 .s-hero .kicker { position: relative; z-index: 2; }

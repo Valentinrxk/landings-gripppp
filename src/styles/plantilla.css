@@ -5,7 +5,7 @@
    pegada atrás. El scroll la tira, la mano la agarra. Nunca borra del todo.
    Este archivo se carga después de sections.css y pisa sus reglas .ad-*.  */
 
-.s-antes { height: 220svh; background: var(--papel); }
+.s-antes { --scene-h: 220svh; background: var(--papel); }
 .s-antes .stage { padding-bottom: calc(var(--rail-h) + var(--cell) * 0.35); }
 
 /* la cabecera expone el valor real de la máquina en vez de repetir el CTA */

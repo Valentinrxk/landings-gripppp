@@ -113,7 +113,8 @@ export function initPliegos(ctx) {
     gsap.set(track, { skewX: 0 });
     maxShift = Math.max(0, track.scrollWidth - vw);
     travel = Math.round(maxShift / (END - START));
-    sec.style.height = `${travel + window.innerHeight}px`;
+    // + una pantalla de cola: el pliego siguiente se desliza encima (sheet stacking)
+    sec.style.height = `${travel + window.innerHeight * 2}px`;
     const tr = track.getBoundingClientRect();
     for (const u of units) {
       const r = u.frame.getBoundingClientRect();

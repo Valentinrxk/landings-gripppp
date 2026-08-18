@@ -2,7 +2,7 @@
    Se carga después de sections.css (import desde proceso.js): pisa lo que
    haga falta de la escena y no toca nada más. Papel = pliego, plata = mesa
    de la prensa, línea de pelo = plancha, sello = tinta a mano.               */
-.s-proceso { height: 380svh; }
+.s-proceso { --scene-h: 380svh; }
 
 /* valor de máquina en la cabecera (reemplaza la celda-CTA) */
 .scene-head .cell-val {
