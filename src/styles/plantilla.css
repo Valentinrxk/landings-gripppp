@@ -1,0 +1,150 @@
+/* ── plantilla → marca: la racleta es la manija ─────────────────────
+   El cuadro es un img-comparison-slider: a la izquierda (arriba en el celu)
+   la landing impresa, a la derecha la plantilla genérica dibujada en código.
+   La manija es la racleta de cromo con la tinta fresca (matriz de glifos)
+   pegada atrás. El scroll la tira, la mano la agarra. Nunca borra del todo.
+   Este archivo se carga después de sections.css y pisa sus reglas .ad-*.  */
+
+.s-antes { height: 220svh; background: var(--papel); }
+.s-antes .stage { padding-bottom: calc(var(--rail-h) + var(--cell) * 0.35); }
+
+/* la cabecera expone el valor real de la máquina en vez de repetir el CTA */
+.cell-val {
+  display: inline-flex; align-items: flex-end; justify-content: flex-end; gap: 0.55rem;
+  min-width: calc(var(--cell) * 3); padding: 0 1rem 0.9rem;
+  font-size: 0.72rem; letter-spacing: 0.04em; color: var(--acero-2); white-space: nowrap;
+}
+.cell-val::before {
+  content: ''; width: 8px; height: 8px; margin-bottom: 0.2em; flex: none;
+  background: var(--plata); border: 1px solid var(--negro);
+  transition: background 0.1s steps(1, end);
+}
+.cell-val.is-live::before { background: var(--rojo); }
+.cell-val b { font-weight: 400; color: var(--negro); min-width: 3ch; text-align: right; font-variant-numeric: tabular-nums; }
+
+/* el cuadro se apoya sobre la mesa: ocupa el alto que queda, guarda la proporción */
+.ad-frame {
+  position: relative; flex: 1; min-height: 0; overflow: visible;
+  border: 0; background: transparent;
+  container-type: size;
+  display: grid; place-items: center;
+  --ad-ar: 2732 / 1200;
+  --ad-legend: 3.4rem; /* alto reservado a la leyenda de abajo */
+}
+.ad-stage { width: min(100%, calc((100cqh - var(--ad-legend)) * var(--ad-ar))); }
+.ad-box {
+  position: relative; width: 100%; aspect-ratio: var(--ad-ar);
+  background: var(--plata-2);
+  box-shadow: var(--shadow-mesa);
+  outline: 1px solid rgba(17, 17, 17, 0.22);
+}
+
+/* el slider: sin divisor ni manija por defecto (la racleta es la manija) */
+.ad-cmp {
+  display: block; width: 100%; height: 100%;
+  --divider-width: 0px; --divider-color: transparent; --divider-shadow: none;
+  --default-handle-width: 0px; --default-handle-opacity: 0;
+  --handle-position-start: 50%;
+  outline: none;
+}
+.ad-cmp:focus-visible { outline: 1px solid var(--rojo); outline-offset: 3px; }
+.ad-cmp.is-pointer:focus-visible { outline: none; }
+.ad-print {
+  position: static; inset: auto; clip-path: none;
+  display: block; width: 100%; height: 100%; object-fit: cover; object-position: center;
+}
+
+/* la plantilla: el enemigo es opaco. sin sombras, poca saturación, blanco frío */
+.ad-cmp .ad-tpl[slot] { display: block; } /* la lib lo deja inline al renderizar */
+.ad-tpl {
+  position: relative; inset: auto; width: 100%; aspect-ratio: var(--ad-ar); overflow: hidden;
+  line-height: 1.25; /* el host del slider pone line-height:0 */
+  filter: saturate(0.62) contrast(0.94);
+  transition: filter 0.25s var(--ease-smooth);
+}
+.ad-tpl.is-flat { filter: saturate(0.22) contrast(0.9) brightness(1.02); }
+.ad-tpl * { box-shadow: none !important; }
+.ad-tpl .tpl-cards i { box-shadow: none; }
+/* "carga mal": tres poses sin css (fouc) antes de que aparezca el degradé */
+.tpl-hero.is-fouc { background: #fff; color: #000; font-family: 'Times New Roman', Times, serif; }
+.tpl-hero.is-fouc .tpl-copy h4 { font-weight: 700; letter-spacing: 0; }
+.tpl-hero.is-fouc .tpl-copy b { background: none; color: #0000ee; text-decoration: underline; border-radius: 0; padding: 0; }
+.tpl-hero.is-fouc .tpl-img { border: 1px solid #000; background: none; border-radius: 0; }
+.tpl-hero.is-fouc .tpl-img i { display: none; }
+
+/* la racleta (slot handle): hoja de cromo centrada + tinta fresca a la izquierda */
+.ad-racleta {
+  position: relative; inset: auto; margin: 0; border: 0; background: none; box-shadow: none;
+  width: 44px; height: var(--ad-len, 100%);
+  --spec: -120%;
+}
+.ad-blade {
+  position: absolute; left: 50%; top: 0; width: 18px; height: 100%; margin-left: -9px;
+  background: var(--cromo-h); border: 1px solid var(--negro);
+  box-shadow: -8px 0 16px rgba(17, 17, 17, 0.2);
+  overflow: hidden;
+  transition: box-shadow 0.25s var(--ease-smooth);
+}
+/* moleteado: el mango se agarra */
+.ad-blade::before {
+  content: ''; position: absolute; left: 3px; right: 3px; top: 44%; height: 12%;
+  background: repeating-linear-gradient(180deg, rgba(17, 17, 17, 0.55) 0 1px, transparent 1px 4px);
+}
+/* brillo especular: en idle recorre la hoja en 5 poses */
+.ad-spec {
+  position: absolute; left: 0; right: 0; top: 0; height: 22%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.92) 50%, transparent);
+  transform: translateY(var(--spec));
+  pointer-events: none;
+}
+.ad-racleta.is-near .ad-blade { box-shadow: -8px 0 16px rgba(17, 17, 17, 0.2), 0 0 0 1px var(--rojo); }
+.ad-ink {
+  position: absolute; right: calc(50% - 11px); top: 0; height: 100%; width: var(--ad-band, 120px); /* se mete 2px bajo la hoja */
+  inset-inline-start: auto; background: none; pointer-events: none;
+}
+
+/* sellos: aplicados a mano, rotados, sombra dura; caen cuando la hoja pasa la mitad */
+.ad-tag {
+  display: block; position: absolute; top: auto; z-index: 2;
+  padding: 0.3rem 0.65rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--rojo); background: var(--papel);
+  border: 2px solid var(--rojo); box-shadow: var(--shadow-sello);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  --pop: 1;
+}
+.ad-tag.ad-tag-l {
+  left: 4%; right: auto; bottom: 9%; top: auto; --rot: -6deg;
+  transform: translate(var(--j2x), var(--j2y)) rotate(calc(var(--rot) + var(--j2r))) scale(var(--pop));
+}
+.ad-tag.ad-tag-r {
+  right: 3%; left: auto; top: 13%; bottom: auto; --rot: 5deg;
+  transform: translate(var(--j3x), var(--j3y)) rotate(calc(var(--rot) + var(--j3r))) scale(var(--pop));
+}
+
+/* leyenda: debajo del cuadro, alineada a él */
+.ad-legend { margin-top: 0.7rem; }
+
+/* ── celu: eje vertical (impresa arriba, plantilla abajo), la hoja es horizontal ── */
+@media (max-width: 720px) {
+  .scene-head .cell-val { padding: 0.5rem 1rem 0.7rem; justify-content: flex-start; min-width: 0; }
+  .ad-frame { --ad-ar: 3 / 4; --ad-legend: 5.8rem; }
+  .ad-racleta { width: var(--ad-len, 100%); height: 44px; }
+  .ad-blade {
+    left: 0; right: 0; top: 50%; width: auto; height: 18px; margin: -9px 0 0;
+    background: linear-gradient(180deg, #e6e7eb 0%, #83848d 18%, #f4f5f7 40%, #4c4d55 62%, #cfd0d6 100%); /* cromo-h girado */
+    box-shadow: 0 -8px 16px rgba(17, 17, 17, 0.2);
+  }
+  .ad-blade::before { left: 44%; right: auto; top: 3px; bottom: 3px; height: auto; width: 12%; background: repeating-linear-gradient(90deg, rgba(17, 17, 17, 0.55) 0 1px, transparent 1px 4px); }
+  .ad-spec { top: 0; bottom: 0; height: auto; left: 0; width: 22%; right: auto; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.92) 50%, transparent); transform: translateX(var(--spec)); }
+  .ad-racleta.is-near .ad-blade { box-shadow: 0 -8px 16px rgba(17, 17, 17, 0.2), 0 0 0 1px var(--rojo); }
+  .ad-ink { right: auto; left: 0; top: auto; bottom: calc(50% - 11px); width: 100%; height: var(--ad-band, 80px); }
+  .ad-tag.ad-tag-l { left: 4%; right: auto; top: 5%; bottom: auto; }
+  .ad-tag.ad-tag-r { right: 4%; left: auto; top: auto; bottom: 3%; }
+  .ad-legend { margin-top: 0.6rem; }
+}
+
+/* reduced motion: composición final, quieta */
+@media (prefers-reduced-motion: reduce) {
+  .ad-tag { opacity: 1; visibility: visible; }
+  .ad-tpl { transition: none; }
+}
