@@ -131,29 +131,38 @@
   border: 1px solid var(--negro); background: #fff;
 }
 .ad-print { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 100% 0 0); }
-.ad-racleta { position: absolute; top: -3%; bottom: -3%; left: 0; width: 16px; margin-left: -8px; background: var(--cromo-h); border: 1px solid var(--negro); }
+.ad-wet { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--plata-2); }
+.ad-racleta { position: absolute; top: -3%; bottom: -3%; left: 0; width: 18px; margin-left: -9px; background: var(--cromo-h); border: 1px solid var(--negro); box-shadow: 6px 0 14px rgba(17,17,17,0.18); }
 .ad-tag { position: absolute; top: 0.8rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.5rem; border: 1px solid currentColor; }
 .ad-tag-l { left: 0.8rem; color: var(--rojo); background: rgba(244, 241, 234, 0.9); }
 .ad-tag-r { right: 0.8rem; color: #7c3aed; background: rgba(255,255,255,0.7); }
 .ad-dbg { left: 0.8rem; bottom: 0.6rem; color: var(--acero); }
-/* la plantilla genérica, dibujada en código */
-.ad-tpl { position: absolute; inset: 0; background: #fff; font-family: system-ui, sans-serif; text-transform: none; }
-.tpl-nav { height: 8%; display: flex; align-items: center; gap: 2.2%; padding: 0 3%; border-bottom: 1px solid #e5e7eb; }
-.tpl-logo { width: 6%; height: 34%; background: #6d28d9; border-radius: 4px; }
-.tpl-nav span { width: 5%; height: 14%; background: #cbd5e1; border-radius: 3px; }
-.tpl-nav span:first-of-type { margin-left: auto; }
-.tpl-nav b { width: 9%; height: 46%; background: #7c3aed; border-radius: 999px; }
-.tpl-hero { height: 54%; display: grid; grid-template-columns: 1fr 1fr; align-items: center; padding: 0 6%; gap: 6%; background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #db2777 100%); }
-.tpl-copy i { display: block; height: 7%; border-radius: 4px; background: rgba(255, 255, 255, 0.85); margin-bottom: 4%; }
-.tpl-copy .l1 { width: 90%; height: 11%; } .tpl-copy .l2 { width: 70%; height: 11%; } .tpl-copy .l3 { width: 55%; background: rgba(255,255,255,0.55); }
-.tpl-copy b { display: block; width: 34%; height: 12%; margin-top: 8%; border-radius: 999px; background: #fff; }
-.tpl-copy { height: 60%; display: flex; flex-direction: column; justify-content: center; }
-.tpl-img { height: 68%; border-radius: 12px; background: rgba(255, 255, 255, 0.18); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: none; }
-.tpl-cards { height: 38%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3%; padding: 3% 6%; }
-.tpl-cards i { border: 1px solid #e5e7eb; border-radius: 12px; background: #fafafa; box-shadow: 0 10px 30px rgba(0,0,0,0.06); }
-.tpl-cookie { position: absolute; left: 3%; right: 3%; bottom: 3%; height: 9%; background: #111827; border-radius: 8px; display: flex; align-items: center; padding: 0 2%; gap: 2%; }
-.tpl-cookie span { flex: 1; height: 22%; background: #6b7280; border-radius: 3px; }
-.tpl-cookie b { width: 12%; height: 50%; background: #7c3aed; border-radius: 6px; }
+/* la plantilla genérica, dibujada en código (con texto: se lee como web) */
+.ad-tpl { position: absolute; inset: 0; background: #fff; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; text-transform: none; color: #111827; container-type: size; }
+.tpl-nav { height: 9%; display: flex; align-items: center; gap: 2%; padding: 0 3%; border-bottom: 1px solid #e5e7eb; font-size: 1.6cqh; }
+.tpl-logo { width: 2.6cqh; height: 2.6cqh; background: #6d28d9; border-radius: 6px; }
+.tpl-nav em { font-style: normal; font-weight: 700; margin-right: auto; }
+.tpl-nav span { color: #6b7280; }
+.tpl-nav b { padding: 0.9cqh 2.2cqh; background: #7c3aed; color: #fff; border-radius: 999px; font-weight: 600; }
+.tpl-hero { height: 55%; display: grid; grid-template-columns: 1.1fr 1fr; align-items: center; padding: 0 6%; gap: 6%; background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 55%, #db2777 100%); color: #fff; }
+.tpl-copy h4 { font-size: 5.2cqh; line-height: 1.1; font-weight: 800; letter-spacing: -0.02em; }
+.tpl-copy p { margin-top: 2cqh; font-size: 2cqh; line-height: 1.4; opacity: 0.9; max-width: 44ch; }
+.tpl-copy b { display: inline-block; margin-top: 3cqh; padding: 1.4cqh 3.4cqh; background: #fff; color: #6d28d9; border-radius: 999px; font-size: 2cqh; font-weight: 700; }
+.tpl-img { height: 68%; border-radius: 12px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.35); display: grid; place-items: center; }
+.tpl-img i { width: 22%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,0.35); }
+.tpl-cards { height: 36%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3%; padding: 3% 6%; }
+.tpl-cards i { border: 1px solid #e5e7eb; border-radius: 12px; background: #fafafa; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 3cqh 2.5cqh; font-style: normal; display: flex; flex-direction: column; gap: 1cqh; }
+.tpl-cards u { width: 4cqh; height: 4cqh; background: #ede9fe; border-radius: 8px; text-decoration: none; }
+.tpl-cards em { font-style: normal; font-weight: 700; font-size: 2cqh; }
+.tpl-cards span { font-size: 1.6cqh; color: #6b7280; }
+.tpl-cookie { position: absolute; left: 3%; right: 3%; bottom: 3%; height: 9%; background: #111827; color: #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; padding: 0 2%; font-size: 1.7cqh; }
+.tpl-cookie b { padding: 1cqh 2.4cqh; background: #7c3aed; color: #fff; border-radius: 6px; font-weight: 600; }
+.ad-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.7rem; font-size: 0.72rem; color: var(--acero-2); }
+.ad-legend b { color: var(--negro); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
+.ad-legend-r { text-align: right; }
+.ad-legend-r b { color: #7c3aed; }
+.ad-tag-l { display: none; }
+.ad-tag-r { display: none; }
 
 /* ── contacto ── */
 .s-contacto { height: auto; background: transparent; }
@@ -187,4 +196,6 @@
   .pl-info { grid-template-columns: 1fr; gap: 0.6rem; }
   .pl-cierre { width: 80vw; }
   .ct-title { font-size: 15vw; }
+  .ad-legend { grid-template-columns: 1fr; font-size: 0.66rem; }
+  .ad-legend-r { text-align: left; }
 }

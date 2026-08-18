@@ -23,6 +23,7 @@ import { initFlash, spliceFlash } from './systems/flash.js';
 import { initRail } from './systems/rail.js';
 import { initRacleta } from './systems/racleta.js';
 import { initOrb } from './systems/orb.js';
+import { initCursor } from './systems/cursor.js';
 import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
 import { initProceso } from './sections/proceso.js';
@@ -95,6 +96,7 @@ if (ctx.tier === 'static') {
   initRail(ctx);
   initRacleta(ctx);
   initOrb(ctx);
+  initCursor(ctx);
   initSplash(ctx);
   initHero(ctx);
   initProceso(ctx);
