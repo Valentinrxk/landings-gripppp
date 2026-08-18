@@ -1,0 +1,100 @@
+/* ── el cromo de la máquina: gota, HUD, regla, cursor ─────────────
+   Carga después de base/sections: sobrescribe lo que hace falta.   */
+
+/* la gota vive ENCIMA de las escenas (multiply sobre papel/plata) y
+   debajo de la mesa/HUD; sobre grafito imprime en plata (screen) */
+#orb { z-index: 30; mix-blend-mode: multiply; }
+#orb[data-ink='plata'] { mix-blend-mode: screen; }
+
+/* ── HUD ── */
+.regmark { transform-origin: 50% 50%; will-change: transform; }
+.hud-clock { font-variant-numeric: tabular-nums; }
+.hud-cta { gap: 0.5rem; }
+.hud-cta-arrow {
+  width: 14px; height: 9px; flex: 0 0 auto;
+  transition: transform 0.17s steps(2); /* 2 poses ida, 2 poses vuelta */
+}
+.hud-cta-arrow path { fill: none; stroke: currentColor; stroke-width: 1.7; }
+.hud-cta:hover .hud-cta-arrow, .hud-cta:focus-visible .hud-cta-arrow { transform: translateX(4px); }
+.hud-cta:active { translate: 1px 1px; }
+
+/* ── la regla: navegación ── */
+#rail { pointer-events: auto; }
+.rail-names { position: absolute; left: var(--gutter); right: var(--gutter); top: 0; height: 45%; }
+.rail-name {
+  position: absolute; top: 0; height: 100%;
+  display: inline-flex; align-items: center;
+  padding: 0 0.35rem 0 0.25rem; margin: 0; border: 0; background: transparent;
+  font-family: var(--font-mono); font-size: 0.58rem; line-height: 1; letter-spacing: 0.02em;
+  text-transform: lowercase; color: var(--acero-2); white-space: nowrap;
+  transition: color 0.25s var(--ease-smooth);
+}
+.rail-name::before {
+  content: ''; position: absolute; left: 0; top: 0; width: 1px; height: 100%; background: currentColor; opacity: 0.6;
+}
+.rail-name.is-end { transform: translateX(-100%); padding: 0 0.25rem 0 0.35rem; }
+.rail-name.is-end::before { left: auto; right: 0; }
+.rail-name.is-past { color: var(--rojo); }
+.rail-name.is-cur { color: var(--negro); font-weight: 700; }
+.rail-name:hover, .rail-name:focus-visible { color: var(--negro); background: var(--plata-2); outline: 0; }
+.rail-done {
+  position: absolute; left: var(--gutter); top: 0; bottom: 0; width: 0; pointer-events: none;
+  background-image:
+    linear-gradient(to right, var(--rojo) 1px, transparent 1px),
+    linear-gradient(to right, var(--rojo) 1px, transparent 1px);
+  background-size: var(--cell) 55%, calc(var(--cell) / 4) 25%;
+  background-repeat: repeat-x;
+  background-position: 0 100%, 0 100%;
+}
+/* el cabezal: marca de registro (triángulo) + hairline; avanza a 12 poses/s */
+.rail-head { width: 0; background: transparent; overflow: visible; will-change: transform; }
+.rail-head::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: var(--rojo); }
+.rail-head svg { position: absolute; left: -5px; top: -1px; width: 10px; max-width: none; height: 8px; color: var(--rojo); overflow: visible; }
+/* el rótulo vive en el margen derecho, fuera de la regla (no tapa el cabezal) */
+.rail-txt {
+  right: 0; width: var(--gutter); top: auto; bottom: env(safe-area-inset-bottom, 0px); height: 55%;
+  justify-content: center; padding: 0; background: transparent;
+  font-size: 0.56rem; letter-spacing: 0; white-space: nowrap;
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+@media (max-width: 720px) {
+  /* en el celu solo se lee el nombre de la escena actual; las demás quedan
+     como marcas (1px) con zona de toque */
+  .rail-name { font-size: 0.5rem; padding: 0 0.25rem 0 0.2rem; min-width: 14px; }
+  .rail-name:not(.is-cur) { color: transparent; }
+  .rail-name:not(.is-cur)::before { background: var(--acero-2); }
+  .rail-name.is-past:not(.is-cur)::before { background: var(--rojo); }
+  .rail-txt {
+    right: var(--gutter); width: auto; top: 0; bottom: auto; height: 45%;
+    padding: 0 0.3rem; background: var(--papel); font-size: 0.5rem; z-index: 2;
+  }
+}
+
+/* ── el cursor de la máquina ── */
+#cursor {
+  width: 30px; height: 30px; margin: -15px 0 0 -15px;
+  color: var(--papel);
+  mix-blend-mode: difference; /* negro sobre papel, plata sobre grafito */
+}
+#cursor .cur-rot { position: absolute; inset: 0; will-change: transform; }
+#cursor .cur-ring {
+  width: 100%; height: 100%; display: block; transform-origin: 50% 50%;
+  transition: transform 0.3s var(--ease-out-expo); /* se abre, nunca se achica */
+}
+#cursor.is-hot { color: var(--rojo); mix-blend-mode: normal; }
+#cursor.is-hot .cur-ring { transform: scale(1.35); }
+#cursor.is-down .cur-ring { transform: scaleY(0.4); transition-duration: 0.16s; }
+#cursor.is-hot.is-down .cur-ring { transform: scale(1.35) scaleY(0.4); }
+#cursor .cur-txt {
+  left: 100%; top: 50%; translate: 12px -50%; transform: none;
+  font-size: 0.6rem; letter-spacing: 0.03em; color: inherit; white-space: nowrap;
+  opacity: 0; transition: opacity 0.1s steps(1, end);
+}
+#cursor.has-txt .cur-txt { opacity: 1; }
+/* el rótulo del objetivo: una etiqueta de la máquina, abajo a la derecha del anillo */
+#cursor.is-label .cur-txt {
+  top: 100%; translate: 8px -2px; padding: 1px 5px 0;
+  color: var(--rojo); background: var(--papel); box-shadow: 0 0 0 1px var(--rojo);
+  line-height: 1.5;
+}
+[data-tier='static'] .hud-cta-arrow { display: none; }
