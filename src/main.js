@@ -66,6 +66,8 @@ function buildStatic() {
 }
 
 if (ctx.tier === 'static' || !hasGL) {
+  document.documentElement.classList.remove('splashing');
+  document.getElementById('splash')?.remove();
   buildStatic();
   bus.on('i18n:changed', buildStatic);
 } else {
@@ -82,6 +84,9 @@ if (ctx.tier === 'static' || !hasGL) {
     if (clock.tick(t)) bus.emit('frame', clock.frame);
   });
   gsap.ticker.lagSmoothing(0);
+  // debug: ?slow=3 ralentiza toda animación temporal (para revisar la intro cuadro a cuadro)
+  const slow = +new URLSearchParams(location.search).get('slow');
+  if (slow > 1) gsap.globalTimeline.timeScale(1 / slow);
 
   initJourney(ctx).then(() => ScrollTrigger.refresh());
 

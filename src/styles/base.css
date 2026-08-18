@@ -184,7 +184,8 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
 
 /* ── splash: la intro es el splash; solo un contador y la firma ── */
 #splash { position: fixed; inset: 0; z-index: 150; pointer-events: auto; }
-#splash .splash-sign, #splash .splash-count { position: absolute; bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--acero-2); }
+#splash .splash-sign, #splash .splash-count { position: absolute; bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); font-size: 0.72rem; letter-spacing: 0.06em; color: var(--negro); }
+#splash .splash-bar { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px)); height: 1px; background: var(--rojo); transform: scaleX(0); transform-origin: left; }
 #splash .splash-sign { left: var(--gutter); }
 #splash .splash-count { right: var(--gutter); font-variant-numeric: tabular-nums; }
 html.splashing { overflow: hidden; }

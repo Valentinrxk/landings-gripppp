@@ -278,22 +278,29 @@ export async function initJourney(ctx) {
     if (introRunning) return;
     origSetPair(a, b);
   };
-  // ── splash: papel vacío, un contador, y la tinta llega de todos lados y forma
-  // la marca en el centro; late; se desarma y viaja al hero. Sin cortina: la
-  // intro ES el splash. Toque/tecla la saltea. ?nosplash la omite.
+  // ── splash: stop-motion de palabras gigantes hechas de tinta — no · sos · una ·
+  // plantilla. — cortes duros, punch-in de cámara y desregistro en cada golpe;
+  // después la marca grip con flash y latido, y de ahí viaja a su lugar en el hero.
+  // Toque/tecla lo saltea. ?nosplash lo omite. La clase html.splashing viene
+  // puesta desde el HTML (sin FOUC): acá solo se saca.
   const splash = document.getElementById('splash');
   const counter = splash?.querySelector('.splash-count');
+  const bar = splash?.querySelector('.splash-bar');
   const skipSplash = new URLSearchParams(location.search).has('nosplash') || ctx.reduced;
   const runIntro = () => {
     const A = field.aspect;
+    const words = ['no', 'sos', 'una', 'plantilla.'].map((w, i) =>
+      S.shapeText(N, A, w, { widthFrac: mobile ? (w.length > 3 ? 0.94 : 0.62) : w.length > 3 ? 0.7 : 0.46, y: 0, seed: 50 + i })
+    );
     const noise = S.shapeNoise(N, A, 3);
     const gripCenter = S.shapeGrip(N, A, { widthFrac: mobile ? 0.86 : 0.5, x: 0, y: mobile ? 8 : 0, seed: 41 });
-    document.documentElement.classList.add('splashing');
     lenis?.stop();
     window.scrollTo(0, 0);
     const finish = () => {
       introRunning = false;
       lastBeat = -1;
+      field.state.arc = 1;
+      field.state.mis = 0;
       document.documentElement.classList.remove('splashing');
       splash?.remove();
       lenis?.start();
@@ -307,20 +314,45 @@ export async function initJourney(ctx) {
     }
     const hold = { t: 0, n: 0 };
     const zoom = field.cam.z;
-    field.cam.z = zoom * 0.86;
+    field.state.arc = 0.35; // viajes más rectos: golpes, no vuelos
     const tl = gsap.timeline({ onComplete: finish });
-    // 1) ruido → marca centrada (la tinta viene de todos lados)
-    origSetPair(noise, gripCenter);
-    tl.to(hold, { t: 1, duration: 1.7, ease: 'power2.inOut', onUpdate: () => (field.state.t = hold.t) }, 0.15)
-      .to(hold, { n: 100, duration: 1.7, ease: 'power1.inOut', onUpdate: () => counter && (counter.textContent = String(Math.round(hold.n)).padStart(3, '0')) }, 0.15)
-      // 2) latido: un cuadro de desregistro y se asienta
-      .to(field.state, { mis: 0.9, duration: 0.08 }, 1.95)
-      .to(field.state, { mis: 0, duration: 0.5, ease: 'expo.out' }, 2.03)
-      // 3) la marca se desarma y viaja a su lugar en el hero; la cámara se acomoda
-      .add(() => { origSetPair(gripCenter, shapes[0]); field.state.t = 0; }, 2.45)
-      .fromTo(hold, { t: 0 }, { t: 1, duration: 1.15, ease: 'power3.inOut', onUpdate: () => (field.state.t = hold.t) }, 2.5)
-      .to(field.cam, { z: zoom, duration: 1.3, ease: 'power2.inOut' }, 2.4)
-      .to(splash, { autoAlpha: 0, duration: 0.4 }, 2.5);
+    const seq = [noise, ...words, gripCenter];
+    let at = 0.25;
+    const DUR = [0.42, 0.34, 0.34, 0.5, 0.75]; // cada palabra forma rápido y se sostiene
+    for (let i = 0; i < seq.length - 1; i++) {
+      const A0 = seq[i];
+      const B0 = seq[i + 1];
+      const d = DUR[i];
+      tl.add(() => {
+        origSetPair(A0, B0);
+        field.state.t = 0;
+      }, at);
+      // punch-in de cámara y desregistro en el golpe, que se relaja enseguida
+      tl.fromTo(hold, { t: 0 }, { t: 1, duration: d * 0.62, ease: 'power3.out', onUpdate: () => (field.state.t = hold.t) }, at + 0.01)
+        .fromTo(field.cam, { z: zoom * (0.94 - i * 0.015) }, { z: zoom * (0.9 - i * 0.015), duration: d, ease: 'power2.out' }, at + 0.01)
+        .fromTo(field.state, { mis: 0.8 }, { mis: 0, duration: d * 0.8, ease: 'expo.out' }, at + 0.02);
+      if (i === seq.length - 2) tl.add(() => spliceFlash(), at + 0.02); // la marca entra con flash
+      at += d;
+    }
+    // contador y barra durante toda la secuencia
+    tl.to(hold, { n: 100, duration: at - 0.25, ease: 'none', onUpdate: () => {
+      if (counter) counter.textContent = String(Math.round(hold.n)).padStart(3, '0');
+      if (bar) bar.style.transform = `scaleX(${(hold.n / 100).toFixed(3)})`;
+    } }, 0.25);
+    // latido de la marca: dos golpes de desregistro
+    tl.to(field.state, { mis: 0.7, duration: 0.07 }, at + 0.15).to(field.state, { mis: 0, duration: 0.35, ease: 'expo.out' }, at + 0.22)
+      .to(field.state, { mis: 0.5, duration: 0.06 }, at + 0.55).to(field.state, { mis: 0, duration: 0.4, ease: 'expo.out' }, at + 0.61);
+    // la marca se desarma y viaja al hero; la cámara vuelve; el chrome entra
+    const go = at + 0.9;
+    tl.add(() => {
+      origSetPair(gripCenter, shapes[0]);
+      field.state.t = 0;
+      field.state.arc = 1;
+    }, go)
+      .fromTo(hold, { t: 0 }, { t: 1, duration: 1.15, ease: 'power3.inOut', onUpdate: () => (field.state.t = hold.t) }, go + 0.02)
+      .to(field.cam, { z: zoom, duration: 1.2, ease: 'power2.inOut' }, go)
+      .to(splash, { autoAlpha: 0, duration: 0.35 }, go + 0.1)
+      .add(() => document.documentElement.classList.remove('splashing'), go + 0.35);
     const skip = () => {
       if (tl.progress() >= 1) return;
       tl.progress(1);
@@ -365,7 +397,6 @@ export async function initJourney(ctx) {
     })
   );
   void MARK_BEAT;
-  void spliceFlash;
   void shutter;
   void GLYPHS;
   return { field, master };
