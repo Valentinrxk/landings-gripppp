@@ -218,29 +218,42 @@
             <div>
               <span class="sec-idx mono">(03)</span>
               <h2 id="h-ad" data-i18n="ad.title">de plantilla a marca</h2>
-              <p class="mono sec-sub" data-i18n="ad.sub">la misma marca dos veces. bajá: la racleta pasa la tinta sobre la plantilla y deja la landing impresa.</p>
+              <p class="mono sec-sub" data-i18n="ad.sub">la misma marca dos veces. bajá o arrastrá la racleta: pasa la tinta sobre la plantilla y deja la landing impresa.</p>
             </div>
-            <a class="cell-cta" href="#contacto" data-i18n="ui.cta">hablemos →</a>
+            <!-- valor de máquina: la posición real de la racleta -->
+            <span class="cell-val mono" aria-live="off"><span data-i18n="ad.val">racleta</span> <b>06%</b></span>
           </header>
           <div class="ad-frame">
-            <!-- lo genérico, dibujado en código: el enemigo (texto real para que se lea como web) -->
-            <div class="ad-tpl" aria-hidden="true">
-              <div class="tpl-nav"><i class="tpl-logo"></i><em>TuEmpresa</em><span>Inicio</span><span>Servicios</span><span>Nosotros</span><span>Contacto</span><b>Cotizar</b></div>
-              <div class="tpl-hero">
-                <div class="tpl-copy"><h4>Soluciones integrales para tu negocio</h4><p>Somos líderes en innovación con más de 10 años de experiencia brindando servicios de calidad.</p><b>Saber más</b></div>
-                <div class="tpl-img"><i></i></div>
+            <div class="ad-stage">
+              <div class="ad-box">
+                <!-- la racleta es la manija: el scroll la tira, la mano la agarra -->
+                <img-comparison-slider class="ad-cmp" value="6" hover="false" keyboard="enabled" handle aria-label="plantilla / marca" data-hot data-cursor="arrastrá">
+                  <img slot="first" class="ad-print" src="/works/gripppp.jpg" width="1600" height="1000" alt="landing impresa — grip studio" decoding="async" />
+                  <!-- lo genérico, dibujado en código: el enemigo (texto real para que se lea como web) -->
+                  <div slot="second" class="ad-tpl" aria-hidden="true">
+                    <div class="tpl-nav"><i class="tpl-logo"></i><em>TuEmpresa</em><span>Inicio</span><span>Servicios</span><span>Nosotros</span><span>Contacto</span><b>Cotizar</b></div>
+                    <div class="tpl-hero">
+                      <div class="tpl-copy"><h4>Soluciones integrales para tu negocio</h4><p>Somos líderes en innovación con más de 10 años de experiencia brindando servicios de calidad.</p><b>Saber más</b></div>
+                      <div class="tpl-img"><i></i></div>
+                    </div>
+                    <div class="tpl-cards"><i><u></u><em>Servicio 1</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 2</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 3</em><span>Lorem ipsum dolor sit amet</span></i></div>
+                    <div class="tpl-cookie"><span>Usamos cookies para mejorar tu experiencia.</span><b>Aceptar</b></div>
+                  </div>
+                  <!-- la manija: hoja de cromo + la tinta fresca (matriz de glifos) que la sigue -->
+                  <div slot="handle" class="ad-racleta" aria-hidden="true">
+                    <canvas class="ad-ink"></canvas>
+                    <span class="ad-blade"><i class="ad-spec"></i></span>
+                  </div>
+                </img-comparison-slider>
+                <!-- sellos: caen a mano cuando la hoja pasa la mitad -->
+                <i class="ad-tag ad-tag-l sello mono" data-jitter="2" data-i18n="ad.l" aria-hidden="true">marca</i>
+                <i class="ad-tag ad-tag-r sello mono" data-jitter="3" data-i18n="ad.r" aria-hidden="true">plantilla</i>
               </div>
-              <div class="tpl-cards"><i><u></u><em>Servicio 1</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 2</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 3</em><span>Lorem ipsum dolor sit amet</span></i></div>
-              <div class="tpl-cookie"><span>Usamos cookies para mejorar tu experiencia.</span><b>Aceptar</b></div>
+              <div class="ad-legend mono">
+                <p><b data-i18n="ad.l">marca</b> <span data-i18n="ad.lt">— lo que imprimimos: una idea, tinta propia, cero stock. la landing de grip.</span></p>
+                <p class="ad-legend-r"><b data-i18n="ad.r">plantilla</b> <span data-i18n="ad.rt">— lo que te venden: hero violeta, "saber más", cookies. podría ser de cualquiera.</span></p>
+              </div>
             </div>
-            <img class="ad-print" src="/works/gripppp.jpg" alt="landing impresa — grip studio" decoding="async" />
-            <span class="ad-racleta" aria-hidden="true"></span>
-            <span class="ad-tag ad-tag-l mono" data-i18n="ad.l">marca</span>
-            <span class="ad-tag ad-tag-r mono" data-i18n="ad.r">plantilla</span>
-          </div>
-          <div class="ad-legend mono">
-            <p><b data-i18n="ad.l">marca</b> <span data-i18n="ad.lt">— lo que imprimimos: una idea, tinta propia, cero stock. la landing de grip.</span></p>
-            <p class="ad-legend-r"><b data-i18n="ad.r">plantilla</b> <span data-i18n="ad.rt">— lo que te venden: hero violeta, "saber más", cookies. podría ser de cualquiera.</span></p>
           </div>
         </div>
       </section>
