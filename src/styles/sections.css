@@ -1,26 +1,51 @@
-/* ── escenas: cada sección es un escenario sticky de pantalla completa ── */
-.scene { position: relative; height: 260svh; }
+/* ── escenas: cada sección es un escenario sticky de pantalla completa ──
+   PLIEGO SOBRE PLIEGO: la escena mide --scene-h más una cola de una pantalla
+   (--sheet-tail) durante la cual su escenario sigue pegado; la hoja siguiente
+   arranca una pantalla antes (margen negativo) y se desliza ENCIMA (z-index
+   escalonado, fondo opaco, canto de papel plano). Las escenas declaran
+   --scene-h, nunca height. Los ScrollTrigger de escena que terminan en
+   'bottom bottom' los retima systems/sheet.js para que acaben antes de la cola. */
+.scene { position: relative; --scene-h: 260svh; }
+main > section.scene, main > section.s-pliegos { height: calc(var(--scene-h) + var(--sheet-tail)); }
+main > section + section { margin-top: calc(var(--sheet-tail) * -1); }
+main > section:nth-child(1) { z-index: 1; }
+main > section:nth-child(2) { z-index: 2; }
+main > section:nth-child(3) { z-index: 3; }
+main > section:nth-child(4) { z-index: 4; }
+main > section:nth-child(5) { z-index: 5; }
+main > section:nth-child(6) { z-index: 6; }
+/* el canto de la hoja que entra: 6px planos + filete, sin desenfoque */
+main > section + section::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 6px; z-index: 2;
+  background: var(--plata-2); border-top: 1px solid var(--negro); pointer-events: none;
+  box-shadow: 0 1px 0 rgba(17, 17, 17, 0.22); /* el canto tiene dos aristas */
+}
 .stage {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   padding: calc(var(--hud-h) + var(--cell) * 0.5) var(--gutter) calc(var(--rail-h) + var(--cell) * 0.5);
   display: flex; flex-direction: column;
 }
+/* cabecera de escena: el h2 se apoya directo sobre la mesa (sin caja) */
 .scene-head {
-  display: grid; grid-template-columns: 1fr auto; align-items: stretch;
-  border-top: 1px solid var(--negro); border-bottom: 1px solid var(--negro);
+  display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 1rem;
   margin-bottom: calc(var(--cell) * 0.5);
 }
-.scene-head > div { padding: 0.9rem 1rem; border-left: 1px solid var(--negro); }
+.scene-head > div { padding: 0; border: 0; min-width: 0; }
 .scene-head h2 {
-  font-size: clamp(1.8rem, 3.6vw, 3rem); font-weight: 900; letter-spacing: -0.035em;
-  font-variation-settings: 'wdth' 88; line-height: 1;
+  font-size: var(--fs-h2); font-weight: 900; letter-spacing: -0.045em; line-height: 0.9;
+  font-variation-settings: 'wdth' 88; text-wrap: balance;
 }
-.sec-idx { display: block; font-size: 0.7rem; margin-bottom: 0.4rem; color: var(--acero-2); }
-.sec-sub { margin-top: 0.5rem; font-size: 0.78rem; max-width: 60ch; color: var(--acero-2); }
-.scene-head .cell-cta { border-right: 1px solid var(--negro); }
+.sec-idx {
+  display: inline-block; font-size: var(--fs-label); margin-bottom: 0.6rem; color: var(--acero-2);
+  translate: var(--j1x) var(--j1y); /* rótulo puesto a mano: tiembla a 12fps */
+}
+.sec-sub {
+  margin-top: 0.7rem; font-family: var(--font-display); font-weight: 500;
+  font-size: 1rem; line-height: 1.35; max-width: 46ch; color: var(--acero-2);
+}
 
 /* ── hero ── */
-.s-hero { height: 220svh; background: transparent; }
+.s-hero { --scene-h: 220svh; background: transparent; }
 .s-hero .stage { justify-content: center; }
 .s-hero .kicker { font-size: 0.8rem; margin-bottom: 1.2rem; color: var(--acero-2); }
 .hero-title-wrap { position: relative; }
@@ -35,45 +60,42 @@
 .hero-print { position: absolute; left: 0; right: 0; top: -28px; bottom: -28px; width: 100%; height: calc(100% + 56px); visibility: hidden; pointer-events: none; }
 .hero-racleta {
   position: absolute; top: -6%; bottom: -6%; left: 0; width: 22px;
-  background: var(--cromo-h); border: 1px solid var(--negro);
+  background: var(--cromo-h); border: 1px solid var(--negro); box-shadow: var(--shadow-mesa);
   visibility: hidden; pointer-events: none;
 }
 .hero-low { margin-top: calc(var(--cell) * 0.6); display: grid; grid-template-columns: 1fr 1fr; gap: 1rem 2rem; align-items: end; }
-.hero-claim { font-size: clamp(1.3rem, 2.6vw, 2.2rem); font-weight: 800; letter-spacing: -0.03em; max-width: 24ch; }
+.hero-claim { font-size: clamp(1.6rem, 3vw, 2.6rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; max-width: 22ch; }
 .hero-sub { font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--acero-2); }
+/* la ficha: un instrumento apoyado sobre la mesa (sombra, tiembla a 12fps) */
 .hero-ficha {
   position: absolute; right: var(--gutter); top: calc(var(--hud-h) + var(--cell) * 0.5);
   width: calc(var(--cell) * 4);
   border: 1px solid var(--negro); font-size: 0.66rem; background: var(--papel);
+  box-shadow: var(--shadow-mesa);
+  translate: var(--j1x) var(--j1y);
 }
 .hf-head { display: block; padding: 0.35rem 0.7rem; border-bottom: 1px solid var(--negro); letter-spacing: 0.08em; color: var(--acero-2); }
 .hero-ficha dl { display: grid; grid-template-columns: auto 1fr; gap: 0.3rem 1rem; padding: 0.6rem 0.7rem; }
 .hero-ficha dt { color: var(--acero-2); }
-.s-hero .dbg { left: var(--gutter); bottom: calc(var(--rail-h) + 0.6rem); }
+.hero-ficha dd { font-variant-numeric: tabular-nums; }
 
 /* ── proceso: una estación por vez ── */
-.s-proceso { height: 520svh; background: var(--plata); }
+.s-proceso { --scene-h: 520svh; background: var(--plata); }
+/* sin caja: la grilla de la mesa es el borde */
 .proc-grid {
-  flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: stretch;
-  border: 1px solid var(--negro); min-height: 0;
+  flex: 1; display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; gap: var(--cell);
+  min-height: 0;
 }
-.estaciones { list-style: none; position: relative; padding: calc(var(--cell) * 0.5); border-right: 1px solid var(--negro); }
-.est { position: absolute; inset: calc(var(--cell) * 0.5); visibility: hidden; }
+.estaciones { list-style: none; position: relative; padding: 0; }
+.est { position: absolute; inset: 0; visibility: hidden; }
 .est.is-on { visibility: visible; }
-.est-idx { display: block; font-size: 0.7rem; color: var(--acero-2); }
+.est-idx { display: block; font-size: var(--fs-label); color: var(--acero-2); font-variant-numeric: tabular-nums; }
 .est h3 {
   margin-top: 0.8rem;
   font-size: clamp(2rem, 4.2vw, 4rem); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95;
   font-variation-settings: 'wdth' 88;
 }
-.est p { margin-top: 1rem; font-size: clamp(0.95rem, 1.3vw, 1.15rem); line-height: 1.45; max-width: 40ch; }
-.est h3, .est p { clip-path: inset(0 100% 0 0); }
-.sello {
-  position: absolute; left: 0; bottom: 0;
-  border: 1px solid var(--rojo); color: var(--rojo);
-  padding: 0.18rem 0.5rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
-  opacity: 0;
-}
+.est p { margin-top: 1.1rem; font-size: var(--fs-body); line-height: 1.45; max-width: 40ch; }
 .proc-steps {
   position: absolute; left: var(--gutter); bottom: calc(var(--rail-h) + 0.6rem);
   display: flex; gap: 6px;
@@ -82,17 +104,33 @@
 .proc-steps i.on { background: var(--negro); }
 .proc-diagram { position: relative; }
 .proc-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.proc-diagram .dbg { right: 0.8rem; bottom: 0.6rem; }
+
+/* ── sellos: aplicados a mano. Nunca a eje: rotados, con sombra dura, y
+   tiemblan a 12fps (canal de jitter por tipo). GSAP puede tweenear transform
+   sin pisar esto: rotación y temblor viven en rotate/translate individuales. */
+.sello, .pl-stamp, .ad-tag {
+  --rot: -5deg; --jx: var(--j2x); --jy: var(--j2y); --jr: var(--j2r);
+  display: inline-block;
+  font-family: var(--font-mono); font-weight: 700;
+  border: 2px solid var(--rojo); color: var(--rojo); background: var(--papel);
+  padding: 0.22rem 0.6rem; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase;
+  box-shadow: var(--shadow-sello);
+  translate: var(--jx) var(--jy);
+  rotate: calc(var(--rot) + var(--jr));
+  transform-origin: 50% 50%;
+}
+.sello { position: absolute; left: 0; bottom: 0; --rot: -4deg; opacity: 0; }
 
 /* ── trabajos: cinta horizontal ── */
-.s-pliegos { padding: 0; height: 520svh; background: var(--grafito); }
+.s-pliegos { position: relative; padding: 0; --scene-h: 560svh; background: var(--grafito); }
+.s-pliegos::before { background: var(--acero-2); } /* canto de la hoja grafito */
 .pl-viewport {
   position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden;
   display: flex; align-items: center; color: var(--plata-2);
 }
 .pl-track { display: flex; align-items: center; gap: var(--cell); padding: 0 var(--gutter); will-change: transform; }
 .pl-opener { flex: 0 0 auto; width: calc(var(--cell) * 8); }
-.pl-opener h2 { color: var(--plata-2); font-size: clamp(3.4rem, 9vw, 8rem); line-height: 0.9; font-weight: 900; letter-spacing: -0.04em; }
+.pl-opener h2 { color: var(--plata-2); font-size: clamp(3.4rem, 9vw, 8rem); line-height: 0.9; font-weight: 900; letter-spacing: -0.045em; font-variation-settings: 'wdth' 88; }
 .pl-opener .sec-sub { color: var(--plata); }
 .pl-opener .sec-idx { color: var(--acero); }
 .pl-arrow { display: block; margin-top: 2rem; color: var(--rojo); font-size: 1.1rem; letter-spacing: -0.1em; }
@@ -102,41 +140,45 @@
   font-size: 0.72rem; padding: 0.5rem 0; color: var(--acero); border-top: 1px solid var(--acero-2);
 }
 .pl-head span:first-child { color: var(--rojo); }
-.pl-screen { position: relative; display: block; overflow: hidden; aspect-ratio: 2732 / 1200; background: var(--plata); border: 1px solid var(--plata); }
+.pl-screen { position: relative; display: block; overflow: hidden; aspect-ratio: 2732 / 1200; background: var(--plata); border: 1px solid var(--plata); box-shadow: var(--shadow-mesa); }
 .pl-ascii { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
 .s-pliegos.is-live .pl-ascii { display: block; }
 .pl-real { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.pl-racleta { position: absolute; top: -4%; bottom: -4%; left: -14px; width: 14px; background: var(--cromo-h); border: 1px solid var(--negro); visibility: hidden; pointer-events: none; }
-.pl-stamp {
-  position: absolute; right: 0.8rem; bottom: 0.8rem;
-  border: 1px solid var(--rojo); color: var(--rojo);
-  padding: 0.2rem 0.55rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
-  background: rgba(244, 241, 234, 0.9);
+.pl-racleta { position: absolute; top: -4%; bottom: -4%; left: -14px; width: 14px; background: var(--cromo-h); border: 1px solid var(--negro); box-shadow: var(--shadow-mesa); visibility: hidden; pointer-events: none; }
+.pl-stamp { position: absolute; right: 1rem; bottom: 1rem; --rot: -6deg; --jx: var(--j3x); --jy: var(--j3y); --jr: var(--j3r); }
+.pl-info { display: grid; grid-template-columns: 1fr 2fr auto; gap: 1rem 2rem; align-items: start; padding-top: 1.1rem; }
+.pl-info h3 { font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 900; letter-spacing: -0.035em; line-height: 1; color: var(--plata-2); font-variation-settings: 'wdth' 88; }
+.pl-info p { font-size: var(--fs-body); line-height: 1.45; max-width: 40ch; color: var(--plata); }
+/* subrayado que se dibuja en 4 poses (misma gramática que .u-draw) */
+.pl-link { position: relative; font-size: 0.78rem; text-decoration: none; white-space: nowrap; color: var(--plata-2); }
+.pl-link::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: currentColor;
+  transform-origin: left;
 }
-.pl-info { display: grid; grid-template-columns: 1fr 2fr auto; gap: 1rem 2rem; align-items: start; padding-top: 1rem; }
-.pl-info h3 { font-size: clamp(1.3rem, 2.4vw, 2rem); font-weight: 900; letter-spacing: -0.03em; color: var(--plata-2); }
-.pl-info p { font-size: 0.95rem; line-height: 1.45; max-width: 52ch; color: var(--plata); }
-.pl-link { font-size: 0.78rem; text-decoration: none; border-bottom: 1px solid var(--plata); white-space: nowrap; color: var(--plata-2); }
-.pl-link:hover { color: var(--rojo); border-color: var(--rojo); }
+.pl-link:hover { color: var(--rojo); }
+.pl-link:hover::after { animation: udraw 0.33s steps(4); }
+@keyframes udraw { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .pl-cierre { flex: 0 0 auto; width: calc(var(--cell) * 7); display: flex; flex-direction: column; gap: 1.2rem; align-items: flex-start; }
 .pl-cierre .sec-idx { color: var(--acero); }
 .pl-cierre-line { font-size: clamp(2.2rem, 5vw, 4.4rem); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; color: var(--plata-2); }
 .pl-cierre .cta { border-color: var(--plata); }
-.pl-dbg { position: absolute; left: var(--gutter); bottom: calc(var(--rail-h) + 0.6rem); font-size: 0.62rem; color: var(--acero); }
 
 /* ── plantilla → marca ── */
-.s-antes { height: 300svh; background: var(--papel); }
-.ad-frame {
+.s-antes { --scene-h: 300svh; background: var(--papel); }
+/* el cuadro se apoya sobre la mesa: sombra, sin borde */
+.ad-frame, .ad-cmp {
   position: relative; flex: 1; min-height: 0; overflow: hidden;
-  border: 1px solid var(--negro); background: #fff;
+  background: #fff; box-shadow: var(--shadow-mesa);
 }
 .ad-print { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; clip-path: inset(0 100% 0 0); }
 .ad-wet { position: absolute; inset: 0; width: 100%; height: 100%; background: var(--plata-2); }
-.ad-racleta { position: absolute; top: -3%; bottom: -3%; left: 0; width: 18px; margin-left: -9px; background: var(--cromo-h); border: 1px solid var(--negro); box-shadow: 6px 0 14px rgba(17,17,17,0.18); }
-.ad-tag { position: absolute; top: 0.8rem; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.2rem 0.5rem; border: 1px solid currentColor; }
-.ad-tag-l { left: 0.8rem; color: var(--rojo); background: rgba(244, 241, 234, 0.9); }
-.ad-tag-r { right: 0.8rem; color: #7c3aed; background: rgba(255,255,255,0.7); }
-.ad-dbg { left: 0.8rem; bottom: 0.6rem; color: var(--acero); }
+.ad-racleta { position: absolute; top: -3%; bottom: -3%; left: 0; width: 18px; margin-left: -9px; background: var(--cromo-h); border: 1px solid var(--negro); box-shadow: var(--shadow-mesa); }
+/* las dos etiquetas son sellos (marca / plantilla), puestos a mano; los
+   aplica la escena cuando la racleta pasa la mitad (quietos: ya aplicados) */
+.ad-tag { position: absolute; bottom: 8%; --rot: -6deg; visibility: hidden; }
+[data-tier='static'] .ad-tag { visibility: visible; }
+.ad-tag-l { left: 6%; --jx: var(--j2x); --jy: var(--j2y); --jr: var(--j2r); }
+.ad-tag-r { right: 6%; --rot: 5deg; --jx: var(--j3x); --jy: var(--j3y); --jr: var(--j3r); }
 /* la plantilla genérica, dibujada en código (con texto: se lee como web) */
 .ad-tpl { position: absolute; inset: 0; background: #fff; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; text-transform: none; color: #111827; container-type: size; }
 .tpl-nav { height: 9%; display: flex; align-items: center; gap: 2%; padding: 0 3%; border-bottom: 1px solid #e5e7eb; font-size: 1.6cqh; }
@@ -157,22 +199,22 @@
 .tpl-cards span { font-size: 1.6cqh; color: #6b7280; }
 .tpl-cookie { position: absolute; left: 3%; right: 3%; bottom: 3%; height: 9%; background: #111827; color: #d1d5db; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; padding: 0 2%; font-size: 1.7cqh; }
 .tpl-cookie b { padding: 1cqh 2.4cqh; background: #7c3aed; color: #fff; border-radius: 6px; font-weight: 600; }
-.ad-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.7rem; font-size: 0.72rem; color: var(--acero-2); }
+.ad-legend { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; font-size: var(--fs-label); color: var(--acero-2); }
 .ad-legend b { color: var(--negro); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; }
 .ad-legend-r { text-align: right; }
 .ad-legend-r b { color: #7c3aed; }
-.ad-tag-l { display: none; }
-.ad-tag-r { display: none; }
 
-/* ── contacto ── */
-.s-contacto { height: auto; background: transparent; }
+/* ── contacto: la última hoja (opaca: tapa a plantilla; la gota multiplica encima) ── */
+main > section.s-contacto { height: auto; --scene-h: auto; background: var(--papel); }
 .s-contacto .stage { position: static; height: auto; min-height: 100svh; justify-content: center; }
 .ct-title { font-size: clamp(3rem, 12vw, 11rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.9; font-variation-settings: 'wdth' 84; }
-.ct-sub { margin-top: 1.4rem; font-size: 0.85rem; max-width: 52ch; color: var(--acero-2); }
+.ct-sub { margin-top: 1.4rem; font-size: 0.9rem; line-height: 1.5; max-width: 46ch; color: var(--acero-2); }
 .ct-ctas { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2.2rem; }
-.ct-foot { margin-top: auto; padding-top: 4rem; display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; font-size: 0.72rem; color: var(--acero-2); }
-.ct-foot a { text-decoration: none; border-bottom: 1px solid currentColor; }
+.ct-foot { margin-top: auto; padding-top: 4rem; display: flex; flex-wrap: wrap; gap: 0.6rem 2rem; font-size: var(--fs-label); color: var(--acero-2); }
+.ct-foot a { position: relative; text-decoration: none; }
+.ct-foot a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -2px; height: 1px; background: currentColor; transform-origin: left; }
 .ct-foot a:hover { color: var(--rojo); }
+.ct-foot a:hover::after { animation: udraw 0.33s steps(4); }
 
 /* ── mobile ── */
 @media (max-width: 720px) {
@@ -181,14 +223,16 @@
   .hud-word { font-size: 0.7rem; }
   #lang { margin-left: auto; }
   .stage { padding-left: var(--gutter); padding-right: var(--gutter); }
-  .scene-head { grid-template-columns: 1fr; }
-  .scene-head .cell-cta { display: none; }
+  .scene-head { grid-template-columns: 1fr; gap: 0.4rem; margin-bottom: calc(var(--cell) * 0.4); }
+  .scene-head .cell-val { align-self: start; padding-bottom: 0; }
+  .sec-sub { font-size: 0.9rem; }
   .hero-title { font-size: 15vw; }
   .hero-low { grid-template-columns: 1fr; }
   .hero-ficha { display: none; }
-  .proc-grid { grid-template-columns: 1fr; grid-template-rows: 1fr 40%; }
-  .estaciones { border-right: 0; border-bottom: 1px solid var(--negro); }
+  .proc-grid { grid-template-columns: 1fr; grid-template-rows: 1fr 40%; gap: calc(var(--cell) * 0.5); }
   .est h3 { font-size: 2rem; }
+  .est p { font-size: 1rem; }
+  .sello, .pl-stamp, .ad-tag { font-size: 0.62rem; padding: 0.18rem 0.5rem; }
   .pl-track { gap: 1.2rem; }
   .pl-opener { width: 80vw; }
   .pliego { width: 84vw; }

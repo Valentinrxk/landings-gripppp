@@ -26,6 +26,7 @@ import { initRacleta } from './systems/racleta.js';
 import { initOrb } from './systems/orb.js';
 import { initCursor } from './systems/cursor.js';
 import { initIdle } from './systems/idle.js';
+import { initSheets } from './systems/sheet.js';
 import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
 import { initProceso } from './sections/proceso.js';
@@ -105,6 +106,7 @@ if (ctx.tier === 'static') {
   initProceso(ctx);
   initPliegos(ctx);
   initAntes(ctx);
+  initSheets(ctx); // pliego sobre pliego: cortes, títulos tipeados, retiming (después de las escenas)
 
   // un solo ticker: scroll suave → obturador → commits
   gsap.ticker.add((t) => {
