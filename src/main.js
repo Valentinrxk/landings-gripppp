@@ -133,5 +133,5 @@ if (ctx.tier === 'static') {
   window.addEventListener('load', () => ScrollTrigger.refresh());
 }
 
-window.__landings = { ctx, clock, bus };
+window.__landings = { ctx, clock, bus, ScrollTrigger };
 console.log('%c landings.gripppp ', 'background:#111;color:#f4f1ea;padding:4px 8px;font-family:monospace', '— grip® pone la tinta, valentín romero pone la máquina. si estás leyendo esto, escribinos: hola@gripppp.com');

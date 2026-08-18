@@ -12,12 +12,15 @@ const DIR = [
 export function initProceso(ctx) {
   const ests = [...document.querySelectorAll('.est')];
   if (ctx.tier === 'static') return;
-  ests.forEach((est, i) => {
-    const sello = est.querySelector('.sello');
+  ests.forEach((li, i) => {
+    // el trigger es el <li> (nunca se transforma: ScrollTrigger mide limpio);
+    // la placa que entra es .est-in
+    const est = li.querySelector('.est-in');
+    const sello = li.querySelector('.sello');
     est.style.visibility = 'hidden';
     sello.style.visibility = 'hidden';
     sequence({
-      trigger: est,
+      trigger: li,
       start: 'top 92%',
       end: 'top 45%',
       frames: 10,

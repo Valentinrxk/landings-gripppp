@@ -67,14 +67,14 @@ section { position: relative; padding: clamp(4rem, 9vw, 8rem) var(--gutter); }
   display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem;
   counter-reset: est;
 }
-.est {
-  position: relative;
+.est-in {
+  position: relative; height: 100%;
   background: var(--plata-2); border: 2.5px solid var(--negro);
   padding: 1.6rem 1.6rem 3.4rem;
   box-shadow: 6px 6px 0 var(--negro);
   color: var(--negro);
 }
-.est::after {
+.est-in::after {
   content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 10px;
   background: var(--cromo); border-top: 2px solid var(--negro);
 }
@@ -180,7 +180,7 @@ section { position: relative; padding: clamp(4rem, 9vw, 8rem) var(--gutter); }
   .hero-ficha { position: static; width: 100%; margin-top: 2.4rem; transform: rotate(-0.8deg); }
   .pl-screen { aspect-ratio: 4 / 3; }
   .estaciones { grid-template-columns: 1fr; }
-  .est { padding: 1.3rem 1.3rem 3rem; box-shadow: 4px 4px 0 var(--negro); }
+  .est-in { padding: 1.3rem 1.3rem 3rem; box-shadow: 4px 4px 0 var(--negro); }
   .pl-info { grid-template-columns: 1fr; gap: 0.6rem; }
   .pl-screen { box-shadow: 5px 5px 0 var(--negro); }
   .qc-item { grid-template-columns: 3ch 1fr; }
