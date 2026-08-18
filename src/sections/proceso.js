@@ -77,7 +77,6 @@ export function initProceso(ctx) {
   const ests = [...sec.querySelectorAll('.est')];
   const steps = [...sec.querySelectorAll('.proc-steps i')];
   const canvas = sec.querySelector('.proc-canvas');
-  const dbg = sec.querySelector('[data-dbg="proc"]');
   const N = ests.length;
   if (ctx.tier === 'static') {
     ests.forEach((e) => {
@@ -134,9 +133,6 @@ export function initProceso(ctx) {
     steps.forEach((s, i) => s.classList.toggle('on', i <= k));
     if (curK !== k) buildSource(k);
     // el diagrama se imprime con el avance de la estación (registra al final)
-    const stt = printer.draw(Math.min(1, q / 0.85));
-    if (dbg && stt) {
-      dbg.textContent = `est. ${String(k + 1).padStart(2, '0')} · celda: ${stt.cell}px · registro: ${Math.round(Math.min(1, q / 0.85) * 100)}%`;
-    }
+    printer.draw(Math.min(1, q / 0.85));
   });
 }

@@ -17,7 +17,6 @@ export function initHero(ctx) {
   const low = sec.querySelector('.hero-low');
   const ficha = sec.querySelector('.hero-ficha');
   const kicker = sec.querySelector('.kicker');
-  const dbg = sec.querySelector('[data-dbg="hero"]');
   const racleta = document.createElement('span');
   racleta.className = 'hero-racleta';
   racleta.setAttribute('aria-hidden', 'true');
@@ -167,10 +166,6 @@ export function initHero(ctx) {
     low.style.opacity = String(c);
     low.style.transform = `translate3d(0, ${((1 - c) * 24).toFixed(1)}px, 0)`;
     low.style.clipPath = `inset(0 ${((1 - c) * 100).toFixed(1)}% 0 0)`;
-    if (dbg && offs.length) {
-      const gap = Math.abs(offs[0] * spread);
-      dbg.textContent = `letter-spacing: ${((gap / window.innerWidth) * 100).toFixed(2)}vw · registro: ${(1 - spread).toFixed(2)}`;
-    }
   });
   low.style.opacity = '0';
   ScrollTrigger.create({ trigger: sec, start: 'top -20%', onEnterBack: () => started && print() });

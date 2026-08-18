@@ -12,7 +12,9 @@
     "@fontsource-variable/archivo": "^5.2.5",
     "@fontsource/space-mono": "^5.2.5",
     "gsap": "^3.13.0",
-    "lenis": "^1.3.4"
+    "img-comparison-slider": "^8.0.7",
+    "lenis": "^1.3.4",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "playwright-core": "^1.61.1",

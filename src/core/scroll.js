@@ -1,8 +1,14 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { SplitText } from 'gsap/SplitText';
+import { ScrambleTextPlugin } from 'gsap/ScrambleTextPlugin';
+import { DrawSVGPlugin } from 'gsap/DrawSVGPlugin';
+import { Observer } from 'gsap/Observer';
+import { Flip } from 'gsap/Flip';
 import Lenis from 'lenis';
 
-gsap.registerPlugin(ScrollTrigger);
+// un solo registro para todo el sitio (todos los plugins son libres en 3.13+)
+gsap.registerPlugin(ScrollTrigger, SplitText, ScrambleTextPlugin, DrawSVGPlugin, Observer, Flip);
 
 export let lenis = null;
 
@@ -53,4 +59,4 @@ export function scrollLean() {
   return lean;
 }
 
-export { gsap, ScrollTrigger };
+export { gsap, ScrollTrigger, SplitText, Observer, Flip };

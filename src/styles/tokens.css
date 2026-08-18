@@ -25,6 +25,14 @@
   --hud-h: var(--cell);
   --rail-h: 32px;
 
+  /* vocabulario de movimiento: chico y estricto */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1); /* solo lo que sigue al puntero */
+  --ease-cut: steps(1, end);                        /* parpadeos, glitch */
+  --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94); /* color / opacidad */
+  --d-fast: 0.18s; --d: 0.4s; --d-slow: 0.85s;
+  --shadow-mesa: 0 18px 40px rgba(35, 35, 39, 0.22); /* lo que se apoya sobre la mesa */
+  --shadow-sello: 3px 3px 0 var(--negro);            /* sellos: offset duro */
+
   --z-world: 1;
   --z-orb: 0; /* detrás del mundo: hero y contacto son transparentes */
   --z-mesa: 40;

@@ -14,7 +14,6 @@ export function initAntes(ctx) {
   const frame = sec.querySelector('.ad-frame');
   const print = sec.querySelector('.ad-print');
   const racleta = sec.querySelector('.ad-racleta');
-  const dbg = sec.querySelector('[data-dbg="ad"]');
   if (ctx.tier === 'static') {
     print.style.clipPath = 'inset(0 50% 0 0)';
     racleta.style.left = '50%';
@@ -62,6 +61,5 @@ export function initAntes(ctx) {
     canvas.style.clipPath = `inset(0 ${(100 - pct).toFixed(2)}% 0 ${dry.toFixed(2)}%)`;
     racleta.style.left = `${pct.toFixed(2)}%`;
     if (ready) printer.draw(0.42 - Math.min(0.3, lean * 0.6)); // en movimiento se desregistra
-    if (dbg) dbg.textContent = `clip-path: inset(0 ${(100 - dry).toFixed(1)}% 0 0) · racleta: ${pct.toFixed(0)}%`;
   });
 }

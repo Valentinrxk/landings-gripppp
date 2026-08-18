@@ -5,6 +5,7 @@
 import './styles/tokens.css';
 import './styles/base.css';
 import './styles/sections.css';
+import './styles/effects.css';
 import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource/space-mono/400.css';
 import '@fontsource/space-mono/700.css';
@@ -24,6 +25,7 @@ import { initRail } from './systems/rail.js';
 import { initRacleta } from './systems/racleta.js';
 import { initOrb } from './systems/orb.js';
 import { initCursor } from './systems/cursor.js';
+import { initIdle } from './systems/idle.js';
 import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
 import { initProceso } from './sections/proceso.js';
@@ -97,6 +99,7 @@ if (ctx.tier === 'static') {
   initRacleta(ctx);
   initOrb(ctx);
   initCursor(ctx);
+  initIdle(ctx);
   initSplash(ctx);
   initHero(ctx);
   initProceso(ctx);

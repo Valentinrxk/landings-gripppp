@@ -2,7 +2,6 @@
 // 7 poses cuando se cambia de estación (frontera de sección). Es el corte
 // entre escenas de la imprenta — el ojo ve pasada, no scroll.
 import { bus } from '../core/bus.js';
-import { ScrollTrigger } from '../core/scroll.js';
 
 let el = null;
 let step = -1;
@@ -24,17 +23,6 @@ export function initRacleta(ctx) {
     }
     const p = step / STEPS;
     el.style.transform = `translateY(${(-120 + p * 240).toFixed(0)}vh) rotate(-1.2deg)`;
-  });
-  ['#proceso', '#trabajos', '#specs', '#contacto'].forEach((sel) => {
-    const t = document.querySelector(sel);
-    if (!t) return;
-    ScrollTrigger.create({
-      trigger: t,
-      start: 'top 62%',
-      end: 'bottom 38%',
-      onEnter: pass,
-      onEnterBack: pass,
-    });
   });
 }
 
