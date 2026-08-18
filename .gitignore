@@ -1,8 +1,7 @@
 node_modules
 dist
 .vercel
-
-.vercel
-
+shots
 shots-cuts
+.chrome-shots
 vite.log

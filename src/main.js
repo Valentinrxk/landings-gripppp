@@ -6,6 +6,7 @@ import './styles/tokens.css';
 import './styles/base.css';
 import './styles/sections.css';
 import './styles/effects.css';
+import './styles/chrome.css';
 import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource/space-mono/400.css';
 import '@fontsource/space-mono/700.css';
@@ -86,6 +87,7 @@ if (ctx.tier === 'static') {
   document.getElementById('splash')?.remove();
   document.getElementById('orb')?.remove();
   initMisregister(ctx);
+  initRail(ctx);
   initHero(ctx);
   initProceso(ctx);
   initAntes(ctx);
@@ -115,18 +117,40 @@ if (ctx.tier === 'static') {
   });
   gsap.ticker.lagSmoothing(0);
 
-  // la marca de registro del HUD gira a saltos y el reloj marca la hora del
-  // taller (buenos aires): la máquina está encendida
+  // HUD: la marca de registro gira con el envión del scroll, encastrada a
+  // saltos de 15° (una rueda dentada), y da un cuarto de vuelta en 3 poses
+  // cuando la persona se queda quieta; el reloj marca la hora del taller
+  // (buenos aires) y sus dos puntos parpadean al ritmo del obturador: la
+  // máquina está encendida. El CTA lleva la flecha como SVG (2 poses al hover).
   const reg = document.querySelector('.regmark');
   const clockEl = document.querySelector('.hud-clock');
+  const regState = { acc: 0 };
+  let regShown = null;
+  let hm = '--:--';
   bus.on('frame', (f) => {
-    if (reg) reg.style.transform = `rotate(${(f % 24) * 15}deg)`;
-    if (clockEl && f % 12 === 0) {
-      const d = new Date();
-      const hm = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' });
-      clockEl.textContent = `bue ${hm}`;
+    if (reg) {
+      regState.acc += scrollLean() * 45;
+      const snapped = Math.round(regState.acc / 15) * 15;
+      if (snapped !== regShown) {
+        regShown = snapped;
+        reg.style.transform = `rotate(${snapped}deg)`;
+      }
+    }
+    if (clockEl) {
+      if (f % 12 === 0) {
+        const d = new Date();
+        hm = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' });
+      }
+      if (f % 6 === 0) clockEl.textContent = `bue ${f % 12 < 6 ? hm : hm.replace(':', ' ')}`;
     }
   });
+  bus.on('idle:beat', () => gsap.to(regState, { acc: '+=90', duration: 0.25, ease: 'steps(3)' }));
+  const hudCtaTxt = document.querySelector('.hud-cta-txt');
+  const trimHudCta = () => {
+    if (hudCtaTxt) hudCtaTxt.textContent = hudCtaTxt.textContent.replace(/\s*→\s*$/, '');
+  };
+  trimHudCta();
+  bus.on('i18n:changed', trimHudCta);
 
   // CTA / anclas: scroll suave por lenis (o nativo)
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
