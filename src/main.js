@@ -1,12 +1,9 @@
-// landings.gripppp — la imprenta.
-// grip® pone la tinta (papel, sellos, desregistro); valentín romero pone la
-// máquina (plata, mono, matriz de glifos). Un solo ticker; el obturador a 12fps
-// es el único que autoriza commits visuales. El scroll nativo no se toca.
+// landings.gripppp v3 — del ruido a la marca.
+// Una sola escena: el campo de tinta (three.js, hecho de g·r·i·p) se transforma
+// con el scroll; los textos entran cada uno a su manera. Lenis lleva el scroll,
+// GSAP los tiempos. Sin jerga: la máquina se ve, no se explica.
 import './styles/tokens.css';
 import './styles/base.css';
-import './styles/sections.css';
-import './styles/effects.css';
-import './styles/chrome.css';
 import '@fontsource-variable/archivo/wdth.css';
 import '@fontsource/space-mono/400.css';
 import '@fontsource/space-mono/700.css';
@@ -14,168 +11,92 @@ import '@fontsource/space-mono/700.css';
 import { detectTier } from './core/tier.js';
 import { clock } from './core/frameClock.js';
 import { bus } from './core/bus.js';
-import { initScroll, gsap, ScrollTrigger, scrollLean, scrollVelocity } from './core/scroll.js';
-import { setFilmSmoothing } from './core/film.js';
-import { frameRand } from './core/rng.js';
-import { applyLang, lang } from './data/i18n.js';
+import { initScroll, gsap, ScrollTrigger } from './core/scroll.js';
+import { applyLang, lang, COPY } from './data/i18n.js';
 import { initGrain } from './systems/grain.js';
-import { initJitter } from './systems/jitter.js';
-import { initMisregister } from './systems/misregister.js';
-import { initFlash, spliceFlash } from './systems/flash.js';
-import { initRail } from './systems/rail.js';
-import { initRacleta } from './systems/racleta.js';
-import { initOrb } from './systems/orb.js';
+import { initFlash } from './systems/flash.js';
 import { initCursor } from './systems/cursor.js';
 import { initIdle } from './systems/idle.js';
-import { initSheets } from './systems/sheet.js';
-import { initSplash } from './sections/splash.js';
-import { initHero } from './sections/hero.js';
-import { initContacto } from './sections/contacto.js';
-import { initProceso } from './sections/proceso.js';
-import { initPliegos } from './sections/pliegos.js';
-import { initAntes } from './sections/antes.js';
+import { staticWordmarkSVG } from './ui/logo-paths.js';
+import { initJourney } from './journey.js';
 
 const ctx = detectTier();
 document.documentElement.dataset.tier = ctx.tier;
 applyLang(lang);
 
-// ── idioma: "(español)" ↔ "(english)" — 7 letras ambas; scramble a 12fps ──
-const LANG_WORDS = { es: 'español', en: 'english' };
-const LANG_GLYPHS = 'abcdefghijklmnopqrstuvwxyzñ#*/%&_';
-const langBtn = document.getElementById('lang');
-let langSlots = [];
-let langMorph = -1;
-let langHover = false;
-let curLang = lang;
-const buildLangSlots = () => {
-  langBtn.innerHTML = '(' + LANG_WORDS[curLang].split('').map((c) => `<span>${c}</span>`).join('') + ')';
-  langSlots = [...langBtn.querySelectorAll('span')];
-};
-buildLangSlots();
-langBtn.addEventListener('pointerenter', () => (langHover = true));
-langBtn.addEventListener('pointerleave', () => (langHover = false));
-langBtn.addEventListener('click', () => {
-  curLang = curLang === 'es' ? 'en' : 'es';
-  spliceFlash();
-  applyLang(curLang);
-  if (ctx.tier === 'static') buildLangSlots();
-  else langMorph = 0;
-});
-bus.on('frame', (f) => {
-  const w = LANG_WORDS[curLang];
-  if (langMorph >= 0) {
-    langMorph++;
-    let done = true;
-    langSlots.forEach((s, i) => {
-      if (langMorph >= 3 + i * 1.4) s.textContent = w[i];
-      else {
-        s.textContent = LANG_GLYPHS[(frameRand(f, 300 + i) * LANG_GLYPHS.length) | 0];
-        done = false;
-      }
-    });
-    if (done) langMorph = -1;
-  } else {
-    langSlots.forEach((s, i) => (s.textContent = w[i]));
-    if (frameRand(f, 91) < (langHover ? 0.35 : 0.05)) {
-      const i = (frameRand(f, 92) * langSlots.length) | 0;
-      langSlots[i].textContent = LANG_GLYPHS[(frameRand(f, 93 + i) * LANG_GLYPHS.length) | 0];
-    }
-  }
-});
+// la marca es la de grip: el wordmark líquido, chico, arriba a la izquierda
+const mark = document.querySelector('.brand-mark');
+if (mark) mark.innerHTML = staticWordmarkSVG('#111111');
 
-// ── static (reduced-motion): la página impresa, quieta ──
-if (ctx.tier === 'static') {
-  document.getElementById('splash')?.remove();
-  document.getElementById('orb')?.remove();
-  initMisregister(ctx);
-  initRail(ctx);
-  initHero(ctx);
-  initProceso(ctx);
-  initAntes(ctx);
+// idioma: un toque, sin ceremonia
+document.getElementById('lang')?.addEventListener('click', () => applyLang(lang === 'es' ? 'en' : 'es'));
+
+// ¿WebGL disponible?
+const hasGL = (() => {
+  try {
+    const c = document.createElement('canvas');
+    return !!(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+})();
+
+// ── versión quieta: reduced-motion o sin WebGL — el mismo contenido, en una hoja ──
+function buildStatic() {
+  const L = document.documentElement.lang === 'en' ? 'en' : 'es';
+  const c = COPY[L];
+  const works = [
+    ['grip studio', 'https://gripppp.com/', '/works/gripppp.jpg', c.trabajos.items.grip],
+    ['oclucrm', 'https://www.oclucrm.com/', '/works/oclucrm.jpg', c.trabajos.items.oclucrm],
+    ['taxes software', 'https://www.taxes.com.ar/', '/works/taxes.jpg', c.trabajos.items.taxes],
+    ['the light project', 'https://lightproject.app/es', '/works/lightproject.jpg', c.trabajos.items.lightproject],
+    ['parell', 'https://parell.app/', '/works/parell.jpg', c.trabajos.items.parell],
+  ];
+  const el = document.getElementById('static');
+  el.hidden = false;
+  document.documentElement.dataset.mode = 'static';
+  el.innerHTML = `
+    <section><p class="mono">${c.hero.kicker}</p><h1>${c.hero.claim}</h1><p>${c.hero.sub}</p></section>
+    <section><h2>${c.ruido.h}</h2><p>${c.ruido.p}</p></section>
+    <section><h2>${c.senal.h}</h2><p>${c.senal.p}</p></section>
+    <section><h2>${c.como.h}</h2>${c.como.steps.map((s) => `<p><b>${s.t}</b> — ${s.p}</p>`).join('')}<p class="mono">${c.como.after}</p></section>
+    <section><h2>${c.trabajos.h}</h2>${works.map(([n, u, i, d]) => `<p><a href="${u}" target="_blank" rel="noopener"><b>${n}</b></a> — ${d}</p><img src="${i}" alt="${n}" loading="lazy" />`).join('')}<p class="mono">${c.trabajos.closing}</p></section>
+    <section><h2>${c.plantilla.h}</h2><p><b>${L === 'en' ? 'template' : 'plantilla'}</b> — ${c.plantilla.tpl}</p><p><b>${L === 'en' ? 'brand' : 'marca'}</b> — ${c.plantilla.marca}</p></section>
+    <section><h2>${c.contacto.h}</h2><p>${c.contacto.p}</p><p><a class="cta big" href="https://wa.me/5491121865983">${c.contacto.wa}</a> <a class="cta ghost" href="mailto:hola@gripppp.com">hola@gripppp.com</a></p><p class="mono">${c.contacto.credit1} · ${c.contacto.credit2}</p></section>`;
+}
+
+if (ctx.tier === 'static' || !hasGL) {
+  buildStatic();
+  bus.on('i18n:changed', buildStatic);
 } else {
   const lenis = initScroll(ctx);
-  setFilmSmoothing(ctx.coarse);
+  document.documentElement.classList.add('no-scrollbar');
   initFlash(ctx);
   initGrain(ctx);
-  initJitter(ctx);
-  initMisregister(ctx);
-  initRail(ctx);
-  initRacleta(ctx);
-  initOrb(ctx);
   initCursor(ctx);
   initIdle(ctx);
-  initSplash(ctx);
-  initHero(ctx);
-  initContacto(ctx);
-  initProceso(ctx);
-  initPliegos(ctx);
-  initAntes(ctx);
-  initSheets(ctx); // pliego sobre pliego: cortes, títulos tipeados, retiming (después de las escenas)
 
-  // un solo ticker: scroll suave → obturador → commits
+  // un solo ticker: lenis → obturador (12fps para lo que lo use) → bus 'frame'
   gsap.ticker.add((t) => {
     lenis?.raf(t * 1000);
     if (clock.tick(t)) bus.emit('frame', clock.frame);
   });
   gsap.ticker.lagSmoothing(0);
 
-  // HUD: la marca de registro gira con el envión del scroll, encastrada a
-  // saltos de 15° (una rueda dentada), y da un cuarto de vuelta en 3 poses
-  // cuando la persona se queda quieta; el reloj marca la hora del taller
-  // (buenos aires) y sus dos puntos parpadean al ritmo del obturador: la
-  // máquina está encendida. El CTA lleva la flecha como SVG (2 poses al hover).
-  const reg = document.querySelector('.regmark');
-  const clockEl = document.querySelector('.hud-clock');
-  const regState = { acc: 0 };
-  let regShown = null;
-  let hm = '--:--';
-  bus.on('frame', (f) => {
-    if (reg) {
-      regState.acc += scrollLean() * 45;
-      const snapped = Math.round(regState.acc / 15) * 15;
-      if (snapped !== regShown) {
-        regShown = snapped;
-        reg.style.transform = `rotate(${snapped}deg)`;
-      }
-    }
-    if (clockEl) {
-      if (f % 12 === 0) {
-        const d = new Date();
-        hm = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' });
-      }
-      if (f % 6 === 0) clockEl.textContent = `bue ${f % 12 < 6 ? hm : hm.replace(':', ' ')}`;
-    }
-  });
-  bus.on('idle:beat', () => gsap.to(regState, { acc: '+=90', duration: 0.25, ease: 'steps(3)' }));
-  const hudCtaTxt = document.querySelector('.hud-cta-txt');
-  const trimHudCta = () => {
-    if (hudCtaTxt) hudCtaTxt.textContent = hudCtaTxt.textContent.replace(/\s*→\s*$/, '');
-  };
-  trimHudCta();
-  bus.on('i18n:changed', trimHudCta);
+  initJourney(ctx).then(() => ScrollTrigger.refresh());
 
-  // CTA / anclas: scroll suave por lenis (o nativo)
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {
       const target = document.querySelector(a.getAttribute('href'));
-      if (!target) return;
+      if (!target || target.hidden) return;
       e.preventDefault();
-      if (lenis) lenis.scrollTo(target, { offset: 0 });
+      if (lenis) lenis.scrollTo(target);
       else target.scrollIntoView();
     });
-  });
-
-  let rt = null;
-  window.addEventListener('resize', () => {
-    clearTimeout(rt);
-    rt = setTimeout(() => {
-      bus.emit('resize');
-      ScrollTrigger.refresh();
-    }, 120);
   });
   document.fonts?.ready.then(() => ScrollTrigger.refresh());
   window.addEventListener('load', () => ScrollTrigger.refresh());
 }
 
-window.__landings = { ctx, clock, bus, ScrollTrigger, lean: scrollLean, vel: scrollVelocity };
-console.log('%c landings.gripppp ', 'background:#111;color:#f4f1ea;padding:4px 8px;font-family:monospace', '— grip® pone la tinta, valentín romero pone la máquina. si estás leyendo esto, escribinos: hola@gripppp.com');
+window.__landings = { ctx, clock, bus, ScrollTrigger };
+console.log('%c landings.gripppp ', 'background:#111;color:#f4f1ea;padding:4px 8px;font-family:monospace', COPY[lang].console);

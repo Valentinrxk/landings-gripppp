@@ -1,0 +1,148 @@
+{
+ "es": {
+  "hero": {
+   "claim": "no sos una plantilla.",
+   "sub": "landings hechas para tu marca: te encuentran, te entienden, no te olvidan.",
+   "kicker": "grip® × valentín romero — marca y código en la misma mesa.",
+   "cta": "quiero la mía",
+   "hint": "( bajá que se acomoda )"
+  },
+  "ruido": {
+   "h": "esta landing ya la viste.",
+   "p": "hero, tres iconitos, botón violeta. la leen, asienten y te olvidan antes de cerrar la pestaña. una plantilla no te hace quedar mal: te hace quedar igual que todos. eso es peor."
+  },
+  "senal": {
+   "h": "hecha para vos. se nota.",
+   "p": "te encuentran, te entienden en tres segundos y, cuando les toca comprar, se acuerdan de tu nombre. eso no lo hace una plantilla: lo hace alguien que te leyó."
+  },
+  "como": {
+   "h": "así la hacemos.",
+   "steps": [
+    {
+     "t": "leemos tu marca",
+     "p": "qué vendés, a quién y por qué a vos. preguntamos hasta que duela."
+    },
+    {
+     "t": "una idea, a mano",
+     "p": "una sola, dibujada antes que programada. si necesita dos ideas, no tiene ninguna."
+    },
+    {
+     "t": "código de verdad",
+     "p": "sin plantillas ni constructores. carga rápido, se ve en todo y es tuya."
+    }
+   ],
+   "after": "y después de salir no desaparecemos. si algo cambia o se rompe, lo arreglamos."
+  },
+  "trabajos": {
+   "h": "las que ya salieron.",
+   "items": {
+    "grip": "la de la agencia: película en stop motion, logo líquido, stickers. cero fotos de stock.",
+    "oclucrm": "un crm para clínicas dentales, y la landing que lo explica sin dolor.",
+    "taxes": "software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.",
+    "lightproject": "web y visualizador para casas de iluminación: el cliente se enamora antes de comprar.",
+    "parell": "crm de nutrición con ia para nutricionistas. menos planillas, más pacientes."
+   },
+   "closing": "acá falta la tuya. (todavía)"
+  },
+  "plantilla": {
+   "h": "de plantilla a marca.",
+   "tpl": "lo mismo que le vendieron a todos, con tu logo arriba.",
+   "marca": "una que solo puede ser tuya. te reconocen sin leer el logo."
+  },
+  "contacto": {
+   "h": "¿y la tuya?",
+   "p": "contanos qué vendés y a quién. lo demás lo preguntamos nosotros.",
+   "wa": "tiranos un whatsapp",
+   "mail": "o un mail: hola@gripppp.com",
+   "credit1": "hecho por grip® en buenos aires",
+   "credit2": "construido por valentín romero"
+  },
+  "nav": [
+   "inicio",
+   "ruido",
+   "señal",
+   "trabajos",
+   "hola"
+  ],
+  "meta": {
+   "title": "landings.gripppp — no sos una plantilla",
+   "description": "landings hechas para tu marca, no plantillas con tu logo. una idea, dibujada a mano y programada de verdad. grip® × valentín romero, buenos aires."
+  },
+  "console": "¿mirando el código? bien. acá tampoco hay plantilla, y el criterio no se descarga. escribinos: hola@gripppp.com"
+ },
+ "en": {
+  "hero": {
+   "claim": "you're not a template.",
+   "sub": "landing pages made for your brand: people find you, get you, remember you.",
+   "kicker": "grip® × valentín romero — brand and code at the same table.",
+   "cta": "i want mine",
+   "hint": "( scroll, it settles )"
+  },
+  "ruido": {
+   "h": "you've seen this landing before.",
+   "p": "hero, three little icons, purple button. people read it, nod, and forget you before the tab closes. a template doesn't make you look bad: it makes you look like everyone else. that's worse."
+  },
+  "senal": {
+   "h": "made for you. it shows.",
+   "p": "people find you, get you in three seconds and, when it's time to buy, remember your name. a template can't do that. someone who actually read you can."
+  },
+  "como": {
+   "h": "here's how.",
+   "steps": [
+    {
+     "t": "we read your brand",
+     "p": "what you sell, to whom, and why you. we ask until it hurts."
+    },
+    {
+     "t": "one idea, by hand",
+     "p": "just one, drawn before it's coded. if it needs two ideas, it has none."
+    },
+    {
+     "t": "real code",
+     "p": "no templates, no builders. loads fast, works everywhere, and it's yours."
+    }
+   ],
+   "after": "and after launch we don't vanish. if something changes or breaks, we fix it."
+  },
+  "trabajos": {
+   "h": "already out there.",
+   "items": {
+    "grip": "the agency's own: a stop-motion film, a liquid logo, stickers. zero stock photos.",
+    "oclucrm": "a crm for dental clinics, and the landing that explains it painlessly.",
+    "taxes": "tax filing software. the landing does what taxes never do: make sense.",
+    "lightproject": "website and visualizer for lighting shops: customers fall in love before they buy.",
+    "parell": "nutrition crm with ai for dietitians. fewer spreadsheets, more patients."
+   },
+   "closing": "yours isn't here. (yet)"
+  },
+  "plantilla": {
+   "h": "from template to brand.",
+   "tpl": "the same thing they sold everyone, with your logo on top.",
+   "marca": "one that could only be yours. recognized before anyone reads the logo."
+  },
+  "contacto": {
+   "h": "and yours?",
+   "p": "tell us what you sell and to whom. we'll ask the rest.",
+   "wa": "drop us a whatsapp",
+   "mail": "or an email: hola@gripppp.com",
+   "credit1": "made by grip® in buenos aires",
+   "credit2": "built by valentín romero"
+  },
+  "nav": [
+   "start",
+   "noise",
+   "signal",
+   "work",
+   "hi"
+  ],
+  "meta": {
+   "title": "landings.gripppp — you're not a template",
+   "description": "landing pages built for your brand, not templates wearing your logo. one idea, drawn by hand and coded for real. grip® × valentín romero, buenos aires."
+  },
+  "console": "reading the source? good. no template here either, and judgment doesn't download. say hi: hola@gripppp.com"
+ },
+ "altClaims": [
+  "que se note que sos vos. / make it obviously you.",
+  "landings que se te pegan. / landings that stick."
+ ]
+}

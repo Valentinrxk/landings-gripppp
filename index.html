@@ -3,383 +3,118 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#cfd0d6" />
-    <title>landings — grip® × valentín romero</title>
-    <meta name="description" content="taller de landings: grip® pone la tinta, valentín romero pone la máquina. landings que no parecen plantilla, impresas en buenos aires." />
-    <meta property="og:title" content="landings.gripppp — taller de landings" />
-    <meta property="og:description" content="grip® pone la tinta. valentín romero pone la máquina. landings que no parecen plantilla." />
+    <meta name="theme-color" content="#f4f1ea" />
+    <title>landings.gripppp — no sos una plantilla</title>
+    <meta name="description" content="landings hechas para tu marca, no plantillas con tu logo. una idea, dibujada a mano y programada de verdad. grip® × valentín romero, buenos aires." />
+    <meta property="og:title" content="landings.gripppp — no sos una plantilla" />
+    <meta property="og:description" content="landings hechas para tu marca, no plantillas con tu logo. grip® × valentín romero, buenos aires." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://landings.gripppp.com/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preload" as="image" href="/works/gripppp.jpg" />
     <!--
-      CONTRATO DE CAPAS
-      · Las capas fijas (#texture, #ruler, #hud, #splash, la racleta global) son hijas
-        DIRECTAS de <body>. Ningún ancestro lleva filter/transform/contain/perspective.
-      · Cero emoji tipeado: todo icono es SVG inline propio.
-      · El scroll nativo no se secuestra: se cuantiza el RENDER (12fps), nunca el scroll.
-      · Sin JS esta página está IMPRESA (composición final): el JS solo agrega la tirada.
+      UNA SOLA ESCENA. El scroll (#journey, 1200vh) recorre 12 beats sobre un
+      escenario sticky de 100vh: el campo de tinta (canvas WebGL, hecho de las
+      letras g·r·i·p) se transforma de forma en forma, la cámara viaja y los
+      textos entran cada uno a su manera. Del ruido a la marca.
+      Capas fijas hijas directas de body. Cero emoji tipeado. Scroll nativo.
     -->
   </head>
   <body>
-    <a class="skip" href="#pliegos">saltar a los trabajos</a>
+    <a class="skip" href="#static">saltar al contenido</a>
 
-    <!-- HUD de la máquina: marca de registro + firma + idioma -->
-    <header id="hud" class="mono">
-      <a class="hud-brand" href="/" aria-label="landings.gripppp — inicio">
-        <svg class="regmark" viewBox="0 0 40 40" aria-hidden="true">
-          <circle cx="20" cy="20" r="14" fill="none" stroke="currentColor" stroke-width="2.4" />
-          <circle cx="20" cy="20" r="5.5" fill="none" stroke="currentColor" stroke-width="2.4" />
-          <path d="M20 1v10M20 29v10M1 20h10M29 20h10" stroke="currentColor" stroke-width="2.4" />
-        </svg>
-        <span class="hud-word"><b>landings</b>.gripppp</span>
-      </a>
-      <span class="hud-sign" data-i18n="hud.sign">grip® × valentín romero — taller de landings, buenos aires</span>
-      <span class="hud-clock" aria-hidden="true">--:--</span>
-      <button id="lang" type="button" aria-label="cambiar idioma / switch language">(español)</button>
-      <a id="cta-top" class="hud-cta" href="https://wa.me/5491121865983" target="_blank" rel="noopener"><span class="hud-cta-txt" data-i18n="ui.cta">hablemos</span><svg class="hud-cta-arrow" viewBox="0 0 16 10" aria-hidden="true"><path d="M1 5h13M10 1l4 4-4 4"/></svg></a>
-    </header>
+    <!-- chrome mínimo: la marca de grip + un CTA + marcadores laterales -->
+    <a class="brand" href="/" aria-label="grip studio — landings"><span class="brand-mark" aria-hidden="true"></span><span class="brand-txt mono">landings</span></a>
+    <a id="cta-top" class="cta" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir"><span data-i18n="hero.cta">quiero la mía</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+    <nav class="marks mono" aria-label="secciones">
+      <button type="button" data-from="0" data-to="1" data-i18n="nav.0" data-cursor="ir">inicio</button>
+      <button type="button" data-from="1" data-to="2" data-i18n="nav.1" data-cursor="ir">ruido</button>
+      <button type="button" data-from="2" data-to="4" data-i18n="nav.2" data-cursor="ir">señal</button>
+      <button type="button" data-from="4" data-to="11" data-i18n="nav.3" data-cursor="ir">trabajos</button>
+      <button type="button" data-from="11" data-to="13" data-i18n="nav.4" data-cursor="ir">hola</button>
+      <button type="button" id="lang" class="lang" aria-label="cambiar idioma / switch language" data-cursor="cambiar">en</button>
+    </nav>
 
     <main id="world">
-      <!-- ── HERO: la palabra desplegada sobre la mesa se imprime y se junta ── -->
-      <section class="s-hero scene" id="inicio" aria-labelledby="h1">
+      <div id="journey">
         <div class="stage">
-          <p class="kicker mono" data-i18n="hero.kicker">grip® pone la tinta. valentín romero pone la máquina.</p>
-          <div class="hero-title-wrap">
-            <h1 id="h1" class="hero-title" data-hot data-cursor="reimprimir"><span>l</span><span>a</span><span>n</span><span>d</span><span>i</span><span>n</span><span>g</span><span>s</span></h1>
-            <canvas class="hero-print" aria-hidden="true"></canvas>
-            <span class="hero-sello" data-jitter="2" aria-hidden="true"><i class="sello mono" data-i18n="hero.sello">registrado</i></span>
-          </div>
-          <div class="hero-low">
-            <p class="hero-claim" data-i18n="hero.claim">landings que no parecen plantilla.</p>
-            <p class="hero-sub mono">
-              <span data-i18n="hero.sub1">una landing por vez. tinta a mano, código a máquina.</span>
-              <span class="hero-hint" data-i18n="hero.hint">( bajá — recién empieza )</span>
-            </p>
-          </div>
-          <aside class="hero-ficha mono" aria-label="ficha técnica" data-jitter="1">
-            <span class="hf-head" data-i18n="hf.head">ficha técnica</span>
-            <dl>
-              <dt data-i18n="hf.1k">serie</dt><dd data-hf="ser">001 / ∞</dd>
-              <dt data-i18n="hf.2k">tintas</dt><dd data-i18n="hf.2v">3 — rojo, celeste, negro</dd>
-              <dt data-i18n="hf.3k">registro</dt><dd data-hf="reg">±1px</dd>
-              <dt data-i18n="hf.4k">obturador</dt><dd data-hf="obt">12 fps · f 00000</dd>
-              <dt data-i18n="hf.5k">código</dt><dd data-i18n="hf.5v">100% a mano</dd>
-            </dl>
-          </aside>
-        </div>
-      </section>
+          <canvas id="field" aria-hidden="true"></canvas>
+          <img id="work-real" alt="" aria-hidden="true" decoding="async" />
+          <a id="work-link" href="#" target="_blank" rel="noopener" aria-label="ver la landing" data-cursor="ver"></a>
 
-      <!-- ── PROCESO: cuatro pliegos pasan por la prensa (una timeline scrubeada) ── -->
-      <section class="s-proceso scene" id="proceso" aria-labelledby="h-proc">
-        <div class="stage">
-          <header class="scene-head">
-            <div>
-              <span class="sec-idx mono" data-jitter="1">(01)</span>
-              <h2 id="h-proc" data-i18n="pr.title">cómo se imprime una landing</h2>
-              <p class="mono sec-sub" data-i18n="pr.sub">cuatro estaciones. ninguna se saltea.</p>
-            </div>
-            <!-- valor de máquina: la estación en prensa (scramble al cambiar) -->
-            <span class="cell-val mono" aria-hidden="true">est. <b data-val>00</b> / 04</span>
-          </header>
-          <div class="proc-grid">
-            <!-- línea de la prensa: se dibuja con el scroll; el nodo activo parpadea como tally -->
-            <div class="proc-steps" aria-hidden="true">
-              <svg class="proc-line" viewBox="0 0 2 100" preserveAspectRatio="none">
-                <line class="pl-base" x1="1" y1="0" x2="1" y2="100" vector-effect="non-scaling-stroke" />
-                <line class="pl-ink" x1="1" y1="0" x2="1" y2="100" vector-effect="non-scaling-stroke" />
-              </svg>
-              <i class="pnode"></i><i class="pnode"></i><i class="pnode"></i><i class="pnode"></i>
-            </div>
-            <ol class="estaciones">
-              <li class="est" data-est="1">
-                <span class="est-idx mono">est. <b>01</b> / 04</span>
-                <h3 data-i18n="pr.1t">leemos la marca, no el brief</h3>
-                <p data-i18n="pr.1p">antes de abrir un editor miramos tus posts, tu tono, tus chistes internos. la landing amplifica lo que ya sos.</p>
-                <span class="sello-wrap" data-jitter="4"><span class="sello mono" data-i18n="pr.1s">leído</span></span>
-              </li>
-              <li class="est" data-est="2">
-                <span class="est-idx mono">est. <b>02</b> / 04</span>
-                <h3 data-i18n="pr.2t">boceto en ruido</h3>
-                <p data-i18n="pr.2p">un wireframe con una sola idea rectora. si el botón, el loader y el 404 no salen solos de esa idea, no hay idea.</p>
-                <span class="sello-wrap" data-jitter="4"><span class="sello mono" data-i18n="pr.2s">bocetado</span></span>
-              </li>
-              <li class="est" data-est="3">
-                <span class="est-idx mono">est. <b>03</b> / 04</span>
-                <h3 data-i18n="pr.3t">tinta</h3>
-                <p data-i18n="pr.3p">color plano, tipografía con carácter, motion que se siente hecho a mano. cero stock, cero gradiente violeta.</p>
-                <span class="sello-wrap" data-jitter="4"><span class="sello mono" data-i18n="pr.3s">entintado</span></span>
-              </li>
-              <li class="est" data-est="4">
-                <span class="est-idx mono">est. <b>04</b> / 04</span>
-                <h3 data-i18n="pr.4t">en línea</h3>
-                <p data-i18n="pr.4p">código a mano, sin builders. carga rápida, dominio propio, funciona en tu celu y en el del cliente. después la cuidamos.</p>
-                <span class="sello-wrap" data-jitter="4"><span class="sello mono" data-i18n="pr.4s">impreso</span></span>
-              </li>
+          <!-- beat 0: hero -->
+          <section class="beat beat-hero" data-beat="hero" aria-labelledby="h1">
+            <p class="kicker mono" data-i18n="hero.kicker">grip® × valentín romero — marca y código en la misma mesa.</p>
+            <h1 id="h1" data-i18n="hero.claim">no sos una plantilla.</h1>
+            <p class="hero-sub" data-i18n="hero.sub">landings hechas para tu marca: te encuentran, te entienden, no te olvidan.</p>
+            <a class="cta big" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir"><span data-i18n="hero.cta">quiero la mía</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+            <p class="hint mono" data-i18n="hero.hint">( bajá que se acomoda )</p>
+          </section>
+
+          <!-- beat 0.6–1.7: ruido -->
+          <section class="beat beat-ruido" data-beat="ruido">
+            <h2 data-i18n="ruido.h">esta landing ya la viste.</h2>
+            <p data-i18n="ruido.p">hero, tres iconitos, botón violeta. la leen, asienten y te olvidan antes de cerrar la pestaña. una plantilla no te hace quedar mal: te hace quedar igual que todos. eso es peor.</p>
+          </section>
+
+          <!-- beat 2.3–3.1: señal -->
+          <section class="beat beat-senal" data-beat="senal">
+            <h2 data-i18n="senal.h">hecha para vos. se nota.</h2>
+            <p data-i18n="senal.p">te encuentran, te entienden en tres segundos y, cuando les toca comprar, se acuerdan de tu nombre. eso no lo hace una plantilla: lo hace alguien que te leyó.</p>
+          </section>
+
+          <!-- beat 3.4–4.3: cómo -->
+          <section class="beat beat-como" data-beat="como">
+            <h2 data-i18n="como.h">así la hacemos.</h2>
+            <ol class="steps">
+              <li class="step"><b class="mono">01</b><h3 data-i18n="como.steps.0.t">leemos tu marca</h3><p data-i18n="como.steps.0.p">qué vendés, a quién y por qué a vos. preguntamos hasta que duela.</p></li>
+              <li class="step"><b class="mono">02</b><h3 data-i18n="como.steps.1.t">una idea, a mano</h3><p data-i18n="como.steps.1.p">una sola, dibujada antes que programada. si necesita dos ideas, no tiene ninguna.</p></li>
+              <li class="step"><b class="mono">03</b><h3 data-i18n="como.steps.2.t">código de verdad</h3><p data-i18n="como.steps.2.p">sin plantillas ni constructores. carga rápido, se ve en todo y es tuya.</p></li>
             </ol>
-            <!-- la plancha: diagramas en línea de pelo (DrawSVG); la tinta se imprime en ASCII -->
-            <div class="proc-diagram" aria-hidden="true">
-              <!-- est. 01 — la marca leída: pila de posts, una hoja, y el anillo rojo sobre lo que importa -->
-              <svg class="proc-svg" data-dg="1" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="126" y="60" width="200" height="256" vector-effect="non-scaling-stroke" />
-                <rect x="113" y="74" width="200" height="256" vector-effect="non-scaling-stroke" />
-                <rect x="100" y="88" width="200" height="256" class="hl-papel" vector-effect="non-scaling-stroke" />
-                <rect x="118" y="108" width="18" height="18" vector-effect="non-scaling-stroke" />
-                <path d="M144 117h58" vector-effect="non-scaling-stroke" />
-                <path d="M118 150h164" vector-effect="non-scaling-stroke" />
-                <path d="M118 166h140" vector-effect="non-scaling-stroke" />
-                <path d="M118 182h152" vector-effect="non-scaling-stroke" />
-                <path d="M118 198h92" vector-effect="non-scaling-stroke" />
-                <path d="M118 214h164" vector-effect="non-scaling-stroke" />
-                <path d="M118 230h130" vector-effect="non-scaling-stroke" />
-                <path d="M118 246h74" vector-effect="non-scaling-stroke" />
-                <path d="M118 290h60" vector-effect="non-scaling-stroke" />
-                <path d="M118 306h44" vector-effect="non-scaling-stroke" />
-                <path class="hl-rojo" d="M116 208C102 199 138 187 196 186c46-1 66 5 46 16-16 9-108 14-124 8" stroke-width="2" vector-effect="non-scaling-stroke" />
-              </svg>
-              <!-- est. 02 — boceto: wireframe con una sola idea (el círculo) -->
-              <svg class="proc-svg" data-dg="2" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="60" y="66" width="280" height="268" vector-effect="non-scaling-stroke" />
-                <path d="M60 94h280" vector-effect="non-scaling-stroke" />
-                <circle cx="76" cy="80" r="3" vector-effect="non-scaling-stroke" />
-                <circle cx="88" cy="80" r="3" vector-effect="non-scaling-stroke" />
-                <circle cx="100" cy="80" r="3" vector-effect="non-scaling-stroke" />
-                <path d="M244 80h18M272 80h18M300 80h24" vector-effect="non-scaling-stroke" />
-                <rect x="76" y="110" width="248" height="112" vector-effect="non-scaling-stroke" />
-                <path d="M76 110L324 222M324 110L76 222" vector-effect="non-scaling-stroke" />
-                <path d="M76 240h150M76 252h104" vector-effect="non-scaling-stroke" />
-                <rect x="76" y="266" width="64" height="20" vector-effect="non-scaling-stroke" />
-                <rect x="76" y="298" width="76" height="24" vector-effect="non-scaling-stroke" />
-                <rect x="162" y="298" width="76" height="24" vector-effect="non-scaling-stroke" />
-                <rect x="248" y="298" width="76" height="24" vector-effect="non-scaling-stroke" />
-                <circle class="hl-rojo" cx="200" cy="166" r="28" stroke-width="2" vector-effect="non-scaling-stroke" />
-              </svg>
-              <canvas class="proc-canvas"></canvas>
-              <!-- est. 04 — en línea: la marca de registro, calibrada, con marcas de corte -->
-              <svg class="proc-svg" data-dg="4" viewBox="0 0 400 400" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M34 62V34h28M338 34h28v28M366 338v28h-28M62 366H34v-28" vector-effect="non-scaling-stroke" />
-                <circle cx="200" cy="200" r="98" vector-effect="non-scaling-stroke" />
-                <path d="M200 66v268" vector-effect="non-scaling-stroke" />
-                <path d="M66 200h268" vector-effect="non-scaling-stroke" />
-                <circle cx="200" cy="200" r="60" vector-effect="non-scaling-stroke" />
-                <circle class="hl-rojo" cx="200" cy="200" r="24" stroke-width="2" vector-effect="non-scaling-stroke" />
-              </svg>
-              <!-- marcas de registro en las esquinas: giran un cuarto en idle -->
-              <svg class="proc-reg" data-c="tl" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2" /><path d="M20 3v34M3 20h34" stroke="currentColor" stroke-width="2" /><circle cx="20" cy="9" r="2.4" fill="currentColor" /></svg>
-              <svg class="proc-reg" data-c="tr" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2" /><path d="M20 3v34M3 20h34" stroke="currentColor" stroke-width="2" /><circle cx="20" cy="9" r="2.4" fill="currentColor" /></svg>
-              <svg class="proc-reg" data-c="bl" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2" /><path d="M20 3v34M3 20h34" stroke="currentColor" stroke-width="2" /><circle cx="20" cy="9" r="2.4" fill="currentColor" /></svg>
-              <svg class="proc-reg" data-c="br" viewBox="0 0 40 40"><circle cx="20" cy="20" r="12" fill="none" stroke="currentColor" stroke-width="2" /><path d="M20 3v34M3 20h34" stroke="currentColor" stroke-width="2" /><circle cx="20" cy="9" r="2.4" fill="currentColor" /></svg>
+            <p class="after mono" data-i18n="como.after">y después de salir no desaparecemos. si algo cambia o se rompe, lo arreglamos.</p>
+          </section>
+
+          <!-- beat 4.5: trabajos (título) -->
+          <section class="beat beat-trabajos" data-beat="trabajos">
+            <h2 data-i18n="trabajos.h">las que ya salieron.</h2>
+          </section>
+          <!-- beats 4.6–9.4: una caption por obra -->
+          <section class="beat beat-work" data-beat="w0"><b class="mono">01 / 05 · gripppp.com</b><h3>grip studio</h3><p data-i18n="trabajos.items.grip">la de la agencia: película en stop motion, logo líquido, stickers. cero fotos de stock.</p><a class="wlink u-draw mono" href="https://gripppp.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w1"><b class="mono">02 / 05 · oclucrm.com</b><h3>oclucrm</h3><p data-i18n="trabajos.items.oclucrm">un crm para clínicas dentales, y la landing que lo explica sin dolor.</p><a class="wlink u-draw mono" href="https://www.oclucrm.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w2"><b class="mono">03 / 05 · taxes.com.ar</b><h3>taxes software</h3><p data-i18n="trabajos.items.taxes">software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.</p><a class="wlink u-draw mono" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w3"><b class="mono">04 / 05 · lightproject.app</b><h3>the light project</h3><p data-i18n="trabajos.items.lightproject">web y visualizador para casas de iluminación: el cliente se enamora antes de comprar.</p><a class="wlink u-draw mono" href="https://lightproject.app/es" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w4"><b class="mono">05 / 05 · parell.app</b><h3>parell</h3><p data-i18n="trabajos.items.parell">crm de nutrición con ia para nutricionistas. menos planillas, más pacientes.</p><a class="wlink u-draw mono" href="https://parell.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+
+          <!-- beats 9.5–10.7: de plantilla a marca -->
+          <section class="beat beat-plantilla" data-beat="plantilla">
+            <h2 data-i18n="plantilla.h">de plantilla a marca.</h2>
+            <p class="pl-l"><b class="mono" data-i18n="plantilla.l">plantilla</b><span data-i18n="plantilla.tpl">lo mismo que le vendieron a todos, con tu logo arriba.</span></p>
+            <p class="pl-r"><b class="mono" data-i18n="plantilla.r">marca</b><span data-i18n="plantilla.marca">una que solo puede ser tuya. te reconocen sin leer el logo.</span></p>
+          </section>
+
+          <!-- beat 11.3: contacto -->
+          <section class="beat beat-contacto" data-beat="contacto" aria-labelledby="h-ct">
+            <h2 id="h-ct" data-i18n="contacto.h">¿y la tuya?</h2>
+            <p data-i18n="contacto.p">contanos qué vendés y a quién. lo demás lo preguntamos nosotros.</p>
+            <div class="ctas">
+              <a class="cta big" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8.5c.2 2.6 2.7 5.4 5.6 5.9l1.4-1.4-1.9-.9-1 .8c-1-.4-2-1.4-2.5-2.5l.8-1-.9-1.9z" fill="currentColor"/></svg><span data-i18n="contacto.wa">tiranos un whatsapp</span></a>
+              <a class="cta ghost" href="mailto:hola@gripppp.com" data-cursor="abrir"><span data-i18n="contacto.mail">o un mail: hola@gripppp.com</span></a>
             </div>
-          </div>
+            <footer class="credits mono">
+              <span data-i18n="contacto.credit1">hecho por grip® en buenos aires</span>
+              <a class="u-draw" href="https://valentinromero.com" target="_blank" rel="noopener" data-i18n="contacto.credit2">construido por valentín romero</a>
+              <a class="u-draw" href="https://gripppp.com" target="_blank" rel="noopener">gripppp.com</a>
+              <a class="u-draw" href="https://www.instagram.com/gripstudio_______/" target="_blank" rel="noopener">instagram</a>
+            </footer>
+          </section>
         </div>
-      </section>
+      </div>
 
-      <!-- ── PLIEGOS: obras impresas ─────────────────────────────── -->
-      <section class="s-pliegos" id="trabajos" aria-labelledby="h-pl">
-        <!-- cinta horizontal: el scroll vertical la arrastra (sticky viewport). la cinta
-             está scrubeada; los rótulos entran en tiempo (poses de 12fps): ese contraste es la vida -->
-        <div class="pl-viewport">
-        <div class="pl-track">
-        <header class="pl-opener">
-          <span class="sec-idx mono">(02)</span>
-          <h2 id="h-pl" data-misregister data-i18n="pl.title">trabajos</h2>
-          <p class="mono sec-sub" data-i18n="pl.sub">cada landing sale de la máquina en ruido y se imprime en tinta. cuando frenás, registra.</p>
-          <!-- indicador de cinta: hairline que se dibuja (DrawSVG) cuando la cinta arranca -->
-          <svg class="pl-arrow" viewBox="0 0 168 12" aria-hidden="true">
-            <line class="pl-arrow-line" x1="0" y1="6" x2="158" y2="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
-            <path class="pl-arrow-head" d="M152 1.5 158 6l-6 4.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
-          </svg>
-        </header>
-
-        <article class="pliego" data-work="grip">
-          <header class="pl-head mono">
-            <span class="pl-num"><b class="pl-n">01</b> / 04</span>
-            <span class="pl-domain">gripppp.com</span>
-            <span>vite · js · <b class="pl-f">f 00000</b></span>
-          </header>
-          <a class="pl-screen" href="https://gripppp.com/" target="_blank" rel="noopener" aria-label="grip studio — ver la landing" data-cursor="ver">
-            <span class="pl-sheet">
-              <img class="pl-real" src="/works/gripppp.jpg" alt="captura — landing de grip studio" decoding="async" />
-              <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            </span>
-            <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
-          </a>
-          <div class="pl-info">
-            <h3>grip studio</h3>
-            <p data-i18n="pl.grip">la casa. película stop-motion a 12fps, logo líquido que gotea con el scroll, stickers con física real. marcas que se te pegan.</p>
-            <a class="pl-link mono u-draw" href="https://gripppp.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
-          </div>
-        </article>
-
-        <article class="pliego" data-work="oclu">
-          <header class="pl-head mono">
-            <span class="pl-num"><b class="pl-n">02</b> / 04</span>
-            <span class="pl-domain">oclucrm.com</span>
-            <span>vue · laravel · mysql</span>
-          </header>
-          <a class="pl-screen" href="https://www.oclucrm.com/" target="_blank" rel="noopener" aria-label="oclucrm — ver el sitio" data-cursor="ver">
-            <span class="pl-sheet">
-              <img class="pl-real" src="/works/oclucrm.jpg" alt="captura — oclucrm" decoding="async" />
-              <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            </span>
-            <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
-          </a>
-          <div class="pl-info">
-            <h3>oclucrm</h3>
-            <p data-i18n="pl.oclu">crm para clínicas con su landing: pacientes, turnos y administración en una pantalla que no te pelea.</p>
-            <a class="pl-link mono u-draw" href="https://www.oclucrm.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
-          </div>
-        </article>
-
-        <article class="pliego" data-work="taxes">
-          <header class="pl-head mono">
-            <span class="pl-num"><b class="pl-n">03</b> / 04</span>
-            <span class="pl-domain">taxes.com.ar</span>
-            <span>vue · express · postgres</span>
-          </header>
-          <a class="pl-screen" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" aria-label="taxes software — ver el sitio" data-cursor="ver">
-            <span class="pl-sheet">
-              <img class="pl-real" src="/works/taxes.jpg" alt="captura — taxes software" decoding="async" />
-              <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            </span>
-            <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
-          </a>
-          <div class="pl-info">
-            <h3>taxes software</h3>
-            <p data-i18n="pl.taxes">impuestos y declaraciones sin laberinto. números claros para gente que odia los números.</p>
-            <a class="pl-link mono u-draw" href="https://www.taxes.com.ar/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
-          </div>
-        </article>
-
-        <article class="pliego" data-work="fms">
-          <header class="pl-head mono">
-            <span class="pl-num"><b class="pl-n">04</b> / 04</span>
-            <span class="pl-domain">fms clinic</span>
-            <span>html · css · motion</span>
-          </header>
-          <a class="pl-screen" href="#contacto" aria-label="fms clinic — captura" data-cursor="ver">
-            <span class="pl-sheet">
-              <img class="pl-real" src="/works/fmsclinic.jpg" alt="captura — fms clinic" decoding="async" />
-              <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            </span>
-            <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
-          </a>
-          <div class="pl-info">
-            <h3>fms clinic</h3>
-            <p data-i18n="pl.fms">clínica odontológica: negro, macro y una sola idea. la ciencia se ve, el trato se siente.</p>
-            <a class="pl-link mono u-draw" href="#contacto"><span data-i18n="pl.next">la próxima es la tuya</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
-          </div>
-        </article>
-
-        <!-- cierre: el pliego cinco, en blanco. papel, marcas de registro, línea de corte -->
-        <article class="pliego pl-cierre" data-work="tuya">
-          <header class="pl-head mono">
-            <span class="pl-num"><b class="pl-n">05</b> / 04</span>
-            <span class="pl-domain" data-i18n="pl.yourdomain">tu-marca.com</span>
-            <span data-i18n="pl.yourstack">stack: el que haga falta</span>
-          </header>
-          <div class="pl-blank" aria-hidden="true">
-            <svg class="pl-reg tl" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
-            <svg class="pl-reg tr" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
-            <svg class="pl-reg bl" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
-            <svg class="pl-reg br" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
-            <svg class="pl-tuya" viewBox="0 0 760 150" preserveAspectRatio="xMidYMid meet"><text x="380" y="118" text-anchor="middle" data-i18n="pl.yours">tu landing</text></svg>
-          </div>
-          <div class="pl-info">
-            <h3 data-i18n="pl.miss">falta la tuya.</h3>
-            <p data-i18n="pl.missp">una landing por vez, con tu marca y tu idea. el pliego cinco sale de la máquina cuando nos escribís.</p>
-            <a class="cta" href="#contacto" data-i18n="ui.cta">hablemos →</a>
-          </div>
-        </article>
-        </div>
-        </div>
-      </section>
-
-      <!-- ── PLANTILLA → MARCA: la racleta borra lo genérico ───────── -->
-      <section class="s-antes scene" id="plantilla" aria-labelledby="h-ad">
-        <div class="stage">
-          <header class="scene-head">
-            <div>
-              <span class="sec-idx mono">(03)</span>
-              <h2 id="h-ad" data-i18n="ad.title">de plantilla a marca</h2>
-              <p class="mono sec-sub" data-i18n="ad.sub">la misma marca dos veces. bajá o arrastrá la racleta: pasa la tinta sobre la plantilla y deja la landing impresa.</p>
-            </div>
-            <!-- valor de máquina: la posición real de la racleta -->
-            <span class="cell-val mono" aria-live="off"><span data-i18n="ad.val">racleta</span> <b>06%</b></span>
-          </header>
-          <div class="ad-frame">
-            <div class="ad-stage">
-              <div class="ad-box">
-                <!-- la racleta es la manija: el scroll la tira, la mano la agarra -->
-                <img-comparison-slider class="ad-cmp" value="6" hover="false" keyboard="enabled" handle aria-label="plantilla / marca" data-hot data-cursor="arrastrá">
-                  <img slot="first" class="ad-print" src="/works/gripppp.jpg" width="1600" height="1000" alt="landing impresa — grip studio" decoding="async" />
-                  <!-- lo genérico, dibujado en código: el enemigo (texto real para que se lea como web) -->
-                  <div slot="second" class="ad-tpl" aria-hidden="true">
-                    <div class="tpl-nav"><i class="tpl-logo"></i><em>TuEmpresa</em><span>Inicio</span><span>Servicios</span><span>Nosotros</span><span>Contacto</span><b>Cotizar</b></div>
-                    <div class="tpl-hero">
-                      <div class="tpl-copy"><h4>Soluciones integrales para tu negocio</h4><p>Somos líderes en innovación con más de 10 años de experiencia brindando servicios de calidad.</p><b>Saber más</b></div>
-                      <div class="tpl-img"><i></i></div>
-                    </div>
-                    <div class="tpl-cards"><i><u></u><em>Servicio 1</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 2</em><span>Lorem ipsum dolor sit amet</span></i><i><u></u><em>Servicio 3</em><span>Lorem ipsum dolor sit amet</span></i></div>
-                    <div class="tpl-cookie"><span>Usamos cookies para mejorar tu experiencia.</span><b>Aceptar</b></div>
-                  </div>
-                  <!-- la manija: hoja de cromo + la tinta fresca (matriz de glifos) que la sigue -->
-                  <div slot="handle" class="ad-racleta" aria-hidden="true">
-                    <canvas class="ad-ink"></canvas>
-                    <span class="ad-blade"><i class="ad-spec"></i></span>
-                  </div>
-                </img-comparison-slider>
-                <!-- sellos: caen a mano cuando la hoja pasa la mitad -->
-                <i class="ad-tag ad-tag-l sello mono" data-jitter="2" data-i18n="ad.l" aria-hidden="true">marca</i>
-                <i class="ad-tag ad-tag-r sello mono" data-jitter="3" data-i18n="ad.r" aria-hidden="true">plantilla</i>
-              </div>
-              <div class="ad-legend mono">
-                <p><b data-i18n="ad.l">marca</b> <span data-i18n="ad.lt">— lo que imprimimos: una idea, tinta propia, cero stock. la landing de grip.</span></p>
-                <p class="ad-legend-r"><b data-i18n="ad.r">plantilla</b> <span data-i18n="ad.rt">— lo que te venden: hero violeta, "saber más", cookies. podría ser de cualquiera.</span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ── CONTACTO: pedí tu pliego ────────────────────────────── -->
-      <section class="s-contacto scene" id="contacto" aria-labelledby="h-ct">
-        <div class="stage">
-        <span class="sec-idx mono">(04)</span>
-        <h2 id="h-ct" class="ct-title tic" data-misregister data-i18n="ct.title">hablemos.</h2>
-        <p class="ct-sub mono" data-i18n="ct.sub">una landing por vez. contanos qué vendés y qué odiás de tu web actual.</p>
-        <div class="ct-ctas">
-          <a class="cta big" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir">
-            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8.5c.2 2.6 2.7 5.4 5.6 5.9l1.4-1.4-1.9-.9-1 .8c-1-.4-2-1.4-2.5-2.5l.8-1-.9-1.9z" fill="currentColor"/></svg>
-            <span data-i18n="ct.wa">whatsapp</span>
-          </a>
-          <a class="cta ghost" href="mailto:hola@gripppp.com" data-cursor="escribir">hola@gripppp.com</a>
-        </div>
-        <footer class="ct-foot mono">
-          <span data-i18n="ct.f1">impreso por grip® — buenos aires</span>
-          <span><span data-i18n="ct.f2">máquina:</span> <a class="u-draw" href="https://valentinromero.com" target="_blank" rel="noopener">valentín romero</a></span>
-          <a class="u-draw" href="https://gripppp.com" target="_blank" rel="noopener">gripppp.com</a>
-          <a class="u-draw" href="https://www.instagram.com/gripstudio_______/" target="_blank" rel="noopener">instagram</a>
-        </footer>
-        </div>
-      </section>
+      <!-- versión quieta (reduced-motion / sin webgl): mismo contenido, en una hoja -->
+      <div id="static" hidden></div>
     </main>
 
-    <!-- capas fijas (hijas directas de body) -->
-    <div id="mesa" aria-hidden="true"></div>
-    <canvas id="orb" aria-hidden="true"></canvas>
-    <div id="texture" aria-hidden="true"><div class="ht"></div><div class="grain"></div></div>
-    <nav id="rail" aria-label="escenas"><div class="rail-ticks"></div><div class="rail-done" aria-hidden="true"></div><div class="rail-names"></div><div class="rail-head" aria-hidden="true"><svg viewBox="0 0 10 8"><path d="M0 0h10L5 8z" fill="currentColor"/></svg></div><span class="rail-txt mono" aria-hidden="true"></span></nav>
-    <div id="splash" aria-hidden="true">
-      <canvas class="splash-canvas"></canvas>
-      <span class="splash-sign mono">grip® × valentín romero</span>
-      <span class="splash-count mono">registro 00/12</span>
-    </div>
-
+    <div id="texture" aria-hidden="true"><div class="grain"></div></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
