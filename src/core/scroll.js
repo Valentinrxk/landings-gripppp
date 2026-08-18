@@ -10,13 +10,20 @@ export let lenis = null;
 // rueda, trackpad y dedo. lenis.velocity queda en 0 con touch nativo — por eso
 // en el celu no goteaba ni se sacudían los stickers.
 let vel = 0;
+let lean = 0;
 let lastY = 0;
 let lastT = 0;
 
 export function initScroll(ctx) {
   if (ctx.tier === 'static') return null;
   // touch queda nativo (default de lenis); solo suaviza rueda/trackpad
-  lenis = new Lenis({ autoRaf: false });
+  // inercia larga con salida exponencial: el scroll se siente físico (mismo
+  // carril que el portfolio de la máquina); touch queda nativo
+  lenis = new Lenis({
+    autoRaf: false,
+    duration: 1.15,
+    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+  });
   lenis.on('scroll', ScrollTrigger.update);
   ScrollTrigger.config({ ignoreMobileResize: true });
 
@@ -29,6 +36,9 @@ export function initScroll(ctx) {
     const raw = (y - lastY) / dt / 60;
     lastY = y;
     vel += (raw - vel) * 0.5;
+    // envión suavizado (spring barato): inclina piezas y degrada el registro
+    const target = Math.max(-1, Math.min(1, vel / 45));
+    lean += (target - lean) * 0.2;
   });
   return lenis;
 }
@@ -36,6 +46,11 @@ export function initScroll(ctx) {
 // px/frame aprox — la señal oculta que alimenta gotas, fuerzas y desregistro
 export function scrollVelocity() {
   return vel;
+}
+
+// −1..1 suavizado: el "peso" del scroll. Cero al frenar.
+export function scrollLean() {
+  return lean;
 }
 
 export { gsap, ScrollTrigger };

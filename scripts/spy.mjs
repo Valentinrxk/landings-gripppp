@@ -20,7 +20,7 @@ async function run(tag, vp, mobile) {
   await page.waitForTimeout(1600);
   await page.screenshot({ path: `${SHOTS}/${tag}-hero.png` });
   const marks = await page.evaluate(() =>
-    ['#proceso', '#pliegos', '.pliego:nth-of-type(2)', '#calidad', '#contacto'].map((s) => {
+    ['#proceso', '#trabajos', '#specs', '#contacto'].map((s) => {
       const r = document.querySelector(s).getBoundingClientRect();
       return { s, y: r.top + window.scrollY };
     })
@@ -42,21 +42,23 @@ async function run(tag, vp, mobile) {
     await page.waitForTimeout(650);
     await page.screenshot({ path: `${SHOTS}/${tag}-${m.s.replace(/[#.:()-]/g, '')}-b.png` });
   }
-  // pliego 1 a mitad de impresión: top del artículo al 50% del viewport
-  const mid = await page.evaluate(() => {
-    const a = document.querySelector('.pliego');
-    return a.getBoundingClientRect().top + window.scrollY - window.innerHeight * 0.5;
+  // la cinta: capturas a distintos progresos de la sección (quieto → registra)
+  const secInfo = await page.evaluate(() => {
+    const s = document.querySelector('#trabajos');
+    return { top: s.getBoundingClientRect().top + window.scrollY, h: s.offsetHeight - window.innerHeight };
   });
-  await page.evaluate((v) => window.scrollTo(0, v), mid);
-  await page.waitForTimeout(700);
-  await page.screenshot({ path: `${SHOTS}/${tag}-print-mid.png` });
+  for (const f of [0.15, 0.3, 0.45, 0.62, 0.8]) {
+    await page.evaluate((v) => window.scrollTo(0, v), secInfo.top + secInfo.h * f);
+    await page.waitForTimeout(1600);
+    await page.screenshot({ path: `${SHOTS}/${tag}-cinta-${Math.round(f * 100)}.png` });
+  }
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await page.waitForTimeout(700);
   await page.screenshot({ path: `${SHOTS}/${tag}-end.png` });
   const info = await page.evaluate(() => ({
     overflowX: document.documentElement.scrollWidth - window.innerWidth,
     stamps: [...document.querySelectorAll('.pl-stamp')].map((s) => getComputedStyle(s).visibility).join(','),
-    qcDone: document.querySelectorAll('.qc-item.is-done').length,
+    trackX: document.querySelector('.pl-track').style.transform,
   }));
   console.log(tag, JSON.stringify(info));
   await page.close();

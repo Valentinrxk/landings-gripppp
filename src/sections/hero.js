@@ -4,7 +4,8 @@
 // tinta a su izquierda (se limpia el canvas → aparece el h1). Al volver arriba
 // o al clickear el título, se re-imprime.
 import { bus } from '../core/bus.js';
-import { ScrollTrigger } from '../core/scroll.js';
+import { ScrollTrigger, scrollLean } from '../core/scroll.js';
+import gsap from 'gsap';
 import { createPrinter } from '../print/ascii.js';
 import { clock } from '../core/frameClock.js';
 
@@ -135,6 +136,16 @@ export function initHero(ctx) {
   };
   bus.on('splash:done', start);
   if (window.__nosplash) start();
+
+  // el envión del scroll inclina la palabra y la hunde apenas (parallax):
+  // la tinta pesa; se endereza sola al frenar
+  let skew = 0;
+  gsap.ticker.add(() => {
+    const lean = scrollLean();
+    skew += (-lean * 6 - skew) * 0.14;
+    const y = Math.min(window.scrollY, window.innerHeight) * 0.18;
+    wrap.style.transform = `translate3d(0, ${y.toFixed(1)}px, 0) skewX(${skew.toFixed(2)}deg)`;
+  });
 
   h1.addEventListener('click', print);
   h1.style.cursor = 'pointer';

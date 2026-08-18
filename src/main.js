@@ -12,7 +12,7 @@ import '@fontsource/space-mono/700.css';
 import { detectTier } from './core/tier.js';
 import { clock } from './core/frameClock.js';
 import { bus } from './core/bus.js';
-import { initScroll, gsap, ScrollTrigger } from './core/scroll.js';
+import { initScroll, gsap, ScrollTrigger, scrollLean, scrollVelocity } from './core/scroll.js';
 import { setFilmSmoothing } from './core/film.js';
 import { frameRand } from './core/rng.js';
 import { applyLang, lang } from './data/i18n.js';
@@ -26,7 +26,6 @@ import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
 import { initProceso } from './sections/proceso.js';
 import { initPliegos } from './sections/pliegos.js';
-import { initQC } from './sections/qc.js';
 
 const ctx = detectTier();
 document.documentElement.dataset.tier = ctx.tier;
@@ -81,7 +80,6 @@ if (ctx.tier === 'static') {
   document.getElementById('splash')?.remove();
   initMisregister(ctx);
   initHero(ctx);
-  initQC(ctx);
 } else {
   const lenis = initScroll(ctx);
   setFilmSmoothing(ctx.coarse);
@@ -95,7 +93,6 @@ if (ctx.tier === 'static') {
   initHero(ctx);
   initProceso(ctx);
   initPliegos(ctx);
-  initQC(ctx);
 
   // un solo ticker: scroll suave → obturador → commits
   gsap.ticker.add((t) => {
@@ -133,5 +130,5 @@ if (ctx.tier === 'static') {
   window.addEventListener('load', () => ScrollTrigger.refresh());
 }
 
-window.__landings = { ctx, clock, bus, ScrollTrigger };
+window.__landings = { ctx, clock, bus, ScrollTrigger, lean: scrollLean, vel: scrollVelocity };
 console.log('%c landings.gripppp ', 'background:#111;color:#f4f1ea;padding:4px 8px;font-family:monospace', '— grip® pone la tinta, valentín romero pone la máquina. si estás leyendo esto, escribinos: hola@gripppp.com');

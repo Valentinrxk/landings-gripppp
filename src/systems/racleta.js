@@ -25,7 +25,7 @@ export function initRacleta(ctx) {
     const p = step / STEPS;
     el.style.transform = `translateY(${(-120 + p * 240).toFixed(0)}vh) rotate(-1.2deg)`;
   });
-  ['#proceso', '#pliegos', '#calidad', '#contacto'].forEach((sel) => {
+  ['#proceso', '#trabajos', '#specs', '#contacto'].forEach((sel) => {
     const t = document.querySelector(sel);
     if (!t) return;
     ScrollTrigger.create({
