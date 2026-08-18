@@ -1,0 +1,126 @@
+/* ── trabajos / cinta: la vida de los pliegos ───────────────────
+   la cinta está scrubeada (scroll = cinta), los rótulos entran en tiempo
+   (poses de 12fps). el mouse por fin recibe algo: la captura real, la
+   inclinación, el sello que sube. todo lo que se mueve en el tiempo va en
+   steps(); expo.out solo para lo que sigue al puntero.                       */
+
+.pl-track { position: relative; }
+.pl-track > * { will-change: transform; }
+
+/* indicador de cinta: hairline roja que se dibuja al arrancar (DrawSVG) */
+.pl-arrow { display: block; margin-top: 2rem; width: calc(var(--cell) * 2.5); height: auto; color: var(--rojo); overflow: visible; }
+
+/* pliego: perspectiva para la inclinación del cuadro bajo el puntero */
+.pliego { perspective: 900px; }
+.pl-head { border-top-color: var(--acero-2); }
+.pl-head .pl-f { font-weight: 400; color: var(--plata); font-variant-numeric: tabular-nums; }
+.pl-num { font-variant-numeric: tabular-nums; }
+.pl-num b { font-weight: 400; }
+
+/* el cuadro: se apoya sobre la mesa (sombra) y su borde reacciona */
+.pl-screen {
+  box-shadow: var(--shadow-mesa);
+  transition: border-color 0.25s var(--ease-smooth);
+  outline: 0;
+}
+/* hoja: captura + matriz de glifos, 8% más ancha para deslizar sobre la cinta */
+.pl-sheet { position: absolute; top: 0; bottom: 0; left: -4%; right: -4%; display: block; }
+.pl-real {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0;
+  transform: scale(1.02);
+  transition: transform 0.7s var(--ease-out-expo);
+}
+.pl-ascii {
+  position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1;
+  opacity: 1; transition: opacity 0.25s var(--ease-smooth);
+}
+.pl-racleta { z-index: 2; transition: opacity 0.2s var(--ease-smooth); }
+
+/* sello "impreso": aplicado a mano — rotado, sombra dura, tiembla (jitter ch.2).
+   .pl-stamp-slot desliza (hover / registro), .pl-stamp-hit es el golpe (gsap),
+   .pl-stamp es la tinta */
+.pl-stamp-slot {
+  position: absolute; right: 0.9rem; bottom: 0.9rem; z-index: 3; display: block;
+  transform: translateY(101%) translateY(1rem);
+}
+.pl-screen.is-reg .pl-stamp-slot { transform: none; }
+.pl-stamp-hit { display: block; transform: rotate(-4deg); transform-origin: 50% 50%; }
+.pl-stamp {
+  position: static; right: auto; bottom: auto; display: block; padding: 0.24rem 0.6rem;
+  border: 2px solid var(--rojo); color: var(--rojo); background: rgba(244, 241, 234, 0.92);
+  font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 400;
+  box-shadow: var(--shadow-sello);
+}
+
+/* hover: puntero fino. la captura real aparece (la matriz se desvanece), el
+   borde se entinta de rojo, el sello sube en 4 poses, el cuadro se inclina (js) */
+@media (hover: hover) and (pointer: fine) {
+  .pl-screen:hover, .pl-screen:focus-visible { border-color: var(--rojo); }
+  .pl-screen:hover .pl-ascii, .pl-screen:focus-visible .pl-ascii { opacity: 0; transition: opacity 0.45s var(--ease-smooth); }
+  .pl-screen:hover .pl-real, .pl-screen:focus-visible .pl-real { transform: none; }
+  .pl-screen:hover .pl-racleta, .pl-screen:focus-visible .pl-racleta { opacity: 0; }
+  .pl-screen:hover .pl-stamp-slot, .pl-screen:focus-visible .pl-stamp-slot { transform: none; transition: transform 0.35s steps(4); }
+}
+.pl-screen:focus-visible { border-color: var(--rojo); }
+.pl-screen:focus-visible .pl-ascii { opacity: 0; }
+.pl-screen:focus-visible .pl-stamp-slot { transform: none; }
+
+/* info: rótulos que entran en tiempo (SplitText lines + máscaras) */
+.pl-info h3 { transform-origin: 0% 100%; }
+.pl-info p { font-size: clamp(0.98rem, 1.25vw, 1.15rem); line-height: 1.42; max-width: 44ch; }
+.pl-link { border-bottom: 0; padding-bottom: 2px; }
+.pl-link .ic { transition: transform 0.2s steps(2); }
+.pl-link:hover .ic, .pl-link:focus-visible .ic { transform: translate(2px, -2px); }
+
+/* cierre: el pliego cinco, en blanco. papel sobre la mesa, marcas de registro
+   dibujadas, "tu landing" en línea de corte punteada */
+.pl-cierre { width: min(58rem, 78vw); display: block; gap: 0; }
+.pl-blank {
+  position: relative; aspect-ratio: 2732 / 1200; overflow: hidden;
+  background:
+    linear-gradient(to right, rgba(17, 17, 17, 0.07) 1px, transparent 1px) 0 0 / calc(var(--cell) / 2) calc(var(--cell) / 2),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.07) 1px, transparent 1px) 0 0 / calc(var(--cell) / 2) calc(var(--cell) / 2),
+    var(--papel);
+  border: 1px solid var(--plata); box-shadow: var(--shadow-mesa); color: var(--negro);
+}
+.pl-reg { position: absolute; width: clamp(18px, 2.4vw, 28px); height: auto; color: var(--negro); }
+.pl-reg.tl { left: 3.5%; top: 6%; }
+.pl-reg.tr { right: 3.5%; top: 6%; }
+.pl-reg.bl { left: 3.5%; bottom: 6%; }
+.pl-reg.br { right: 3.5%; bottom: 6%; }
+.pl-tuya { position: absolute; left: 12%; right: 12%; top: 22%; bottom: 22%; width: 76%; height: 56%; }
+.pl-tuya text {
+  font-family: var(--font-display); font-weight: 900; font-size: 138px; letter-spacing: -0.045em;
+  fill: none; stroke: var(--acero-2); stroke-width: 1.4; stroke-dasharray: 2.5 3.5; stroke-linecap: round;
+  paint-order: stroke;
+}
+.pl-cierre .pl-info { grid-template-columns: max-content 1fr auto; column-gap: 2.4rem; }
+.pl-cierre .pl-info h3 { font-size: clamp(1.5rem, 2.6vw, 2.3rem); white-space: nowrap; }
+.pl-cierre .pl-info p { max-width: 40ch; }
+.pl-cierre .cta { border-color: var(--plata); justify-self: end; }
+.pl-cierre .cta:active { translate: 1px 1px; }
+
+/* ── mobile ── */
+@media (max-width: 720px) {
+  .pl-arrow { margin-top: 1.2rem; }
+  .pl-cierre { width: 84vw; }
+  .pl-blank { aspect-ratio: 4 / 3; }
+  .pl-tuya text { font-size: 150px; }
+  .pl-cierre .pl-info { grid-template-columns: 1fr; gap: 0.8rem; }
+  .pl-cierre .pl-info h3 { white-space: normal; }
+  .pl-cierre .cta { justify-self: start; }
+  .pl-stamp-slot { right: 0.6rem; bottom: 0.6rem; }
+}
+
+/* ── reduced motion (tier static): la página impresa, quieta y completa.
+   sin cinta ni sticky: los pliegos apilados, la captura real, los sellos puestos ── */
+html[data-tier='static'] .s-pliegos { height: auto !important; }
+html[data-tier='static'] .pl-viewport {
+  position: static; height: auto; overflow: visible; display: block;
+  padding: calc(var(--hud-h) + var(--cell) * 0.5) 0 calc(var(--rail-h) + var(--cell) * 0.5);
+}
+html[data-tier='static'] .pl-track { flex-direction: column; align-items: flex-start; gap: calc(var(--cell) * 0.75); }
+html[data-tier='static'] .pl-opener, html[data-tier='static'] .pliego { width: min(58rem, 100%); }
+html[data-tier='static'] .pl-ascii, html[data-tier='static'] .pl-racleta { display: none; }
+html[data-tier='static'] .pl-real { transform: none; }
+html[data-tier='static'] .pl-stamp-slot { transform: none; }
