@@ -46,8 +46,9 @@
         <div class="stage">
           <p class="kicker mono" data-i18n="hero.kicker">grip® pone la tinta. valentín romero pone la máquina.</p>
           <div class="hero-title-wrap">
-            <h1 id="h1" class="hero-title"><span>l</span><span>a</span><span>n</span><span>d</span><span>i</span><span>n</span><span>g</span><span>s</span></h1>
+            <h1 id="h1" class="hero-title" data-hot data-cursor="reimprimir"><span>l</span><span>a</span><span>n</span><span>d</span><span>i</span><span>n</span><span>g</span><span>s</span></h1>
             <canvas class="hero-print" aria-hidden="true"></canvas>
+            <span class="hero-sello" data-jitter="2" aria-hidden="true"><i class="sello mono" data-i18n="hero.sello">registrado</i></span>
           </div>
           <div class="hero-low">
             <p class="hero-claim" data-i18n="hero.claim">landings que no parecen plantilla.</p>
@@ -56,13 +57,13 @@
               <span class="hero-hint" data-i18n="hero.hint">( bajá — recién empieza )</span>
             </p>
           </div>
-          <aside class="hero-ficha mono" aria-label="ficha técnica">
+          <aside class="hero-ficha mono" aria-label="ficha técnica" data-jitter="1">
             <span class="hf-head" data-i18n="hf.head">ficha técnica</span>
             <dl>
-              <dt data-i18n="hf.1k">serie</dt><dd>001 / ∞</dd>
+              <dt data-i18n="hf.1k">serie</dt><dd data-hf="ser">001 / ∞</dd>
               <dt data-i18n="hf.2k">tintas</dt><dd data-i18n="hf.2v">3 — rojo, celeste, negro</dd>
-              <dt data-i18n="hf.3k">registro</dt><dd>±1px</dd>
-              <dt data-i18n="hf.4k">obturador</dt><dd>12 fps</dd>
+              <dt data-i18n="hf.3k">registro</dt><dd data-hf="reg">±1px</dd>
+              <dt data-i18n="hf.4k">obturador</dt><dd data-hf="obt">12 fps · f 00000</dd>
               <dt data-i18n="hf.5k">código</dt><dd data-i18n="hf.5v">100% a mano</dd>
             </dl>
           </aside>
@@ -249,20 +250,20 @@
       <section class="s-contacto scene" id="contacto" aria-labelledby="h-ct">
         <div class="stage">
         <span class="sec-idx mono">(04)</span>
-        <h2 id="h-ct" class="ct-title" data-misregister data-i18n="ct.title">hablemos.</h2>
+        <h2 id="h-ct" class="ct-title tic" data-misregister data-i18n="ct.title">hablemos.</h2>
         <p class="ct-sub mono" data-i18n="ct.sub">una landing por vez. contanos qué vendés y qué odiás de tu web actual.</p>
         <div class="ct-ctas">
-          <a class="cta big" href="https://wa.me/5491121865983" target="_blank" rel="noopener">
+          <a class="cta big" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir">
             <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.7 13.6L3 21l4.5-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8.5c.2 2.6 2.7 5.4 5.6 5.9l1.4-1.4-1.9-.9-1 .8c-1-.4-2-1.4-2.5-2.5l.8-1-.9-1.9z" fill="currentColor"/></svg>
             <span data-i18n="ct.wa">whatsapp</span>
           </a>
-          <a class="cta ghost" href="mailto:hola@gripppp.com">hola@gripppp.com</a>
+          <a class="cta ghost" href="mailto:hola@gripppp.com" data-cursor="escribir">hola@gripppp.com</a>
         </div>
         <footer class="ct-foot mono">
           <span data-i18n="ct.f1">impreso por grip® — buenos aires</span>
-          <span><span data-i18n="ct.f2">máquina:</span> <a href="https://valentinromero.com" target="_blank" rel="noopener">valentín romero</a></span>
-          <a href="https://gripppp.com" target="_blank" rel="noopener">gripppp.com</a>
-          <a href="https://www.instagram.com/gripstudio_______/" target="_blank" rel="noopener">instagram</a>
+          <span><span data-i18n="ct.f2">máquina:</span> <a class="u-draw" href="https://valentinromero.com" target="_blank" rel="noopener">valentín romero</a></span>
+          <a class="u-draw" href="https://gripppp.com" target="_blank" rel="noopener">gripppp.com</a>
+          <a class="u-draw" href="https://www.instagram.com/gripstudio_______/" target="_blank" rel="noopener">instagram</a>
         </footer>
         </div>
       </section>
