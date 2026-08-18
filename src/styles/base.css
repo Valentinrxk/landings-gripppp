@@ -51,9 +51,13 @@ main#world { position: relative; z-index: var(--z-world); }
   background-size: var(--cell) var(--cell);
   background-position: var(--gutter) 0;
   mix-blend-mode: difference;
-  opacity: 0.3;
+  opacity: 0.16;
+  transition: opacity 0.25s var(--ease-cut);
 }
-#orb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: var(--z-orb); pointer-events: none; }
+/* bajo la hoja grafito de trabajos la mesa no se ve (la hoja la tapa) */
+html.mesa-off #mesa { opacity: 0; }
+/* la gota vive SOBRE las hojas y multiplica: tinta sobre papel, invisible en grafito */
+#orb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: var(--z-orb); pointer-events: none; mix-blend-mode: multiply; }
 #texture { position: fixed; inset: 0; z-index: var(--z-texture); pointer-events: none; }
 #texture .ht {
   position: absolute; inset: 0;
@@ -103,14 +107,21 @@ main#world { position: relative; z-index: var(--z-world); }
 .cta.big { font-size: clamp(1.1rem, 2.4vw, 1.6rem); padding: 1rem 1.7rem; }
 .cta.ghost { background: transparent; color: var(--negro); font-family: var(--font-mono); font-weight: 400; }
 .cta.ghost:hover { background: var(--plata-2); }
-/* la celda-CTA de las cabeceras de escena */
-.cell-cta {
-  display: inline-flex; align-items: center; justify-content: center;
-  min-width: calc(var(--cell) * 3); padding: 0 1.2rem;
-  border-left: 1px solid var(--negro);
-  font-weight: 800; text-decoration: none; font-size: 0.95rem;
+/* la celda-CTA de las cabeceras de escena: ya no existe (un solo "hablemos"
+   en el HUD y otro en contacto). En su lugar la cabecera expone un VALOR de la
+   máquina (.cell-val): un instrumento, no un botón. */
+.scene-head .cell-cta { display: none; }
+.cell-val {
+  display: inline-flex; align-items: center; gap: 0.55rem; align-self: end;
+  font-family: var(--font-mono); font-weight: 400; font-size: var(--fs-label);
+  letter-spacing: 0.04em; color: var(--acero-2); white-space: nowrap;
+  font-variant-numeric: tabular-nums; padding-bottom: 0.35rem;
 }
-.cell-cta:hover { background: var(--rojo); color: var(--papel); }
+.cell-val::before {
+  content: ''; width: 6px; height: 6px; background: var(--rojo);
+  animation: tally 1s steps(1, end) infinite; /* luz de tally: la máquina graba */
+}
+@keyframes tally { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0.25; } }
 
 /* ── la regla (abajo): playhead de la escena ─────────────────── */
 #rail {
@@ -137,13 +148,6 @@ main#world { position: relative; z-index: var(--z-world); }
   position: absolute; right: var(--gutter); top: 0; bottom: 0;
   display: flex; align-items: center; font-size: 0.66rem; color: var(--acero-2);
   padding: 0 0.6rem; background: var(--papel);
-}
-
-/* rótulos de la máquina: los valores reales de lo que se mueve */
-.dbg {
-  position: absolute; font-size: 0.62rem; color: var(--acero-2); letter-spacing: 0.02em;
-  white-space: nowrap; pointer-events: none;
-  background: rgba(244, 241, 234, 0.85); padding: 0.15rem 0.4rem;
 }
 
 /* racleta global (corte entre escenas) */

@@ -25,6 +25,11 @@
   --hud-h: var(--cell);
   --rail-h: 32px;
 
+  /* registro tipográfico: tres registros, nada intermedio */
+  --fs-h2: clamp(2.6rem, 6.5vw, 6.5rem);          /* título de escena */
+  --fs-body: clamp(1.05rem, 1.4vw, 1.25rem);        /* cuerpo, registro medio */
+  --fs-label: 0.72rem;                              /* rótulos mono */
+
   /* vocabulario de movimiento: chico y estricto */
   --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1); /* solo lo que sigue al puntero */
   --ease-cut: steps(1, end);                        /* parpadeos, glitch */
@@ -33,8 +38,13 @@
   --shadow-mesa: 0 18px 40px rgba(35, 35, 39, 0.22); /* lo que se apoya sobre la mesa */
   --shadow-sello: 3px 3px 0 var(--negro);            /* sellos: offset duro */
 
+  /* pliego sobre pliego: cada escena queda pegada una pantalla más y la
+     siguiente hoja se desliza encima. Las escenas declaran --scene-h, nunca
+     height (la cola se suma sola). */
+  --sheet-tail: 100svh;
+
   --z-world: 1;
-  --z-orb: 0; /* detrás del mundo: hero y contacto son transparentes */
+  --z-orb: 2; /* sobre las hojas (multiply): la gota se ve en hero y contacto aunque los pliegos sean opacos */
   --z-mesa: 40;
   --z-texture: 50;
   --z-hud: 60;

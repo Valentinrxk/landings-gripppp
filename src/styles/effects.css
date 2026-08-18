@@ -1,20 +1,33 @@
-/* ── FX transversales: tic de desregistro, sacudón de corte, jitter ─ */
-[data-jitter='1'] { transform: translate(var(--j1x), var(--j1y)) rotate(var(--j1r)); }
-[data-jitter='2'] { transform: translate(var(--j2x), var(--j2y)) rotate(var(--j2r)); }
-[data-jitter='3'] { transform: translate(var(--j3x), var(--j3y)) rotate(var(--j3r)); }
-[data-jitter='4'] { transform: translate(var(--j4x), var(--j4y)) rotate(var(--j4r)); }
+/* ── FX transversales: jitter, tic de desregistro, sacudón de corte ─────
+   Regla: el temblor y el tic viven en las propiedades individuales
+   translate / rotate, NUNCA en transform. Así GSAP puede tweenear transform
+   (scale, x, rotate) sobre el mismo nodo sin pisar el temblor ni ser pisado. */
 
-/* el tic: cada tanto la tinta se desregistra un cuadro (idle, tipográfico) */
+/* jitter: 4 canales escritos por systems/jitter.js una vez por cuadro.
+   Un nodo elige canal con data-jitter="n" (o, en CSS, seteando --jx/--jy/--jr).
+   --rot es la rotación "de reposo" del objeto (sellos: nunca a eje). */
+[data-jitter] { translate: var(--jx, 0px) var(--jy, 0px); rotate: calc(var(--rot, 0deg) + var(--jr, 0deg)); }
+[data-jitter='1'] { --jx: var(--j1x); --jy: var(--j1y); --jr: var(--j1r); }
+[data-jitter='2'] { --jx: var(--j2x); --jy: var(--j2y); --jr: var(--j2r); }
+[data-jitter='3'] { --jx: var(--j3x); --jy: var(--j3y); --jr: var(--j3r); }
+[data-jitter='4'] { --jx: var(--j4x); --jy: var(--j4y); --jr: var(--j4r); }
+
+/* el tic: cada tanto la tinta se desregistra un cuadro (idle, tipográfico).
+   Quieto el 90% del ciclo; 3 tajos de clip-path con sombra roja/celeste. */
 @keyframes tic {
-  0%, 90% { clip-path: inset(-5% -5% -5% -5%); transform: none; filter: none; }
-  91% { clip-path: inset(4% -5% 56% -5%); transform: translateX(4px); filter: drop-shadow(-4px 0 var(--rojo)); }
-  92.5% { clip-path: inset(50% -5% 8% -5%); transform: translateX(-5px); filter: drop-shadow(4px 0 var(--celeste)); }
-  94% { clip-path: inset(22% -5% 28% -5%); transform: translateX(2px); }
-  95.5%, 100% { clip-path: inset(-5% -5% -5% -5%); transform: none; filter: none; }
+  0%, 90% { clip-path: inset(-5% -5% -5% -5%); translate: 0 0; filter: none; }
+  91% { clip-path: inset(4% -5% 56% -5%); translate: 4px 0; filter: drop-shadow(-4px 0 var(--rojo)); }
+  92.5% { clip-path: inset(50% -5% 8% -5%); translate: -5px 0; filter: drop-shadow(4px 0 var(--celeste)); }
+  94% { clip-path: inset(22% -5% 28% -5%); translate: 2px 0; filter: none; }
+  95.5%, 100% { clip-path: inset(-5% -5% -5% -5%); translate: 0 0; filter: none; }
 }
-.tic { animation: tic 8s steps(1, end) 3s infinite; }
+.tic, .scene-head h2, .hero-title.is-joined, .ct-title { animation: tic 8s steps(1, end) 3s infinite; }
+/* los títulos de escena entran desfasados: no tiquean todos en el mismo cuadro */
+.s-proceso .scene-head h2 { animation-delay: 3s; }
+.s-antes .scene-head h2 { animation-delay: 5.5s; }
+.ct-title { animation-delay: 4.2s; }
 
-/* corte entre pliegos: 2 poses de sacudón */
+/* corte entre pliegos: 2 poses de sacudón del mundo entero */
 @keyframes cutshake {
   0% { transform: translate(6px, -5px) rotate(0.4deg); }
   50% { transform: translate(-6px, 4px) rotate(-0.3deg); }
@@ -32,5 +45,6 @@ main#world.cutshake { animation: cutshake 0.18s steps(2); }
 .u-draw:hover::after, .u-draw:focus-visible::after { transform: scaleX(1); }
 
 @media (prefers-reduced-motion: reduce) {
-  .tic, main#world.cutshake { animation: none; }
+  .tic, .scene-head h2, .hero-title.is-joined, .ct-title, main#world.cutshake, .cell-val::before { animation: none; }
+  [data-jitter], .sello, .pl-stamp, .ad-tag, .hero-ficha, .sec-idx { translate: 0 0; }
 }
