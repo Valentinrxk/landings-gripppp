@@ -117,96 +117,125 @@
 
       <!-- ── PLIEGOS: obras impresas ─────────────────────────────── -->
       <section class="s-pliegos" id="trabajos" aria-labelledby="h-pl">
-        <!-- cinta horizontal: el scroll vertical la arrastra (sticky viewport) -->
+        <!-- cinta horizontal: el scroll vertical la arrastra (sticky viewport). la cinta
+             está scrubeada; los rótulos entran en tiempo (poses de 12fps): ese contraste es la vida -->
         <div class="pl-viewport">
         <div class="pl-track">
         <header class="pl-opener">
           <span class="sec-idx mono">(02)</span>
           <h2 id="h-pl" data-misregister data-i18n="pl.title">trabajos</h2>
           <p class="mono sec-sub" data-i18n="pl.sub">cada landing sale de la máquina en ruido y se imprime en tinta. cuando frenás, registra.</p>
-          <span class="pl-arrow mono" aria-hidden="true">──────→</span>
+          <!-- indicador de cinta: hairline que se dibuja (DrawSVG) cuando la cinta arranca -->
+          <svg class="pl-arrow" viewBox="0 0 168 12" aria-hidden="true">
+            <line class="pl-arrow-line" x1="0" y1="6" x2="158" y2="6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            <path class="pl-arrow-head" d="M152 1.5 158 6l-6 4.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+          </svg>
         </header>
 
         <article class="pliego" data-work="grip">
           <header class="pl-head mono">
-            <span data-i18n="pl.n1">01 / 04</span>
-            <span>gripppp.com</span>
-            <span>vite · js · 12fps</span>
+            <span class="pl-num"><b class="pl-n">01</b> / 04</span>
+            <span class="pl-domain">gripppp.com</span>
+            <span>vite · js · <b class="pl-f">f 00000</b></span>
           </header>
-          <a class="pl-screen" href="https://gripppp.com/" target="_blank" rel="noopener" aria-label="grip studio — ver la landing">
-            <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            <img class="pl-real" src="/works/gripppp.jpg" alt="captura — landing de grip studio" decoding="async" />
+          <a class="pl-screen" href="https://gripppp.com/" target="_blank" rel="noopener" aria-label="grip studio — ver la landing" data-cursor="ver">
+            <span class="pl-sheet">
+              <img class="pl-real" src="/works/gripppp.jpg" alt="captura — landing de grip studio" decoding="async" />
+              <canvas class="pl-ascii" aria-hidden="true"></canvas>
+            </span>
             <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp mono" aria-hidden="true" data-i18n="pl.stamp">impreso</span>
+            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
           </a>
           <div class="pl-info">
             <h3>grip studio</h3>
             <p data-i18n="pl.grip">la casa. película stop-motion a 12fps, logo líquido que gotea con el scroll, stickers con física real. marcas que se te pegan.</p>
-            <a class="pl-link mono" href="https://gripppp.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+            <a class="pl-link mono u-draw" href="https://gripppp.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
         </article>
 
         <article class="pliego" data-work="oclu">
           <header class="pl-head mono">
-            <span data-i18n="pl.n2">02 / 04</span>
-            <span>oclucrm.com</span>
+            <span class="pl-num"><b class="pl-n">02</b> / 04</span>
+            <span class="pl-domain">oclucrm.com</span>
             <span>vue · laravel · mysql</span>
           </header>
-          <a class="pl-screen" href="https://www.oclucrm.com/" target="_blank" rel="noopener" aria-label="oclucrm — ver el sitio">
-            <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            <img class="pl-real" src="/works/oclucrm.jpg" alt="captura — oclucrm" decoding="async" />
+          <a class="pl-screen" href="https://www.oclucrm.com/" target="_blank" rel="noopener" aria-label="oclucrm — ver el sitio" data-cursor="ver">
+            <span class="pl-sheet">
+              <img class="pl-real" src="/works/oclucrm.jpg" alt="captura — oclucrm" decoding="async" />
+              <canvas class="pl-ascii" aria-hidden="true"></canvas>
+            </span>
             <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp mono" aria-hidden="true" data-i18n="pl.stamp">impreso</span>
+            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
           </a>
           <div class="pl-info">
             <h3>oclucrm</h3>
             <p data-i18n="pl.oclu">crm para clínicas con su landing: pacientes, turnos y administración en una pantalla que no te pelea.</p>
-            <a class="pl-link mono" href="https://www.oclucrm.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+            <a class="pl-link mono u-draw" href="https://www.oclucrm.com/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
         </article>
 
         <article class="pliego" data-work="taxes">
           <header class="pl-head mono">
-            <span data-i18n="pl.n3">03 / 04</span>
-            <span>taxes.com.ar</span>
+            <span class="pl-num"><b class="pl-n">03</b> / 04</span>
+            <span class="pl-domain">taxes.com.ar</span>
             <span>vue · express · postgres</span>
           </header>
-          <a class="pl-screen" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" aria-label="taxes software — ver el sitio">
-            <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            <img class="pl-real" src="/works/taxes.jpg" alt="captura — taxes software" decoding="async" />
+          <a class="pl-screen" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" aria-label="taxes software — ver el sitio" data-cursor="ver">
+            <span class="pl-sheet">
+              <img class="pl-real" src="/works/taxes.jpg" alt="captura — taxes software" decoding="async" />
+              <canvas class="pl-ascii" aria-hidden="true"></canvas>
+            </span>
             <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp mono" aria-hidden="true" data-i18n="pl.stamp">impreso</span>
+            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
           </a>
           <div class="pl-info">
             <h3>taxes software</h3>
             <p data-i18n="pl.taxes">impuestos y declaraciones sin laberinto. números claros para gente que odia los números.</p>
-            <a class="pl-link mono" href="https://www.taxes.com.ar/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+            <a class="pl-link mono u-draw" href="https://www.taxes.com.ar/" target="_blank" rel="noopener"><span data-i18n="pl.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
         </article>
 
         <article class="pliego" data-work="fms">
           <header class="pl-head mono">
-            <span data-i18n="pl.n4">04 / 04</span>
-            <span>fms clinic</span>
+            <span class="pl-num"><b class="pl-n">04</b> / 04</span>
+            <span class="pl-domain">fms clinic</span>
             <span>html · css · motion</span>
           </header>
-          <a class="pl-screen" href="#contacto" aria-label="fms clinic — captura">
-            <canvas class="pl-ascii" aria-hidden="true"></canvas>
-            <img class="pl-real" src="/works/fmsclinic.jpg" alt="captura — fms clinic" decoding="async" />
+          <a class="pl-screen" href="#contacto" aria-label="fms clinic — captura" data-cursor="ver">
+            <span class="pl-sheet">
+              <img class="pl-real" src="/works/fmsclinic.jpg" alt="captura — fms clinic" decoding="async" />
+              <canvas class="pl-ascii" aria-hidden="true"></canvas>
+            </span>
             <span class="pl-racleta" aria-hidden="true"></span>
-            <span class="pl-stamp mono" aria-hidden="true" data-i18n="pl.stamp">impreso</span>
+            <span class="pl-stamp-slot" aria-hidden="true"><span class="pl-stamp-hit"><b class="pl-stamp mono" data-i18n="pl.stamp" data-jitter="2">impreso</b></span></span>
           </a>
           <div class="pl-info">
             <h3>fms clinic</h3>
             <p data-i18n="pl.fms">clínica odontológica: negro, macro y una sola idea. la ciencia se ve, el trato se siente.</p>
-            <a class="pl-link mono" href="#contacto"><span data-i18n="pl.next">la próxima es la tuya</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
+            <a class="pl-link mono u-draw" href="#contacto"><span data-i18n="pl.next">la próxima es la tuya</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></a>
           </div>
         </article>
-        <footer class="pl-cierre">
-          <span class="sec-idx mono">(02b)</span>
-          <p class="pl-cierre-line" data-i18n="pl.miss">falta la tuya.</p>
-          <a class="cta" href="#contacto" data-i18n="ui.cta">hablemos →</a>
-        </footer>
+
+        <!-- cierre: el pliego cinco, en blanco. papel, marcas de registro, línea de corte -->
+        <article class="pliego pl-cierre" data-work="tuya">
+          <header class="pl-head mono">
+            <span class="pl-num"><b class="pl-n">05</b> / 04</span>
+            <span class="pl-domain" data-i18n="pl.yourdomain">tu-marca.com</span>
+            <span data-i18n="pl.yourstack">stack: el que haga falta</span>
+          </header>
+          <div class="pl-blank" aria-hidden="true">
+            <svg class="pl-reg tl" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
+            <svg class="pl-reg tr" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
+            <svg class="pl-reg bl" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
+            <svg class="pl-reg br" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="8" fill="none" stroke="currentColor" stroke-width="1"/><line x1="14" y1="1" x2="14" y2="27" stroke="currentColor" stroke-width="1"/><line x1="1" y1="14" x2="27" y2="14" stroke="currentColor" stroke-width="1"/></svg>
+            <svg class="pl-tuya" viewBox="0 0 760 150" preserveAspectRatio="xMidYMid meet"><text x="380" y="118" text-anchor="middle" data-i18n="pl.yours">tu landing</text></svg>
+          </div>
+          <div class="pl-info">
+            <h3 data-i18n="pl.miss">falta la tuya.</h3>
+            <p data-i18n="pl.missp">una landing por vez, con tu marca y tu idea. el pliego cinco sale de la máquina cuando nos escribís.</p>
+            <a class="cta" href="#contacto" data-i18n="ui.cta">hablemos →</a>
+          </div>
+        </article>
         </div>
         </div>
       </section>
