@@ -33,6 +33,9 @@ function atlas(ink, cell) {
   atlasCache.set(key, a);
   return a;
 }
+export function glyphAtlas(ink, cell) {
+  return { ...atlas(ink, cell), n: RAMP.length };
+}
 export function resetAtlas() {
   atlasCache = new Map();
 }

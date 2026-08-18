@@ -26,6 +26,11 @@ export function initPliegos(ctx) {
   setTimeout(measure, 600);
 
   const st = ScrollTrigger.create({ trigger: sec, start: 'top top', end: 'bottom bottom' });
+  // rótulo de la máquina: el transform real de la cinta
+  const dbg = document.createElement('span');
+  dbg.className = 'pl-dbg mono';
+  dbg.setAttribute('aria-hidden', 'true');
+  sec.querySelector('.pl-viewport').appendChild(dbg);
   const START = 0.04; // la cinta arranca a moverse un poco después de pegarse
   const END = 0.9; // y llega al cierre con una pantalla de sobra: tiempo de lectura
 
@@ -88,6 +93,7 @@ export function initPliegos(ctx) {
     skew += (-lean * 5 - skew) * 0.14;
     if (lastX !== x || Math.abs(skew) > 0.02) {
       track.style.transform = `translate3d(${x.toFixed(1)}px,0,0) skewX(${skew.toFixed(2)}deg)`;
+      dbg.textContent = `transform: translateX(${x.toFixed(0)}px) skewX(${skew.toFixed(2)}deg)`;
       lastX = x;
     }
     // registro: cerca del centro y quieto. En movimiento, la tinta se pierde.

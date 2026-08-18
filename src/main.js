@@ -20,12 +20,14 @@ import { initGrain } from './systems/grain.js';
 import { initJitter } from './systems/jitter.js';
 import { initMisregister } from './systems/misregister.js';
 import { initFlash, spliceFlash } from './systems/flash.js';
-import { initRuler } from './systems/ruler.js';
+import { initRail } from './systems/rail.js';
 import { initRacleta } from './systems/racleta.js';
+import { initOrb } from './systems/orb.js';
 import { initSplash } from './sections/splash.js';
 import { initHero } from './sections/hero.js';
 import { initProceso } from './sections/proceso.js';
 import { initPliegos } from './sections/pliegos.js';
+import { initAntes } from './sections/antes.js';
 
 const ctx = detectTier();
 document.documentElement.dataset.tier = ctx.tier;
@@ -78,8 +80,11 @@ bus.on('frame', (f) => {
 // ── static (reduced-motion): la página impresa, quieta ──
 if (ctx.tier === 'static') {
   document.getElementById('splash')?.remove();
+  document.getElementById('orb')?.remove();
   initMisregister(ctx);
   initHero(ctx);
+  initProceso(ctx);
+  initAntes(ctx);
 } else {
   const lenis = initScroll(ctx);
   setFilmSmoothing(ctx.coarse);
@@ -87,12 +92,14 @@ if (ctx.tier === 'static') {
   initGrain(ctx);
   initJitter(ctx);
   initMisregister(ctx);
-  initRuler(ctx);
+  initRail(ctx);
   initRacleta(ctx);
+  initOrb(ctx);
   initSplash(ctx);
   initHero(ctx);
   initProceso(ctx);
   initPliegos(ctx);
+  initAntes(ctx);
 
   // un solo ticker: scroll suave → obturador → commits
   gsap.ticker.add((t) => {
@@ -101,10 +108,17 @@ if (ctx.tier === 'static') {
   });
   gsap.ticker.lagSmoothing(0);
 
-  // la marca de registro del HUD gira a saltos: la máquina está encendida
+  // la marca de registro del HUD gira a saltos y el reloj marca la hora del
+  // taller (buenos aires): la máquina está encendida
   const reg = document.querySelector('.regmark');
+  const clockEl = document.querySelector('.hud-clock');
   bus.on('frame', (f) => {
     if (reg) reg.style.transform = `rotate(${(f % 24) * 15}deg)`;
+    if (clockEl && f % 12 === 0) {
+      const d = new Date();
+      const hm = d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Argentina/Buenos_Aires' });
+      clockEl.textContent = `bue ${hm}`;
+    }
   });
 
   // CTA / anclas: scroll suave por lenis (o nativo)

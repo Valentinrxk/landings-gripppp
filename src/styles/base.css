@@ -1,12 +1,12 @@
 /* ── base ───────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: auto !important; background: var(--plata); }
+html { scroll-behavior: auto !important; background: var(--papel); }
 html.no-scrollbar { scrollbar-width: none; }
 html.no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
 html.splashing { overflow: hidden; }
 
 body {
-  background: var(--plata); /* la mesa de la máquina */
+  background: var(--papel);
   color: var(--negro);
   font-family: var(--font-display);
   font-weight: 500;
@@ -28,16 +28,11 @@ button { font: inherit; cursor: pointer; }
   transform: translateY(-300%);
 }
 .skip:focus-visible { transform: none; }
-:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--rojo); outline-offset: 3px; }
 
 main#world { position: relative; z-index: var(--z-world); }
 
-/* jitter seeded por cuadro */
-[data-jitter='1'] { transform: translate(var(--j1x), var(--j1y)) rotate(var(--j1r)); }
-[data-jitter='2'] { transform: translate(var(--j2x), var(--j2y)) rotate(var(--j2r)); }
-[data-jitter='3'] { transform: translate(var(--j3x), var(--j3y)) rotate(var(--j3r)); }
-
-/* desregistro serigráfico en titulares */
+/* desregistro serigráfico en titulares (sutil: ±1px, sin blend en oscuro) */
 [data-misregister] { position: relative; }
 [data-misregister]::before, [data-misregister]::after {
   content: attr(data-text); position: absolute; inset: 0; z-index: -1;
@@ -46,103 +41,124 @@ main#world { position: relative; z-index: var(--z-world); }
 [data-misregister]::before { color: var(--rojo); mix-blend-mode: multiply; transform: translate(var(--mis-x), var(--mis-y)); }
 [data-misregister]::after { color: var(--celeste); mix-blend-mode: multiply; transform: translate(calc(var(--mis-x) * -1), calc(var(--mis-y) * -1)); }
 
-/* ── capas fijas ────────────────────────────────────────────── */
+/* ── la mesa: grilla de registro fija sobre TODA la página ─────
+   difference: visible sobre papel, plata y grafito por igual */
+#mesa {
+  position: fixed; inset: 0; z-index: var(--z-mesa); pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(128, 128, 128, 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 128, 128, 0.55) 1px, transparent 1px);
+  background-size: var(--cell) var(--cell);
+  background-position: var(--gutter) 0;
+  mix-blend-mode: difference;
+  opacity: 0.3;
+}
+#orb { position: fixed; inset: 0; width: 100%; height: 100%; z-index: var(--z-orb); pointer-events: none; }
 #texture { position: fixed; inset: 0; z-index: var(--z-texture); pointer-events: none; }
 #texture .ht {
   position: absolute; inset: 0;
   background-image: radial-gradient(circle, rgba(17, 17, 17, 0.5) 1px, transparent 1.4px);
-  background-size: 7px 7px; opacity: 0.05; mix-blend-mode: multiply;
+  background-size: 7px 7px; opacity: 0.045; mix-blend-mode: multiply;
 }
-#texture .grain { position: absolute; inset: 0; opacity: 0.07; }
+#texture .grain { position: absolute; inset: 0; opacity: 0.06; }
 
-/* HUD de la máquina */
+/* ── HUD: una fila de celdas ─────────────────────────────────── */
 #hud {
   position: fixed; top: 0; left: 0; right: 0; height: var(--hud-h);
   z-index: var(--z-hud);
-  display: flex; align-items: center; gap: 1.2rem;
+  display: flex; align-items: stretch;
   padding: 0 var(--gutter);
   padding-top: env(safe-area-inset-top, 0px);
   font-size: 0.72rem; letter-spacing: 0.02em;
   color: var(--negro);
-  background: var(--plata-2);
-  border-bottom: 2px solid var(--negro);
-  mix-blend-mode: normal;
+  background: var(--papel);
+  border-bottom: 1px solid var(--negro);
 }
-.hud-brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; }
-.regmark { width: 20px; height: 20px; color: var(--rojo); }
-.hud-word { font-family: var(--font-mono); font-size: 0.8rem; }
+#hud > * { display: inline-flex; align-items: center; padding: 0 1rem; border-right: 1px solid var(--negro); }
+#hud > *:first-child { border-left: 1px solid var(--negro); }
+.hud-brand { gap: 0.6rem; text-decoration: none; }
+.regmark { width: 18px; height: 18px; color: var(--rojo); }
+.hud-word { font-family: var(--font-mono); font-size: 0.78rem; }
 .hud-word b { font-family: var(--font-display); font-weight: 900; font-size: 1rem; letter-spacing: -0.03em; font-variation-settings: 'wdth' 90; }
-.hud-sign { margin-left: auto; margin-right: 6.5rem; color: var(--acero-2); }
-#lang { margin-right: 10.5rem;
-  background: var(--papel); border: 2px solid var(--negro); border-radius: 999px;
-  font-family: var(--font-mono); font-size: 0.72rem; padding: 0.22rem 0.55rem;
-  box-shadow: 2px 2px 0 var(--negro); white-space: nowrap;
+.hud-sign { color: var(--acero-2); border-right: 0 !important; flex: 1; }
+.hud-clock { font-family: var(--font-mono); color: var(--acero-2); border-left: 1px solid var(--negro); }
+#lang {
+  background: transparent; border: 0; border-right: 1px solid var(--negro);
+  font-family: var(--font-mono); font-size: 0.72rem; white-space: nowrap;
 }
 #lang span { display: inline-block; width: 1ch; text-align: center; }
-#lang:hover { background: var(--lima); }
-#lang:active { translate: 2px 2px; box-shadow: 0 0 0 var(--negro); }
+#lang:hover { background: var(--plata-2); }
+.hud-cta { text-decoration: none; font-weight: 800; font-family: var(--font-display); font-size: 0.85rem; background: var(--rojo); color: var(--papel); }
+.hud-cta:hover { background: var(--negro); }
 
-/* CTA persistente (tinta roja) */
+/* CTA en el cuerpo (contacto): tinta roja, sin sombra */
 .cta {
   display: inline-flex; align-items: center; gap: 0.5rem;
   background: var(--rojo); color: var(--papel);
-  border: 2.5px solid var(--negro); border-radius: 999px;
-  padding: 0.55rem 1.05rem; font-weight: 800; font-size: 0.85rem;
-  text-decoration: none; box-shadow: 4px 4px 0 var(--negro); white-space: nowrap;
+  border: 1px solid var(--negro);
+  padding: 0.7rem 1.2rem; font-weight: 800; font-size: 0.9rem;
+  text-decoration: none; white-space: nowrap;
 }
-.cta:hover { background: var(--lima); color: var(--negro); }
-.cta:active { translate: 2px 2px; box-shadow: 2px 2px 0 var(--negro); }
-.cta.big { font-size: clamp(1.1rem, 2.4vw, 1.6rem); padding: 0.9rem 1.7rem; }
-.cta.ghost { background: var(--papel); color: var(--negro); font-family: var(--font-mono); font-weight: 400; }
-#cta-top {
-  position: fixed; z-index: var(--z-toggle);
-  top: calc(0.55rem + env(safe-area-inset-top, 0px));
-  right: calc(var(--gutter) + 30px);
-  font-size: 0.72rem; padding: 0.35rem 0.8rem;
+.cta:hover { background: var(--negro); }
+.cta.big { font-size: clamp(1.1rem, 2.4vw, 1.6rem); padding: 1rem 1.7rem; }
+.cta.ghost { background: transparent; color: var(--negro); font-family: var(--font-mono); font-weight: 400; }
+.cta.ghost:hover { background: var(--plata-2); }
+/* la celda-CTA de las cabeceras de escena */
+.cell-cta {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: calc(var(--cell) * 3); padding: 0 1.2rem;
+  border-left: 1px solid var(--negro);
+  font-weight: 800; text-decoration: none; font-size: 0.95rem;
 }
+.cell-cta:hover { background: var(--rojo); color: var(--papel); }
 
-/* la regla de registro (scrollbar) */
-#ruler {
-  position: fixed; top: 0; right: 0; bottom: 0; width: 26px;
-  z-index: var(--z-hud);
-  background: var(--plata-2); border-left: 2px solid var(--negro);
-  cursor: grab; touch-action: none;
+/* ── la regla (abajo): playhead de la escena ─────────────────── */
+#rail {
+  position: fixed; left: 0; right: 0; bottom: 0; height: var(--rail-h);
+  z-index: var(--z-hud); pointer-events: none;
+  background: var(--papel); border-top: 1px solid var(--negro);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-#ruler.dragging { cursor: grabbing; }
-.ruler-ticks {
-  position: absolute; inset: 0;
+.rail-ticks {
+  position: absolute; left: var(--gutter); right: var(--gutter); top: 0; bottom: 0;
   background-image:
-    repeating-linear-gradient(to bottom, var(--negro) 0 1px, transparent 1px 10%),
-    repeating-linear-gradient(to bottom, var(--acero) 0 1px, transparent 1px 2%);
-  background-size: 100% 100%, 40% 100%;
-  background-position: 0 0, 100% 0;
-  background-repeat: no-repeat, repeat-y;
-  opacity: 0.9;
+    linear-gradient(to right, var(--negro) 1px, transparent 1px),
+    linear-gradient(to right, var(--acero) 1px, transparent 1px);
+  background-size: var(--cell) 55%, calc(var(--cell) / 4) 25%;
+  background-repeat: repeat-x;
+  background-position: 0 100%, 0 100%;
+  opacity: 0.8;
 }
-.ruler-mark {
-  position: absolute; top: 0; left: -2px; right: 0; height: 28px;
-  display: grid; place-items: center;
-  background: var(--rojo); border: 2px solid var(--negro);
-  color: var(--papel); font-size: 0.55rem;
+.rail-head {
+  position: absolute; left: var(--gutter); top: 0; bottom: 0; width: 2px;
+  background: var(--rojo);
 }
-.ruler-mark span { writing-mode: vertical-rl; letter-spacing: 0.08em; }
+.rail-txt {
+  position: absolute; right: var(--gutter); top: 0; bottom: 0;
+  display: flex; align-items: center; font-size: 0.66rem; color: var(--acero-2);
+  padding: 0 0.6rem; background: var(--papel);
+}
 
-/* racleta global (corte entre estaciones) */
+/* rótulos de la máquina: los valores reales de lo que se mueve */
+.dbg {
+  position: absolute; font-size: 0.62rem; color: var(--acero-2); letter-spacing: 0.02em;
+  white-space: nowrap; pointer-events: none;
+  background: rgba(244, 241, 234, 0.85); padding: 0.15rem 0.4rem;
+}
+
+/* racleta global (corte entre escenas) */
 .racleta-global {
-  position: fixed; left: -5%; right: -5%; top: 0; height: 18vh;
+  position: fixed; left: -5%; right: -5%; top: 0; height: 16vh;
   z-index: var(--z-racleta); pointer-events: none; visibility: hidden;
   background: var(--cromo);
-  border-top: 3px solid var(--negro); border-bottom: 3px solid var(--negro);
+  border-top: 2px solid var(--negro); border-bottom: 2px solid var(--negro);
   transform: translateY(-120vh);
 }
 .splice-flash-global { position: fixed; inset: 0; background: #fff; visibility: hidden; pointer-events: none; z-index: calc(var(--z-splash) - 1); }
 
 /* splash: prueba de registro */
 #splash { display: none; }
-#splash.is-on {
-  display: block; position: fixed; inset: 0; z-index: var(--z-splash);
-  background: var(--plata); cursor: pointer;
-}
+#splash.is-on { display: block; position: fixed; inset: 0; z-index: var(--z-splash); background: var(--plata); cursor: pointer; }
 #splash .splash-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 #splash .splash-sign, #splash .splash-count {
   position: absolute; bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
@@ -151,6 +167,5 @@ main#world { position: relative; z-index: var(--z-world); }
 #splash .splash-sign { left: 1.2rem; }
 #splash .splash-count { right: 1.2rem; }
 
-/* reveals cuantizados */
 .is-off { visibility: hidden; }
 .is-on { visibility: visible; }

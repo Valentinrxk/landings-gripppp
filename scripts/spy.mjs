@@ -20,7 +20,7 @@ async function run(tag, vp, mobile) {
   await page.waitForTimeout(1600);
   await page.screenshot({ path: `${SHOTS}/${tag}-hero.png` });
   const marks = await page.evaluate(() =>
-    ['#proceso', '#trabajos', '#specs', '#contacto'].map((s) => {
+    ['#proceso', '#trabajos', '#plantilla', '#contacto'].map((s) => {
       const r = document.querySelector(s).getBoundingClientRect();
       return { s, y: r.top + window.scrollY };
     })
@@ -41,6 +41,17 @@ async function run(tag, vp, mobile) {
     await page.evaluate((v) => window.scrollTo(0, v), y);
     await page.waitForTimeout(650);
     await page.screenshot({ path: `${SHOTS}/${tag}-${m.s.replace(/[#.:()-]/g, '')}-b.png` });
+  }
+  for (const [id, fr] of [['#inicio', [0.35, 0.8]], ['#proceso', [0.1, 0.3, 0.55, 0.9]], ['#plantilla', [0.3, 0.55, 0.85]]]) {
+    const inf = await page.evaluate((sel) => {
+      const s = document.querySelector(sel);
+      return { top: s.getBoundingClientRect().top + window.scrollY, h: s.offsetHeight - window.innerHeight };
+    }, id);
+    for (const f of fr) {
+      await page.evaluate((v) => window.scrollTo(0, v), inf.top + inf.h * f);
+      await page.waitForTimeout(1200);
+      await page.screenshot({ path: `${SHOTS}/${tag}-${id.slice(1)}-${Math.round(f * 100)}.png` });
+    }
   }
   // la cinta: capturas a distintos progresos de la sección (quieto → registra)
   const secInfo = await page.evaluate(() => {

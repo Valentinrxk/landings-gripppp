@@ -19,10 +19,15 @@
   --font-display: 'Archivo Variable', 'Archivo', system-ui, sans-serif;
   --font-mono: 'Space Mono', ui-monospace, monospace;
 
-  --gutter: clamp(1rem, 4vw, 3.5rem);
-  --hud-h: 46px;
+  /* la mesa: celda de la grilla; todo se alinea a ella */
+  --cell: 72px;
+  --gutter: var(--cell);
+  --hud-h: var(--cell);
+  --rail-h: 32px;
 
   --z-world: 1;
+  --z-orb: 0; /* detrás del mundo: hero y contacto son transparentes */
+  --z-mesa: 40;
   --z-texture: 50;
   --z-hud: 60;
   --z-toggle: 70;
@@ -36,4 +41,8 @@
   --slip: 0px;
   --mis-x: 1px;
   --mis-y: -1px;
+}
+
+@media (max-width: 720px) {
+  :root { --cell: 48px; --gutter: 16px; --hud-h: 44px; --rail-h: 26px; }
 }
