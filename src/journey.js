@@ -197,6 +197,7 @@ export async function initJourney(ctx) {
   // ── el campo sigue al master: par de formas + t local; envión → turbulencia/tintas ──
   let lastBeat = -1;
   let lean = 0;
+  let introRunning = true; // mientras corre el splash, el ticker no toca el morph
   const workImg = document.getElementById('work-real');
   const workLink = document.getElementById('work-link');
   let mouse = [0, 0, 0];
@@ -208,14 +209,17 @@ export async function initJourney(ctx) {
       lastBeat = b;
       bus.emit('beat', b);
     }
-    field.setPair(shapes[b], shapes[b + 1]);
     // cada beat: sostiene la forma (0–0.22), viaja (0.22–0.85), sostiene (0.85–1)
     // las obras viajan menos y se sostienen más (que no se salteen al scrollear rápido)
     const isWork = b >= 4 && b <= 8;
     const HOLD_IN = isWork ? 0.34 : 0.22;
     const HOLD_OUT = isWork ? 0.74 : 0.85;
     const tt = Math.max(0, Math.min(1, (lt - HOLD_IN) / (HOLD_OUT - HOLD_IN)));
-    field.state.t = tt;
+    if (!introRunning) {
+      // durante la intro, el par y el t los maneja el timeline del splash
+      field.setPair(shapes[b], shapes[b + 1]);
+      field.state.t = tt;
+    }
     // envión: agitación + desregistro que se relaja al frenar
     const L = Math.abs(scrollLean());
     lean += (L - lean) * 0.12;
@@ -288,14 +292,7 @@ export async function initJourney(ctx) {
       .to(cta, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'expo.out' }, 0.6)
       .to(hint, { autoAlpha: 1, duration: 0.4 }, 0.9);
   }
-  // el ticker arriba llama setPair(shapes[b], shapes[b+1]) cada frame — durante la
-  // intro lo bloqueamos con un flag
-  let introRunning = true;
   const origSetPair = field.setPair;
-  field.setPair = (a, b) => {
-    if (introRunning) return;
-    origSetPair(a, b);
-  };
   // ── splash: stop-motion de palabras gigantes hechas de tinta — no · sos · una ·
   // plantilla. — cortes duros, punch-in de cámara y desregistro en cada golpe;
   // después la marca grip con flash y latido, y de ahí viaja a su lugar en el hero.

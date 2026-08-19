@@ -230,5 +230,5 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
 #splash .splash-bar { position: absolute; left: var(--gutter); right: var(--gutter); bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px)); height: 1px; background: var(--rojo); transform: scaleX(0); transform-origin: left; }
 #splash .splash-sign { left: var(--gutter); }
 #splash .splash-count { right: var(--gutter); font-variant-numeric: tabular-nums; }
-html.splashing .brand, html.splashing #cta-top, html.splashing .marks, html.splashing .beat-hero { opacity: 0; transition: opacity 0.6s var(--ease-smooth); }
+html.splashing .brand, html.splashing #cta-top, html.splashing .marks, html.splashing .top-tools, html.splashing .beat-hero { opacity: 0; transition: opacity 0.6s var(--ease-smooth); }
 .brand, #cta-top, .marks { transition: opacity 0.6s var(--ease-smooth); }
