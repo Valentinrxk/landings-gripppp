@@ -296,7 +296,6 @@ export async function initJourney(ctx) {
     );
     const noise = S.shapeNoise(N, A, 3);
     const gripCenter = S.shapeGrip(N, A, { widthFrac: mobile ? 0.86 : 0.5, x: 0, y: mobile ? 8 : 0, seed: 41 });
-    lenis?.stop();
     window.scrollTo(0, 0);
     const finish = () => {
       introRunning = false;
@@ -305,7 +304,6 @@ export async function initJourney(ctx) {
       field.state.mis = 0;
       document.documentElement.classList.remove('splashing');
       splash?.remove();
-      lenis?.start();
       heroIn.play();
     };
     if (skipSplash) {
@@ -359,8 +357,12 @@ export async function initJourney(ctx) {
       if (tl.progress() >= 1) return;
       tl.progress(1);
     };
+    // cualquier intención de moverse corta la intro (nunca bloquear el scroll)
     splash?.addEventListener('pointerdown', skip);
     window.addEventListener('keydown', skip, { once: true });
+    window.addEventListener('wheel', skip, { once: true, passive: true });
+    window.addEventListener('touchmove', skip, { once: true, passive: true });
+    window.addEventListener('scroll', () => window.scrollY > 8 && skip(), { once: true, passive: true });
   };
   document.fonts?.ready.then(runIntro);
 
@@ -385,11 +387,18 @@ export async function initJourney(ctx) {
     window.addEventListener('pointerleave', () => (mouse = [0, 0, 0]));
   }
 
-  // ── resize: formas y cámara ──
+  // ── resize: formas y cámara. En touch la barra de URL cambia el alto al
+  // scrollear: eso NO es un resize (rearmar las formas ahí rompe el scroll) ──
   let rt = null;
+  let lastW = window.innerWidth;
   window.addEventListener('resize', () => {
+    if (ctx.coarse && window.innerWidth === lastW) {
+      field.resize(); // solo el lienzo
+      return;
+    }
     clearTimeout(rt);
     rt = setTimeout(() => {
+      lastW = window.innerWidth;
       field.resize();
       build();
       lastBeat = -1;
