@@ -31,6 +31,11 @@ export function t(key, L = lang) {
   return typeof v === 'string' ? v : key;
 }
 
+const WA = {
+  es: 'https://wa.me/5491121865983?text=' + encodeURIComponent('hola grip, quiero cotizar la landing de mi marca.'),
+  en: 'https://wa.me/5491121865983?text=' + encodeURIComponent("hi grip, i'd like a quote for my brand's landing page."),
+};
+
 export function applyLang(next) {
   lang = next;
   document.documentElement.lang = next;
@@ -47,5 +52,7 @@ export function applyLang(next) {
   } catch {
     /* modo privado */
   }
+  // el whatsapp abre con el mensaje de cotización en el idioma vigente
+  document.querySelectorAll('a[href^="https://wa.me/"]').forEach((a) => (a.href = WA[next]));
   bus.emit('i18n:changed', next);
 }

@@ -92,7 +92,7 @@ function buildStatic() {
     <section><h2>${c.como.h}</h2>${c.como.steps.map((s) => `<p><b>${s.t}</b> — ${s.p}</p>`).join('')}<p class="mono">${c.como.after}</p></section>
     <section><h2>${c.trabajos.h}</h2>${works.map(([n, u, i, d]) => `<p><a href="${u}" target="_blank" rel="noopener"><b>${n}</b></a> — ${d}</p><img src="${i}" alt="${n}" loading="lazy" />`).join('')}<p class="mono">${c.trabajos.closing}</p></section>
     <section><h2>${c.plantilla.h}</h2><p><b>${L === 'en' ? 'template' : 'plantilla'}</b> — ${c.plantilla.tpl}</p><p><b>${L === 'en' ? 'brand' : 'marca'}</b> — ${c.plantilla.marca}</p></section>
-    <section><h2>${c.contacto.h}</h2><p>${c.contacto.p}</p><p><a class="cta big" href="https://wa.me/5491121865983">${c.contacto.wa}</a> <a class="cta ghost" href="mailto:hola@gripppp.com">hola@gripppp.com</a></p><p class="mono">${c.contacto.credit1} · ${c.contacto.credit2}</p></section>`;
+    <section><h2>${c.contacto.h}</h2><p>${c.contacto.p}</p><p><a class="cta big" href="https://wa.me/5491121865983?text=hola%20grip%2C%20quiero%20cotizar%20la%20landing%20de%20mi%20marca.">${c.contacto.wa}</a> <a class="cta ghost" href="mailto:hola@gripppp.com">hola@gripppp.com</a></p><p class="mono">${c.contacto.credit1} · ${c.contacto.credit2}</p></section>`;
 }
 
 if (ctx.tier === 'static' || !hasGL) {
