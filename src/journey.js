@@ -168,8 +168,8 @@ export async function initJourney(ctx) {
     WORKS.forEach((w, i) => {
       const cap = T('w' + i);
       const from = i % 2 ? { x: 80, y: 30 } : { x: -80, y: 30 };
-      master.fromTo(cap, { autoAlpha: 0, ...from }, { autoAlpha: 1, x: 0, y: 0, duration: 0.25, ease: 'power3.out' }, 4.6 + i)
-        .to(cap, { autoAlpha: 0, y: -30, duration: 0.2, ease: 'power2.in' }, 5.45 + i);
+      master.fromTo(cap, { autoAlpha: 0, ...from }, { autoAlpha: 1, x: 0, y: 0, duration: 0.22, ease: 'power3.out' }, 4.55 + i)
+        .to(cap, { autoAlpha: 0, y: -30, duration: 0.18, ease: 'power2.in' }, 5.38 + i);
     });
     // cierre trabajos + plantilla vs marca: dos columnas se separan desde el centro
     const pl = T('plantilla');
@@ -201,8 +201,10 @@ export async function initJourney(ctx) {
     }
     field.setPair(shapes[b], shapes[b + 1]);
     // cada beat: sostiene la forma (0–0.22), viaja (0.22–0.85), sostiene (0.85–1)
-    const HOLD_IN = 0.22;
-    const HOLD_OUT = 0.85;
+    // las obras viajan menos y se sostienen más (que no se salteen al scrollear rápido)
+    const isWork = b >= 4 && b <= 8;
+    const HOLD_IN = isWork ? 0.34 : 0.22;
+    const HOLD_OUT = isWork ? 0.74 : 0.85;
     const tt = Math.max(0, Math.min(1, (lt - HOLD_IN) / (HOLD_OUT - HOLD_IN)));
     field.state.t = tt;
     // envión: agitación + desregistro que se relaja al frenar
@@ -215,7 +217,7 @@ export async function initJourney(ctx) {
     // la obra real aparece cuando la forma está armada (sostén) y frenaste
     let wIdx = -1;
     if (b >= 4 && b <= 8 && lt >= HOLD_OUT) wIdx = b - 4;
-    else if (b >= 5 && b <= 9 && lt <= HOLD_IN) wIdx = b - 5;
+    else if (b >= 5 && b <= 9 && lt <= (b <= 8 ? 0.34 : 0.22)) wIdx = b - 5;
     if (wIdx >= 0) {
       const r = workRects[wIdx];
       const [x1, y1] = field.project(r.cx - r.w / 2, r.cy + r.h / 2, 0);
@@ -362,8 +364,20 @@ export async function initJourney(ctx) {
   };
   document.fonts?.ready.then(runIntro);
 
-  // ── puntero: aparta la tinta ──
-  if (!ctx.coarse) {
+  // ── puntero: aparta la tinta. En touch no hay hover: un dedo fantasma recorre
+  // la forma despacio (lissajous) para que la tinta viva igual ──
+  if (ctx.coarse) {
+    const t0 = performance.now();
+    gsap.ticker.add(() => {
+      const t = (performance.now() - t0) / 1000;
+      const A = field.aspect;
+      const W = 100 * A;
+      // recorre la zona donde viven las formas (centro/arriba en mobile)
+      const wx = Math.sin(t * 0.55) * W * 0.32;
+      const wy = 10 + Math.sin(t * 0.83 + 1.3) * 18;
+      mouse = [wx, wy, 0.8];
+    });
+  } else {
     window.addEventListener('pointermove', (e) => {
       const [wx, wy] = field.unproject(e.clientX, e.clientY);
       mouse = [wx, wy, 1];

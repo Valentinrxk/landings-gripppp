@@ -12,7 +12,7 @@ const VERT = /* glsl */ `
   attribute float aSizeA; attribute float aSizeB;
   attribute float aSeed; attribute float aGlyph;
   uniform float uT; uniform float uTime; uniform float uTurb; uniform float uSize;
-  uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc;
+  uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc; uniform float uScale;
   varying float vAlpha; varying vec3 vCol; varying float vGlyph;
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   void main() {
@@ -39,7 +39,7 @@ const VERT = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
     float sz = mix(aSizeA, aSizeB, e);
-    gl_PointSize = uSize * sz * uPR * (110.0 / max(1.0, -mv.z));
+    gl_PointSize = uSize * sz * uPR * uScale * (110.0 / max(1.0, -mv.z));
     vAlpha = mix(aAlphaA, aAlphaB, e);
     vCol = mix(aColA, aColB, e);
     vGlyph = aGlyph;
@@ -120,6 +120,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     uOffset: { value: new THREE.Vector2(0, 0) },
     uMouse: { value: new THREE.Vector3(0, 0, 0) },
     uPR: { value: renderer.getPixelRatio() },
+    uScale: { value: 1 },
     uArc: { value: 1 },
     uAtlas: { value: atlas },
     uInk: { value: new THREE.Color(ink) },
@@ -148,7 +149,13 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     renderer.setSize(W, Hh, false);
     camera.aspect = W / Hh;
     camera.updateProjectionMatrix();
-    mats.forEach((m) => (m.uniforms.uPR.value = renderer.getPixelRatio()));
+    // el punto escala con el ancho de la pantalla (1440px = 1): en el celu las formas
+    // son más chicas en mundo, así que el punto también, o se ven gruesas
+    const sc = Math.max(0.55, Math.min(1.1, Math.sqrt(W / 1440)));
+    mats.forEach((m) => {
+      m.uniforms.uPR.value = renderer.getPixelRatio();
+      m.uniforms.uScale.value = sc;
+    });
   };
   resize();
 

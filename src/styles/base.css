@@ -72,7 +72,7 @@ main#world { position: relative; z-index: var(--z-world); }
 .marks .lang:hover { color: var(--rojo); }
 
 /* ── el viaje ── */
-#journey { position: relative; height: 1200vh; height: 1200svh; }
+#journey { position: relative; height: 1500vh; height: 1500svh; }
 .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; }
 #field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 #work-real { position: absolute; opacity: 0; object-fit: cover; box-shadow: var(--shadow-mesa); transition: opacity 0.35s var(--ease-smooth); pointer-events: none; }
