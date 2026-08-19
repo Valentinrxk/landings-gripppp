@@ -51,7 +51,8 @@ export async function initJourney(ctx) {
     const pile = S.shapePile(N, A);
     // señal: la palabra, hecha de grip
     const word = S.shapeText(N, A, 'landings', { widthFrac: mobile ? 0.94 : 0.62, x: mobile ? 0 : -W * 0.14, y: mobile ? 14 : 0 });
-    const sphere = S.shapeNoise(N, A, 9);
+    // cómo: la tesis del método, en grande, a la derecha
+    const sphere = S.shapeText(N, A, 'una idea.', { widthFrac: mobile ? 0.92 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 16 : 2, seed: 19 });
     workRects = [];
     const works = imgs.map((im, i) => {
       // a la derecha del caption; alternan un poco de alto para que la cámara tenga a dónde ir
@@ -154,15 +155,16 @@ export async function initJourney(ctx) {
       .to(ru, { autoAlpha: 0, y: 80, duration: 0.3, ease: 'power2.in' }, 1.7);
     // la pila: el ruido nombrado (sube desde abajo, mono, y se va con la palabra)
     const pi = T('pila');
-    master.fromTo(pi, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 1.55)
-      .to(pi, { autoAlpha: 0, y: -20, duration: 0.25, ease: 'power2.in' }, 2.3);
+    master.fromTo(pi, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 1.95)
+      .to(pi, { autoAlpha: 0, y: -20, duration: 0.25, ease: 'power2.in' }, 2.45);
     // señal: llega desde la derecha por clip, mientras la palabra se levanta de la pila
     const se = T('senal');
-    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.4, ease: 'power3.out' }, 2.2)
+    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.4, ease: 'power3.out' }, 2.4)
       .to(se, { autoAlpha: 0, x: -40, duration: 0.3, ease: 'power2.in' }, 3.15);
     // cómo: pasos suben uno por uno
     const co = T('como');
     const steps = [...co.querySelectorAll('.step')];
+    master.fromTo(co, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, 3.35);
     master.fromTo(co.querySelector('h2'), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 3.4);
     steps.forEach((s, i) => master.fromTo(s, { autoAlpha: 0, y: 60, rotate: -1.5 }, { autoAlpha: 1, y: 0, rotate: 0, duration: 0.22, ease: 'power3.out' }, 3.55 + i * 0.16));
     master.to(co, { autoAlpha: 0, y: -50, duration: 0.3, ease: 'power2.in' }, 4.35);
@@ -177,6 +179,7 @@ export async function initJourney(ctx) {
     });
     // cierre trabajos + plantilla vs marca: dos columnas se separan desde el centro
     const pl = T('plantilla');
+    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, 9.45).to(pl, { autoAlpha: 0, duration: 0.2 }, 10.95);
     master.fromTo(pl.querySelector('.pl-l'), { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, 9.55)
       .fromTo(pl.querySelector('.pl-r'), { autoAlpha: 0, x: -60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, 9.55)
       .fromTo(pl.querySelector('h2'), { autoAlpha: 0, scale: 1.15 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power3.out' }, 9.5)
