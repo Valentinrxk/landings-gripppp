@@ -10,11 +10,11 @@ const VERT = /* glsl */ `
   attribute vec3 aColA; attribute vec3 aColB;
   attribute float aAlphaA; attribute float aAlphaB;
   attribute float aSizeA; attribute float aSizeB;
-  attribute float aSeed; attribute float aGlyph;
+  attribute float aSeed; attribute float aGlyph; attribute float aInkA; attribute float aInkB;
   uniform float uT; uniform float uTime; uniform float uTurb; uniform float uSize;
   uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc; uniform float uScale;
   uniform vec4 uBurst; // x, y, radio del anillo, fuerza
-  varying float vAlpha; varying vec3 vCol; varying float vGlyph;
+  varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   void main() {
     // retardo por punto: cada partícula arranca su viaje en un momento distinto
@@ -49,18 +49,22 @@ const VERT = /* glsl */ `
     vAlpha = mix(aAlphaA, aAlphaB, e);
     vCol = mix(aColA, aColB, e);
     vGlyph = aGlyph;
+    vInk = mix(aInkA, aInkB, e);
   }
 `;
 const FRAG = /* glsl */ `
   precision mediump float;
-  uniform sampler2D uAtlas; uniform vec3 uInk; uniform float uUseInk; uniform float uOpacity;
-  varying float vAlpha; varying vec3 vCol; varying float vGlyph;
+  uniform sampler2D uAtlas; uniform vec3 uInk; uniform float uUseInk; uniform float uOpacity; uniform float uDark;
+  varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
   void main() {
     vec2 uv = gl_PointCoord;
     uv.x = (uv.x + vGlyph) / 4.0;
     float a = texture2D(uAtlas, uv).a;
     if (a < 0.06) discard;
-    vec3 c = mix(vCol, uInk, uUseInk);
+    vec3 c = vCol;
+    // modo noche: la tinta negra se vuelve clara; los puntos de captura (color) quedan
+    c = mix(c, 1.0 - c * 0.6, uDark * vInk);
+    c = mix(c, uInk, uUseInk);
     gl_FragColor = vec4(c, min(1.0, a * 1.35) * vAlpha * uOpacity);
   }
 `;
@@ -115,6 +119,8 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
   geo.setAttribute('aSizeB', mk(1));
   geo.setAttribute('aSeed', mk(1, seeds));
   geo.setAttribute('aGlyph', mk(1, glyphs));
+  geo.setAttribute('aInkA', mk(1, new Float32Array(N).fill(1)));
+  geo.setAttribute('aInkB', mk(1, new Float32Array(N).fill(1)));
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e6);
 
   const atlas = glyphAtlas();
@@ -128,6 +134,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     uPR: { value: renderer.getPixelRatio() },
     uScale: { value: 1 },
     uBurst: { value: new THREE.Vector4(0, 0, 0, 0) },
+    uDark: { value: 0 },
     uArc: { value: 1 },
     uAtlas: { value: atlas },
     uInk: { value: new THREE.Color(ink) },
@@ -178,7 +185,9 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     set('aCol' + s, shape.col);
     set('aAlpha' + s, shape.alpha);
     set('aSize' + s, shape.size);
+    set('aInk' + s, shape.ink || ONES);
   };
+  const ONES = new Float32Array(N).fill(1);
   let curA = null;
   let curB = null;
   const setPair = (a, b) => {
@@ -192,7 +201,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     }
   };
 
-  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0], burst: { x: 0, y: 0, r: 0, s: 0 } };
+  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0], burst: { x: 0, y: 0, r: 0, s: 0 }, dark: 0 };
   const clock = new THREE.Clock();
   const render = () => {
     const time = clock.getElapsedTime();
@@ -215,6 +224,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
       m.uniforms.uOpacity.value = state.opacity;
       m.uniforms.uMouse.value.set(state.mouse[0], state.mouse[1], state.mouse[2]);
       m.uniforms.uBurst.value.set(state.burst.x, state.burst.y, state.burst.r, state.burst.s);
+      m.uniforms.uDark.value = state.dark;
     });
     matR.uniforms.uOffset.value.set(-mis * 2.2, mis * 1.1);
     matC.uniforms.uOffset.value.set(mis * 2.2, -mis * 0.9);

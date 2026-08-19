@@ -36,10 +36,22 @@ main#world { position: relative; z-index: var(--z-world); }
 }
 .brand-mark { width: 62px; height: auto; display: block; }
 .brand-mark svg { width: 62px; height: auto; }
+.brand { color: var(--negro); }
+html[data-theme='dark'] .brand { mix-blend-mode: normal; }
 .brand-txt { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--acero-2); }
 #cta-top {
   position: fixed; right: var(--gutter); top: 1.35rem; z-index: var(--z-hud);
 }
+.top-tools {
+  position: fixed; right: calc(var(--gutter) + 11.5rem); top: 1.85rem; z-index: var(--z-hud);
+  display: flex; gap: 1.4rem; font-size: 0.7rem; letter-spacing: 0.08em; color: var(--acero-2);
+}
+.top-tools button { color: inherit; padding: 0.2rem 0; transition: color 0.25s var(--ease-smooth); }
+.top-tools button:hover { color: var(--negro); }
+.top-tools .tl-es, .top-tools .tl-en { color: var(--acero-2); }
+html[lang='es'] .top-tools .tl-es, html[lang='en'] .top-tools .tl-en { color: var(--negro); font-weight: 700; }
+html[data-theme='dark'] #cursor { color: var(--negro); }
+html[data-theme='dark'] .grain { opacity: 0.12; }
 .cta {
   display: inline-flex; align-items: center; gap: 0.6rem;
   background: var(--negro); color: var(--papel);
@@ -83,15 +95,16 @@ main#world { position: relative; z-index: var(--z-world); }
    pisa tinta negra se invierte (blanco) y sobre el papel lee normal. Como
    difference invierte contra el papel, los colores se declaran "al revés":
    papel → negro, negro → papel, #04b1ae → rojo, #a8a495 → acero. */
-.beat { mix-blend-mode: difference; --tx: var(--papel); --tx2: #a8a495; --acc: #04b1ae; color: var(--tx); }
+.beat { mix-blend-mode: difference; --tx: #f4f1ea; --tx2: #a8a495; --acc: #04b1ae; --cta-bg: #f4f1ea; color: var(--tx); }
+html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; --cta-bg: #e0ddd6; }
 .beat h1, .beat h2, .beat h3, .beat p { color: var(--tx); }
 .beat .kicker, .beat .hint, .beat .after, .beat .credits, .beat-plantilla p b, .beat-pila p { color: var(--tx2); }
 .beat-work b, .step b, .beat-plantilla .pl-r b { color: var(--acc); }
 .beat-pila p span { border-color: var(--acc); }
-.beat .cta { background: var(--papel); color: var(--negro); border-color: var(--papel); }
+.beat .cta { background: var(--cta-bg); color: #000; border-color: var(--cta-bg); }
 .beat .cta:hover { background: var(--acc); border-color: var(--acc); color: var(--negro); }
-.beat .cta.ghost { background: transparent; color: var(--papel); border-color: var(--papel); }
-.beat .cta.ghost:hover { background: var(--papel); color: var(--negro); }
+.beat .cta.ghost { background: transparent; color: var(--cta-bg); border-color: var(--cta-bg); }
+.beat .cta.ghost:hover { background: var(--cta-bg); color: #000; }
 .beat .credits a:hover { color: var(--acc); }
 .beat { position: absolute; z-index: 2; visibility: hidden; opacity: 0; will-change: transform, opacity; }
 .beat h2 { font-size: clamp(2.2rem, 5.6vw, 5.4rem); font-weight: 900; letter-spacing: -0.045em; line-height: 0.92; font-variation-settings: 'wdth' 90; }
@@ -161,6 +174,8 @@ html[data-mode='static'] #static { display: block; }
   .brand-mark, .brand-mark svg { width: 46px; }
   .brand-txt { display: none; }
   #cta-top { padding: 0.55rem 0.8rem; font-size: 0.7rem; }
+  .top-tools { right: 1.2rem; top: 4.6rem; gap: 1rem; font-size: 0.62rem; }
+  .marks { top: 7rem; }
   /* en el celu los marcadores son puntos, arriba a la derecha bajo el CTA */
   .marks { left: auto; right: 1.2rem; top: 4.4rem; transform: none; flex-direction: row; gap: 0.5rem; align-items: center; }
   .marks button { font-size: 0; padding: 0.4rem 0; }

@@ -26,10 +26,36 @@ applyLang(lang);
 
 // la marca es la de grip: el wordmark líquido, chico, arriba a la izquierda
 const mark = document.querySelector('.brand-mark');
-if (mark) mark.innerHTML = staticWordmarkSVG('#111111');
+if (mark) mark.innerHTML = staticWordmarkSVG('currentColor');
 
 // idioma: un toque, sin ceremonia
-document.getElementById('lang')?.addEventListener('click', () => applyLang(lang === 'es' ? 'en' : 'es'));
+document.querySelectorAll('#lang, #lang2').forEach((b) => b.addEventListener('click', () => applyLang(lang === 'es' ? 'en' : 'es')));
+
+// tema: día / noche (respeta el sistema; se guarda)
+const THEME_KEY = 'landings:theme';
+const setTheme = (t, save = true) => {
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t === 'dark' ? '#141416' : '#f4f1ea');
+  const tb = document.getElementById('theme');
+  if (tb) tb.textContent = t === 'dark' ? (lang === 'en' ? 'day' : 'día') : lang === 'en' ? 'night' : 'noche';
+  if (save) {
+    try {
+      localStorage.setItem(THEME_KEY, t);
+    } catch {
+      /* modo privado */
+    }
+  }
+  bus.emit('theme:changed', t);
+};
+let theme = 'light';
+try {
+  theme = localStorage.getItem(THEME_KEY) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+} catch {
+  /* modo privado */
+}
+setTheme(theme, false);
+document.getElementById('theme')?.addEventListener('click', () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'));
+bus.on('i18n:changed', () => setTheme(document.documentElement.dataset.theme || 'light', false));
 
 // ¿WebGL disponible?
 const hasGL = (() => {

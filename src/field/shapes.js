@@ -162,7 +162,7 @@ export function shapeGrip(N, aspect, { widthFrac = 0.6, y = 0, x = 0, seed = 5, 
 }
 
 // ── la plantilla genérica: nav, hero, botón, imagen, 3 cards, cookie ──
-export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13 } = {}) {
+export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13, x = 0, y = 0 } = {}) {
   const W = H * aspect;
   const cv = mk(1200, 760);
   const g = cv.getContext('2d');
@@ -202,7 +202,7 @@ export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13 } = {}) {
   R(300, 660, 600, 50, true);
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  return sampleCanvas(cv, N, { seed, worldW, worldH, sizeBase: 0.9, threshold: 0.2 });
+  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 0.9, threshold: 0.2 });
 }
 
 // ── la pila: la plantilla se cae al piso ──
@@ -240,7 +240,7 @@ export function shapeImage(N, aspect, img, { widthFrac = 0.66, cx = 0, cy = 0, z
   const worldW = W * widthFrac;
   const worldH = worldW * (ch / cw);
   const r = sampleCanvas(cv, N, { seed, worldW, worldH, cx, cy, z, colorFrom: 'image', sizeBase: 0.85, threshold: 0.06 });
-  return { ...r, worldW, worldH };
+  return { ...r, worldW, worldH, ink: new Float32Array(N) }; // 0 = color de captura (no se invierte)
 }
 
 // ── anillo de registro grande (contacto) ──

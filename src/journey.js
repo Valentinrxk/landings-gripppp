@@ -8,6 +8,7 @@ import { shutter, GLYPHS } from './core/beat.js';
 import { createField } from './field/field.js';
 import * as S from './field/shapes.js';
 import { loadImage } from './print/ascii.js';
+import { t } from './data/i18n.js';
 import { spliceFlash } from './systems/flash.js';
 
 const WORKS = [
@@ -47,7 +48,8 @@ export async function initJourney(ctx) {
     const W = 100 * A;
     // hero: la marca de grip, líquida, a la derecha del claim
     const gripHero = S.shapeGrip(N, A, { widthFrac: mobile ? 0.8 : 0.42, x: mobile ? 0 : W * 0.2, y: mobile ? 22 : 8, seed: 5 });
-    const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.6 });
+    // la plantilla a la derecha: el texto de ruido vive a la izquierda, sin pisarse
+    const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 14 : 0 });
     const pile = S.shapePile(N, A);
     // señal: la palabra, hecha de grip
     const word = S.shapeText(N, A, 'landings', { widthFrac: mobile ? 0.94 : 0.62, x: mobile ? 0 : -W * 0.14, y: mobile ? 14 : 0 });
@@ -170,7 +172,7 @@ export async function initJourney(ctx) {
     master.to(co, { autoAlpha: 0, y: -50, duration: 0.3, ease: 'power2.in' }, 4.35);
     // trabajos: título breve al entrar; cada caption sube desde abajo cuando su obra está formada
     const tr = T('trabajos');
-    master.fromTo(tr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 4.5).to(tr, { autoAlpha: 0, duration: 0.2 }, 5.05);
+    master.fromTo(tr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 4.35).to(tr, { autoAlpha: 0, duration: 0.2 }, 4.8);
     WORKS.forEach((w, i) => {
       const cap = T('w' + i);
       const from = i % 2 ? { x: 80, y: 30 } : { x: -80, y: 30 };
@@ -245,10 +247,12 @@ export async function initJourney(ctx) {
       }
       const a = 1 - Math.min(1, lean * 10);
       workImg.style.opacity = a.toFixed(2);
+      field.state.opacity = 1 - 0.8 * a; // la tinta se aparta cuando la captura real aparece
       workLink.style.pointerEvents = a > 0.5 ? 'auto' : 'none';
     } else {
       workImg.style.opacity = '0';
       workLink.style.pointerEvents = 'none';
+      field.state.opacity = 1;
     }
   });
 
@@ -262,15 +266,20 @@ export async function initJourney(ctx) {
     const cta = heroEl.querySelector('.cta');
     const hint = heroEl.querySelector('.hint');
     gsap.set([kick, cta, hint], { autoAlpha: 0 });
-    const split = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+    let split = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
     gsap.set(split.lines, { yPercent: 110 });
-    const subSplit = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+    let subSplit = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
     gsap.set(subSplit.lines, { yPercent: 110 });
     bus.on('i18n:changed', () => {
-      // applyLang reemplazó el textContent (las máscaras se fueron): re-splitear ya asentado
-      const s2 = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
-      const s3 = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
-      gsap.set([...s2.lines, ...s3.lines], { yPercent: 0 });
+      // SplitText restaura su HTML original al re-splitear: primero revertir, después
+      // poner el texto nuevo, después splitear ya asentado
+      split.revert();
+      subSplit.revert();
+      claim.textContent = t('hero.claim');
+      sub.textContent = t('hero.sub');
+      split = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+      subSplit = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
+      gsap.set([...split.lines, ...subSplit.lines], { yPercent: 0 });
     });
     heroIn
       .to(split.lines, { yPercent: 0, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0)
@@ -393,6 +402,11 @@ export async function initJourney(ctx) {
     });
     window.addEventListener('pointerleave', () => (mouse = [0, 0, 0]));
   }
+
+  // ── tema: la tinta invierte con el modo noche ──
+  const syncTheme = () => (field.state.dark = document.documentElement.dataset.theme === 'dark' ? 1 : 0);
+  syncTheme();
+  bus.on('theme:changed', syncTheme);
 
   // ── click en la tinta: onda expansiva desde el punto (en touch también) ──
   const burst = field.state.burst;

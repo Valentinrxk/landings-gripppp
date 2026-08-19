@@ -61,6 +61,17 @@
   --mis-y: -1px;
 }
 
+/* modo noche: el papel es grafito, la tinta es papel. La paleta "al revés" de
+   los beats (difference) se recalcula para que lea igual. */
+html[data-theme='dark'] {
+  --papel: #141416;
+  --negro: #ecece6;
+  --acero: #8b8c94;
+  --acero-2: #a9aab2;
+  --plata: #2a2a30;
+  --plata-2: #1d1d22;
+  --shadow-mesa: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
 @media (max-width: 720px) {
   :root { --cell: 48px; --gutter: 16px; --hud-h: 44px; --rail-h: 26px; }
 }
