@@ -20,6 +20,10 @@ import { initIdle } from './systems/idle.js';
 import { staticWordmarkSVG } from './ui/logo-paths.js';
 import { initJourney } from './journey.js';
 
+// la película arranca siempre desde el principio
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 const ctx = detectTier();
 document.documentElement.dataset.tier = ctx.tier;
 applyLang(lang);
@@ -115,6 +119,13 @@ if (ctx.tier === 'static' || !hasGL) {
   if (slow > 1) gsap.globalTimeline.timeScale(1 / slow);
 
   initJourney(ctx).then(() => ScrollTrigger.refresh());
+
+  // volver arriba: aparece cuando dejás el hero; sube por el mismo carril suave
+  const up = document.getElementById('up');
+  if (up) {
+    up.addEventListener('click', () => (lenis ? lenis.scrollTo(0, { duration: 1.6 }) : window.scrollTo(0, 0)));
+    bus.on('frame', () => up.classList.toggle('is-on', window.scrollY > window.innerHeight * 0.6));
+  }
 
   document.querySelectorAll('a[href^="#"]').forEach((a) => {
     a.addEventListener('click', (e) => {

@@ -47,7 +47,7 @@ export async function initJourney(ctx) {
     const A = field.aspect;
     const W = 100 * A;
     // hero: la marca de grip, líquida, a la derecha del claim
-    const gripHero = S.shapeGrip(N, A, { widthFrac: mobile ? 0.8 : 0.42, x: mobile ? 0 : W * 0.2, y: mobile ? 22 : 8, seed: 5 });
+    const gripHero = S.shapeGrip(N, A, { widthFrac: mobile ? 0.8 : 0.42, x: mobile ? 0 : W * 0.2, y: mobile ? 22 : 8, seed: 41 }); // misma semilla que el splash: el logo VIAJA, no se rearma
     // la plantilla a la derecha: el texto de ruido vive a la izquierda, sin pisarse
     const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 14 : 0 });
     const pile = S.shapePile(N, A);
@@ -312,7 +312,6 @@ export async function initJourney(ctx) {
     );
     const noise = S.shapeNoise(N, A, 3);
     const gripCenter = S.shapeGrip(N, A, { widthFrac: mobile ? 0.86 : 0.5, x: 0, y: mobile ? 8 : 0, seed: 41 });
-    window.scrollTo(0, 0);
     const finish = () => {
       introRunning = false;
       lastBeat = -1;
@@ -363,7 +362,7 @@ export async function initJourney(ctx) {
     tl.add(() => {
       origSetPair(gripCenter, shapes[0]);
       field.state.t = 0;
-      field.state.arc = 1;
+      field.state.arc = 0.2; // deslizamiento limpio hacia su lugar en el hero
     }, go)
       .fromTo(hold, { t: 0 }, { t: 1, duration: 1.15, ease: 'power3.inOut', onUpdate: () => (field.state.t = hold.t) }, go + 0.02)
       .to(field.cam, { z: zoom, duration: 1.2, ease: 'power2.inOut' }, go)

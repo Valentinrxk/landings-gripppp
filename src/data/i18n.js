@@ -3,8 +3,8 @@ import { bus } from '../core/bus.js';
 import deck from './copy.json';
 
 const EXTRA = {
-  es: { 'ui.view': 'ver la landing', 'plantilla.l': 'lo de siempre', 'plantilla.r': 'lo nuestro', 'ui.lang': 'en', 'pila.p': 'todo eso, junto, es ruido. y el ruido no se recuerda.' },
-  en: { 'ui.view': 'view the landing', 'plantilla.l': 'most studios', 'plantilla.r': 'us', 'ui.lang': 'es', 'pila.p': 'all of that, together, is noise. and noise is not remembered.' },
+  es: { 'ui.view': 'ver la landing', 'plantilla.l': 'lo de siempre', 'plantilla.r': 'lo nuestro', 'ui.lang': 'en', 'ui.up': 'arriba', 'pila.p': 'todo eso, junto, es ruido. y el ruido no se recuerda.' },
+  en: { 'ui.view': 'view the landing', 'plantilla.l': 'most studios', 'plantilla.r': 'us', 'ui.lang': 'es', 'ui.up': 'top', 'pila.p': 'all of that, together, is noise. and noise is not remembered.' },
 };
 
 export const DICT = { es: deck.es, en: deck.en };
