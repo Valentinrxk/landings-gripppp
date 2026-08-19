@@ -185,10 +185,10 @@ html[data-mode='static'] #static { display: block; }
   .brand-mark, .brand-mark svg { width: 46px; }
   .brand-txt { display: none; }
   #cta-top { padding: 0.55rem 0.8rem; font-size: 0.7rem; }
-  .top-tools { right: 1.2rem; top: 4.6rem; gap: 1rem; font-size: 0.62rem; }
-  .marks { top: 7rem; }
-  /* en el celu los marcadores son puntos, arriba a la derecha bajo el CTA */
-  .marks { left: auto; right: 1.2rem; top: 4.4rem; transform: none; flex-direction: row; gap: 0.5rem; align-items: center; }
+  /* los dots quedan solos bajo el CTA; es/en y día/noche se van abajo a la
+     izquierda (el 'arriba' vive abajo a la derecha: no se pisan) */
+  .top-tools { right: auto; left: 1.2rem; top: auto; bottom: calc(1.4rem + env(safe-area-inset-bottom, 0px)); gap: 1rem; font-size: 0.62rem; }
+  .marks { left: auto; right: 1.2rem; top: 4.5rem; transform: none; flex-direction: row; gap: 0.5rem; align-items: center; }
   .marks button { font-size: 0; padding: 0.4rem 0; }
   .marks button::before { width: 6px; height: 6px; border-radius: 50%; }
   .marks button.is-cur::before { width: 16px; border-radius: 3px; }
