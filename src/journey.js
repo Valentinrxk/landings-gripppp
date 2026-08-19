@@ -152,9 +152,13 @@ export async function initJourney(ctx) {
     const ru = T('ruido');
     master.fromTo(ru, { autoAlpha: 0, x: -140, skewX: 8 }, { autoAlpha: 1, x: 0, skewX: 0, duration: 0.35, ease: 'power3.out' }, 0.62)
       .to(ru, { autoAlpha: 0, y: 80, duration: 0.3, ease: 'power2.in' }, 1.7);
-    // señal: llega desde la derecha por clip
+    // la pila: el ruido nombrado (sube desde abajo, mono, y se va con la palabra)
+    const pi = T('pila');
+    master.fromTo(pi, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 1.55)
+      .to(pi, { autoAlpha: 0, y: -20, duration: 0.25, ease: 'power2.in' }, 2.3);
+    // señal: llega desde la derecha por clip, mientras la palabra se levanta de la pila
     const se = T('senal');
-    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.4, ease: 'power3.out' }, 2.35)
+    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.4, ease: 'power3.out' }, 2.2)
       .to(se, { autoAlpha: 0, x: -40, duration: 0.3, ease: 'power2.in' }, 3.15);
     // cómo: pasos suben uno por uno
     const co = T('como');

@@ -93,6 +93,9 @@ main#world { position: relative; z-index: var(--z-world); }
 .ln { overflow: hidden; }
 
 .beat-ruido { left: var(--gutter); top: 22svh; max-width: 40rem; padding-left: calc(var(--cell) * 1.4); }
+.beat-pila { left: 0; right: 0; top: 26svh; text-align: center; }
+.beat-pila p { margin: 0 auto; max-width: 40ch; font-size: 0.85rem; letter-spacing: 0.04em; color: var(--acero-2); }
+.beat-pila p span { border-bottom: 1px solid var(--rojo); padding-bottom: 0.3rem; }
 .beat-senal { right: var(--gutter); top: 24svh; max-width: 36rem; text-align: right; }
 .beat-senal p { margin-left: auto; }
 .beat-como { left: var(--gutter); top: 16svh; max-width: 44rem; padding-left: calc(var(--cell) * 1.4); }
