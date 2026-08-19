@@ -2,36 +2,36 @@
  "es": {
   "hero": {
    "claim": "no sos una plantilla.",
-   "sub": "landings hechas para tu marca: te encuentran, te entienden, no te olvidan.",
+   "sub": "hacemos landings que te hacen frenar y preguntar quién hizo esto. esa reacción es todo el trabajo.",
    "kicker": "grip® × valentín romero — marca y código en la misma mesa.",
    "cta": "quiero la mía",
    "hint": "( bajá que se acomoda )"
   },
   "ruido": {
    "h": "esta landing ya la viste.",
-   "p": "hero, tres iconitos, botón violeta. la leen, asienten y te olvidan antes de cerrar la pestaña. una plantilla no te hace quedar mal: te hace quedar igual que todos. eso es peor."
+   "p": "hero, tres iconitos, botón violeta. la leen, asienten y te olvidan antes de cerrar la pestaña. segura, medio on-brand, olvidable al instante."
   },
   "senal": {
    "h": "hecha para vos. se nota.",
-   "p": "te encuentran, te entienden en tres segundos y, cuando les toca comprar, se acuerdan de tu nombre. eso no lo hace una plantilla: lo hace alguien que te leyó."
+   "p": "te encuentran, te entienden en tres segundos y se acuerdan de tu nombre cuando les toca comprar. hecha a medida, con opinión, difícil de olvidar."
   },
   "como": {
    "h": "así la hacemos.",
    "steps": [
     {
      "t": "leemos tu marca",
-     "p": "qué vendés, a quién y por qué a vos. preguntamos hasta que duela."
+     "p": "hablás con quien la diseña y la programa. no con un vendedor ni con un deck."
     },
     {
      "t": "una idea, a mano",
-     "p": "una sola, dibujada antes que programada. si necesita dos ideas, no tiene ninguna."
+     "p": "pantallas reales en días, no en trimestres. si necesita dos ideas, no tiene ninguna."
     },
     {
      "t": "código de verdad",
-     "p": "sin plantillas ni constructores. carga rápido, se ve en todo y es tuya."
+     "p": "alcance fijo, precio fijo, cero sorpresas. sin plantillas ni constructores, nunca."
     }
    ],
-   "after": "y después de salir no desaparecemos. si algo cambia o se rompe, lo arreglamos."
+   "after": "menos reuniones, más salir. y después de salir, seguimos ahí."
   },
   "trabajos": {
    "h": "las que ya salieron.",
@@ -45,13 +45,13 @@
    "closing": "acá falta la tuya. (todavía)"
   },
   "plantilla": {
-   "h": "de plantilla a marca.",
-   "tpl": "lo mismo que le vendieron a todos, con tu logo arriba.",
-   "marca": "una que solo puede ser tuya. te reconocen sin leer el logo."
+   "h": "mismo brief. otro resultado.",
+   "tpl": "la vende un senior, la arma el que esté libre. cinco llamadas y un deck antes de un píxel. segura, medio on-brand, olvidable.",
+   "marca": "hablás con quien la hace. pantallas reales en días. hecha para vos, con opinión, difícil de olvidar."
   },
   "contacto": {
    "h": "¿y la tuya?",
-   "p": "contanos qué vendés y a quién. lo demás lo preguntamos nosotros.",
+   "p": "sin formularios. sin vueltas. contanos qué vendés y a quién; lo demás lo preguntamos nosotros.",
    "wa": "tiranos un whatsapp",
    "mail": "o un mail: hola@gripppp.com",
    "credit1": "hecho por grip® en buenos aires",
@@ -73,36 +73,36 @@
  "en": {
   "hero": {
    "claim": "you're not a template.",
-   "sub": "landing pages made for your brand: people find you, get you, remember you.",
+   "sub": "we make landing pages that make people stop and ask who made this. that reaction is the whole job.",
    "kicker": "grip® × valentín romero — brand and code at the same table.",
    "cta": "i want mine",
    "hint": "( scroll, it settles )"
   },
   "ruido": {
    "h": "you've seen this landing before.",
-   "p": "hero, three little icons, purple button. people read it, nod, and forget you before the tab closes. a template doesn't make you look bad: it makes you look like everyone else. that's worse."
+   "p": "hero, three little icons, purple button. people read it, nod, and forget you before the tab closes. safe, brand-ish, instantly forgettable."
   },
   "senal": {
    "h": "made for you. it shows.",
-   "p": "people find you, get you in three seconds and, when it's time to buy, remember your name. a template can't do that. someone who actually read you can."
+   "p": "people find you, get you in three seconds, and remember your name when it's time to buy. custom, opinionated, genuinely hard to forget."
   },
   "como": {
    "h": "here's how.",
    "steps": [
     {
      "t": "we read your brand",
-     "p": "what you sell, to whom, and why you. we ask until it hurts."
+     "p": "you talk to the person designing and coding it. not a salesperson, not a deck."
     },
     {
      "t": "one idea, by hand",
-     "p": "just one, drawn before it's coded. if it needs two ideas, it has none."
+     "p": "real screens in days, not quarters. if it needs two ideas, it has none."
     },
     {
      "t": "real code",
-     "p": "no templates, no builders. loads fast, works everywhere, and it's yours."
+     "p": "fixed scope, fixed price, zero surprises. no templates, no builders, ever."
     }
    ],
-   "after": "and after launch we don't vanish. if something changes or breaks, we fix it."
+   "after": "fewer meetings, more shipping. and after launch, we're still here."
   },
   "trabajos": {
    "h": "already out there.",
@@ -116,13 +116,13 @@
    "closing": "yours isn't here. (yet)"
   },
   "plantilla": {
-   "h": "from template to brand.",
-   "tpl": "the same thing they sold everyone, with your logo on top.",
-   "marca": "one that could only be yours. recognized before anyone reads the logo."
+   "h": "same brief. different outcome.",
+   "tpl": "pitched by a senior, built by whoever is free. five calls and a deck before a single pixel. safe, brand-ish, forgettable.",
+   "marca": "you talk to the person making it. real screens in days. built for you, opinionated, hard to forget."
   },
   "contacto": {
    "h": "and yours?",
-   "p": "tell us what you sell and to whom. we'll ask the rest.",
+   "p": "no forms. no hoops. tell us what you sell and to whom; we'll ask the rest.",
    "wa": "drop us a whatsapp",
    "mail": "or an email: hola@gripppp.com",
    "credit1": "made by grip® in buenos aires",
