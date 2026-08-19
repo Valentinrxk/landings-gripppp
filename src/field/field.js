@@ -13,6 +13,7 @@ const VERT = /* glsl */ `
   attribute float aSeed; attribute float aGlyph;
   uniform float uT; uniform float uTime; uniform float uTurb; uniform float uSize;
   uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc; uniform float uScale;
+  uniform vec4 uBurst; // x, y, radio del anillo, fuerza
   varying float vAlpha; varying vec3 vCol; varying float vGlyph;
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   void main() {
@@ -35,6 +36,11 @@ const VERT = /* glsl */ `
     float dist = length(dm);
     float push = smoothstep(14.0, 0.0, dist) * uMouse.z;
     p.xy += normalize(dm + 0.0001) * push * 6.0;
+    // onda expansiva del click: un anillo que crece empuja la tinta y la suelta
+    vec2 db = p.xy - uBurst.xy;
+    float dd = length(db);
+    float ring = exp(-pow((dd - uBurst.z) / 9.0, 2.0)) + smoothstep(uBurst.z, 0.0, dd) * 0.35;
+    p.xy += normalize(db + 0.0001) * ring * uBurst.w * (8.0 + hash(aSeed * 9.1) * 8.0);
     p.xy += uOffset;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
@@ -121,6 +127,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     uMouse: { value: new THREE.Vector3(0, 0, 0) },
     uPR: { value: renderer.getPixelRatio() },
     uScale: { value: 1 },
+    uBurst: { value: new THREE.Vector4(0, 0, 0, 0) },
     uArc: { value: 1 },
     uAtlas: { value: atlas },
     uInk: { value: new THREE.Color(ink) },
@@ -185,7 +192,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     }
   };
 
-  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0] };
+  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0], burst: { x: 0, y: 0, r: 0, s: 0 } };
   const clock = new THREE.Clock();
   const render = () => {
     const time = clock.getElapsedTime();
@@ -207,6 +214,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
       m.uniforms.uArc.value = state.arc;
       m.uniforms.uOpacity.value = state.opacity;
       m.uniforms.uMouse.value.set(state.mouse[0], state.mouse[1], state.mouse[2]);
+      m.uniforms.uBurst.value.set(state.burst.x, state.burst.y, state.burst.r, state.burst.s);
     });
     matR.uniforms.uOffset.value.set(-mis * 2.2, mis * 1.1);
     matC.uniforms.uOffset.value.set(mis * 2.2, -mis * 0.9);

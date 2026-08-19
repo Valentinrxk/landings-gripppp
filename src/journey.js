@@ -211,7 +211,7 @@ export async function initJourney(ctx) {
     const L = Math.abs(scrollLean());
     lean += (L - lean) * 0.12;
     field.state.turb = Math.max(0.035 + 0.02 * Math.sin(performance.now() / 1400), Math.min(1, lean * 1.6));
-    field.state.mis = Math.min(1, lean * 1.4);
+    field.state.mis = Math.max(Math.min(1, lean * 1.4), field.state.pulse || 0); // envión o golpe (click/splash)
     field.state.mouse = mouse;
     field.render();
     // la obra real aparece cuando la forma está armada (sostén) y frenaste
@@ -301,7 +301,7 @@ export async function initJourney(ctx) {
       introRunning = false;
       lastBeat = -1;
       field.state.arc = 1;
-      field.state.mis = 0;
+      field.state.pulse = 0;
       document.documentElement.classList.remove('splashing');
       splash?.remove();
       heroIn.play();
@@ -330,7 +330,7 @@ export async function initJourney(ctx) {
       // punch-in de cámara y desregistro en el golpe, que se relaja enseguida
       tl.fromTo(hold, { t: 0 }, { t: 1, duration: d * 0.62, ease: 'power3.out', onUpdate: () => (field.state.t = hold.t) }, at + 0.01)
         .fromTo(field.cam, { z: zoom * (0.94 - i * 0.015) }, { z: zoom * (0.9 - i * 0.015), duration: d, ease: 'power2.out' }, at + 0.01)
-        .fromTo(field.state, { mis: 0.8 }, { mis: 0, duration: d * 0.8, ease: 'expo.out' }, at + 0.02);
+        .fromTo(field.state, { pulse: 0.8 }, { pulse: 0, duration: d * 0.8, ease: 'expo.out' }, at + 0.02);
       if (i === seq.length - 2) tl.add(() => spliceFlash(), at + 0.02); // la marca entra con flash
       at += d;
     }
@@ -340,8 +340,8 @@ export async function initJourney(ctx) {
       if (bar) bar.style.transform = `scaleX(${(hold.n / 100).toFixed(3)})`;
     } }, 0.25);
     // latido de la marca: dos golpes de desregistro
-    tl.to(field.state, { mis: 0.7, duration: 0.07 }, at + 0.15).to(field.state, { mis: 0, duration: 0.35, ease: 'expo.out' }, at + 0.22)
-      .to(field.state, { mis: 0.5, duration: 0.06 }, at + 0.55).to(field.state, { mis: 0, duration: 0.4, ease: 'expo.out' }, at + 0.61);
+    tl.to(field.state, { pulse: 0.7, duration: 0.07 }, at + 0.15).to(field.state, { pulse: 0, duration: 0.35, ease: 'expo.out' }, at + 0.22)
+      .to(field.state, { pulse: 0.5, duration: 0.06 }, at + 0.55).to(field.state, { pulse: 0, duration: 0.4, ease: 'expo.out' }, at + 0.61);
     // la marca se desarma y viaja al hero; la cámara vuelve; el chrome entra
     const go = at + 0.9;
     tl.add(() => {
@@ -386,6 +386,22 @@ export async function initJourney(ctx) {
     });
     window.addEventListener('pointerleave', () => (mouse = [0, 0, 0]));
   }
+
+  // ── click en la tinta: onda expansiva desde el punto (en touch también) ──
+  const burst = field.state.burst;
+  let burstTl = null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('a, button')) return;
+    const [wx, wy] = field.unproject(e.clientX, e.clientY);
+    burst.x = wx;
+    burst.y = wy;
+    burstTl?.kill();
+    burstTl = gsap.timeline();
+    burstTl
+      .fromTo(burst, { r: 0, s: 1 }, { r: 70, duration: 0.9, ease: 'power2.out' }, 0)
+      .to(burst, { s: 0, duration: 0.9, ease: 'power1.in' }, 0)
+      .fromTo(field.state, { pulse: 0.8 }, { pulse: 0, duration: 0.6, ease: 'expo.out' }, 0);
+  });
 
   // ── resize: formas y cámara. En touch la barra de URL cambia el alto al
   // scrollear: eso NO es un resize (rearmar las formas ahí rompe el scroll) ──
