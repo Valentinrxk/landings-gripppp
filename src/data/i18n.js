@@ -41,7 +41,10 @@ export function applyLang(next) {
   document.documentElement.lang = next;
   document.querySelectorAll('[data-i18n]').forEach((el) => {
     const v = t(el.dataset.i18n, next);
-    if (v != null && v !== el.dataset.i18n) el.textContent = v;
+    if (v == null || v === el.dataset.i18n) return;
+    // el deck puede traer <b> inline (créditos de cliente); es contenido propio, no input
+    if (/<[a-z]/i.test(v)) el.innerHTML = v;
+    else el.textContent = v;
   });
   document.title = DICT[next].meta.title;
   document.querySelector('meta[name="description"]')?.setAttribute('content', DICT[next].meta.description);

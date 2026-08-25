@@ -110,7 +110,7 @@ html[data-theme='dark'] .grain { opacity: 0.12; }
 html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; --cta-bg: #e0ddd6; }
 .beat h1, .beat h2, .beat h3, .beat p { color: var(--tx); }
 .beat .kicker, .beat .hint, .beat .after, .beat .credits, .beat-plantilla p b, .beat-pila p { color: var(--tx2); }
-.beat-work b, .step b, .beat-plantilla .pl-r b { color: var(--acc); }
+.beat-work > b, .step b, .beat-plantilla .pl-r b { color: var(--acc); }
 .beat-pila p span { border-color: var(--acc); }
 .beat .cta { background: var(--cta-bg); color: #000; border-color: var(--cta-bg); }
 .beat .cta:hover { background: var(--acc); border-color: var(--acc); color: var(--negro); }
@@ -146,7 +146,8 @@ html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; -
 
 .beat-trabajos { left: var(--gutter); top: 18svh; padding-left: calc(var(--cell) * 1.4); }
 .beat-work { left: var(--gutter); bottom: 10svh; max-width: 34rem; padding-left: calc(var(--cell) * 1.4); }
-.beat-work b { display: block; font-size: 0.7rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+.beat-work > b { display: block; font-size: 0.7rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+.beat-work p b { font-weight: 800; }
 .beat-work h3 { font-size: clamp(1.8rem, 3.4vw, 3rem); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; }
 .beat-work p { margin-top: 0.7rem; font-size: 1rem; max-width: 42ch; }
 .wlink { display: inline-block; margin-top: 0.9rem; font-size: 0.74rem; letter-spacing: 0.04em; }

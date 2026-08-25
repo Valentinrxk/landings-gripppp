@@ -209,11 +209,11 @@ export async function initJourney(ctx) {
       lastBeat = b;
       bus.emit('beat', b);
     }
-    // cada beat: sostiene la forma (0–0.22), viaja (0.22–0.85), sostiene (0.85–1)
-    // las obras viajan menos y se sostienen más (que no se salteen al scrollear rápido)
+    // cada beat: sostiene la forma armada, viaja en el medio, vuelve a sostener.
+    // el sostén manda: las escenas clave se quedan quietas aunque sigas scrolleando
     const isWork = b >= 4 && b <= 8;
-    const HOLD_IN = isWork ? 0.34 : 0.22;
-    const HOLD_OUT = isWork ? 0.74 : 0.85;
+    const HOLD_IN = isWork ? 0.42 : 0.32;
+    const HOLD_OUT = isWork ? 0.64 : 0.72;
     const tt = Math.max(0, Math.min(1, (lt - HOLD_IN) / (HOLD_OUT - HOLD_IN)));
     if (!introRunning) {
       // durante la intro, el par y el t los maneja el timeline del splash
@@ -230,7 +230,7 @@ export async function initJourney(ctx) {
     // la obra real aparece cuando la forma está armada (sostén) y frenaste
     let wIdx = -1;
     if (b >= 4 && b <= 8 && lt >= HOLD_OUT) wIdx = b - 4;
-    else if (b >= 5 && b <= 9 && lt <= (b <= 8 ? 0.34 : 0.22)) wIdx = b - 5;
+    else if (b >= 5 && b <= 9 && lt <= HOLD_IN) wIdx = b - 5;
     if (wIdx >= 0) {
       const r = workRects[wIdx];
       const [x1, y1] = field.project(r.cx - r.w / 2, r.cy + r.h / 2, 0);
