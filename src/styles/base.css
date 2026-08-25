@@ -220,7 +220,21 @@ html.has-cursor, html.has-cursor a, html.has-cursor button { cursor: none; }
 #cursor .cur-ring { width: 100%; height: 100%; display: block; transition: transform 0.3s var(--ease-out-expo); }
 #cursor.is-hot { mix-blend-mode: normal; color: var(--rojo); }
 #cursor.is-hot .cur-ring { transform: scale(1.35); }
-#cursor.is-down .cur-ring { transform: scale(1.35, 0.5); transition-duration: 0.16s; }
+/* click = grip: la marca se contrae entera y los ticks pellizcan el anillo */
+#cursor .tick { transition: transform 0.22s var(--ease-out-expo); }
+#cursor.is-down .cur-ring { transform: scale(0.8); transition-duration: 0.12s; }
+#cursor.is-hot.is-down .cur-ring { transform: scale(1.08); }
+#cursor.is-down .tick-n { transform: translateY(4px); }
+#cursor.is-down .tick-s { transform: translateY(-4px); }
+#cursor.is-down .tick-w { transform: translateX(4px); }
+#cursor.is-down .tick-e { transform: translateX(-4px); }
+/* el sello que deja cada click: anillo impreso con eco rojo/celeste */
+.cur-stamp { position: fixed; z-index: 209; width: 30px; height: 30px; margin: -15px 0 0 -15px; pointer-events: none; }
+.cur-stamp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.cur-stamp .st { fill: none; stroke-width: 1.4; }
+.cur-stamp .st-k { stroke: var(--negro); }
+.cur-stamp .st-r { stroke: var(--rojo); opacity: 0.65; }
+.cur-stamp .st-c { stroke: var(--celeste); opacity: 0.65; }
 #cursor .cur-txt { position: absolute; left: 130%; top: 50%; translate: 0 -50%; font-size: 0.6rem; white-space: nowrap; letter-spacing: 0.04em; color: var(--acero-2); opacity: 0; transition: opacity 0.2s; mix-blend-mode: normal; }
 #cursor.has-txt .cur-txt { opacity: 1; }
 #cursor.is-label .cur-txt { color: var(--rojo); border: 1px solid var(--rojo); padding: 0.1rem 0.35rem; background: var(--papel); }

@@ -16,7 +16,13 @@ export function initCursor(ctx) {
   el.id = 'cursor';
   el.setAttribute('aria-hidden', 'true');
   el.innerHTML =
-    '<div class="cur-rot"><svg class="cur-ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M20 2v9M20 29v9M2 20h9M29 20h9" stroke="currentColor" stroke-width="1.4"/><circle cx="20" cy="20" r="1.6" fill="currentColor"/></svg></div>' +
+    '<div class="cur-rot"><svg class="cur-ring" viewBox="0 0 40 40">' +
+    '<circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" stroke-width="1.4"/>' +
+    '<path class="tick tick-n" d="M20 2v9" stroke="currentColor" stroke-width="1.4"/>' +
+    '<path class="tick tick-s" d="M20 29v9" stroke="currentColor" stroke-width="1.4"/>' +
+    '<path class="tick tick-w" d="M2 20h9" stroke="currentColor" stroke-width="1.4"/>' +
+    '<path class="tick tick-e" d="M29 20h9" stroke="currentColor" stroke-width="1.4"/>' +
+    '<circle cx="20" cy="20" r="1.6" fill="currentColor"/></svg></div>' +
     '<span class="cur-txt mono"></span>';
   document.body.appendChild(el);
   document.documentElement.classList.add('has-cursor');
@@ -57,7 +63,30 @@ export function initCursor(ctx) {
     }
     read(e.target);
   });
-  window.addEventListener('pointerdown', () => el.classList.add('is-down'));
+  // el click imprime: la marca agarra (ticks hacia adentro) y deja su sello,
+  // un anillo que florece y se va con eco de desregistro rojo/celeste
+  const stamp = (sx, sy) => {
+    const s = document.createElement('div');
+    s.className = 'cur-stamp';
+    s.style.left = sx + 'px';
+    s.style.top = sy + 'px';
+    s.innerHTML =
+      '<svg viewBox="0 0 40 40">' +
+      '<g class="st st-c"><circle cx="20" cy="20" r="13"/></g>' +
+      '<g class="st st-r"><circle cx="20" cy="20" r="13"/></g>' +
+      '<g class="st st-k"><circle cx="20" cy="20" r="13"/><path d="M20 3v7M20 30v7M3 20h7M30 20h7"/></g>' +
+      '</svg>';
+    document.body.appendChild(s);
+    gsap
+      .timeline({ onComplete: () => s.remove() })
+      .fromTo(s, { scale: 0.5, opacity: 1 }, { scale: 2, opacity: 0, duration: 0.7, ease: 'expo.out' }, 0)
+      .fromTo(s.querySelector('.st-r'), { x: 0, y: 0 }, { x: 3.2, y: -2, duration: 0.7, ease: 'expo.out' }, 0)
+      .fromTo(s.querySelector('.st-c'), { x: 0, y: 0 }, { x: -3.2, y: 2, duration: 0.7, ease: 'expo.out' }, 0);
+  };
+  window.addEventListener('pointerdown', (e) => {
+    el.classList.add('is-down');
+    stamp(e.clientX, e.clientY);
+  });
   window.addEventListener('pointerup', () => el.classList.remove('is-down'));
   document.addEventListener('mouseleave', () => (el.style.opacity = '0'));
   document.addEventListener('mouseenter', () => (el.style.opacity = '1'));
