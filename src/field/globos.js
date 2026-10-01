@@ -21,10 +21,11 @@ import { GLYPHS, VIEWBOX } from '../ui/logo-paths.js';
 // cada letra es un globo: rango en x del viewBox (los glifos no se pisan) y el
 // punto donde se ata el hilo (abajo de cada letra)
 const LETTERS = [
-  { glyphs: ['g'], x1: 190, tie: [80, 340], color: 0xf0403c },
-  { glyphs: ['r'], x1: 375, tie: [255, 260], color: 0x5fa8e0 },
-  { glyphs: ['idot', 'ibody'], x1: 470, tie: [418, 252], color: 0xd9e355 },
-  { glyphs: ['p'], x1: Infinity, tie: [532, 338], color: 0xf0403c },
+  // foil de cotillón: dos flúor (con brillo propio: parecen encendidos) y dos metales
+  { glyphs: ['g'], x1: 190, tie: [80, 340], color: 0xff1fb4, glow: 0.2, rough: 0.22 }, // fucsia flúor
+  { glyphs: ['r'], x1: 375, tie: [255, 260], color: 0x14e4ff, glow: 0.17, rough: 0.22 }, // celeste flúor
+  { glyphs: ['idot', 'ibody'], x1: 470, tie: [418, 252], color: 0xffc552, glow: 0.03, rough: 0.2 }, // dorado
+  { glyphs: ['p'], x1: Infinity, tie: [532, 338], color: 0xeef0f5, glow: 0, rough: 0.13 }, // plateado
 ];
 const FLANGE = 5; // ancho del canto sellado (unidades del viewBox)
 const CREASE = 3.5; // qué tan seco sube el globo desde el canto
@@ -315,8 +316,8 @@ function build(step, depth) {
 
 // el foil: metal pulido con el color de la lámina; en el canto, el prensado
 // (estrías finas a lo largo de la costura) hace brillar el borde
-function foil(color, env) {
-  const m = new THREE.MeshPhysicalMaterial({ color, metalness: 1, roughness: 0.24, envMap: env, envMapIntensity: 1.15 });
+function foil({ color, glow, rough }, env) {
+  const m = new THREE.MeshPhysicalMaterial({ color, metalness: 1, roughness: rough, envMap: env, envMapIntensity: 1.15, emissive: color, emissiveIntensity: glow });
   m.onBeforeCompile = (sh) => {
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute float aS; attribute float aFl; varying float vS; varying float vFl;')
@@ -345,7 +346,7 @@ export function createGlobos(field, { step = 2 } = {}) {
   pm.dispose();
   const group = new THREE.Group();
   const letters = parts.map((p, li) => {
-    const mesh = new THREE.Mesh(p.geo, foil(LETTERS[li].color, env));
+    const mesh = new THREE.Mesh(p.geo, foil(LETTERS[li], env));
     group.add(mesh);
     // el hilo que cuelga del nudo
     const SEG = 20;
@@ -361,6 +362,8 @@ export function createGlobos(field, { step = 2 } = {}) {
       SEG,
       chain: new Float32Array(SEG * 3),
       end: { x: 0, y: 0, vx: 0, vy: 0 }, // la punta del hilo
+      top: [0, 0], // en pantalla: la punta de arriba del globo
+      knot: [0, 0], // y el nudo
       fresh: true,
       st: { s: 1, z: 1, push: 0, px: 0, py: 0 }, // s: escala del foil, z: inflado
       ph: li * 1.7 + 0.4,
@@ -371,7 +374,9 @@ export function createGlobos(field, { step = 2 } = {}) {
 
   // pose: la escribe el viaje (dónde está, qué tan grande, si se fue volando)
   // dir: hacia dónde se van (1, arriba: soltados) o de dónde vienen (−1, de abajo: suben)
-  const pose = { x: 0, y: 0, w: 60, vis: 0, away: 0, dir: 1 };
+  // offs: corrimiento propio de cada globo (mundo, en z=0) — así suben disparejo;
+  // ties: dónde está atado cada hilo (px en pantalla), o null (hilos sueltos)
+  const pose = { x: 0, y: 0, w: 60, vis: 0, away: 0, dir: 1, offs: null, ties: null };
   const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
   const HOVER = 8;
   const cam = field.camera.position;
@@ -412,14 +417,25 @@ export function createGlobos(field, { step = 2 } = {}) {
       st.px += (pxw - st.px) * 0.08;
       st.py += (pyw - st.py) * 0.08;
       const bob = Math.sin(t * 1.1 + L.ph) * 5 + Math.sin(t * 0.47 + L.ph * 2) * 3;
-      L.mesh.position.set(L.pivot[0] + st.px / k, L.pivot[1] + bob + st.py / k + pose.dir * a * li * 22, 0);
+      const o = pose.offs ? pose.offs[li] : null;
+      const u = pose.w / VIEWBOX.w; // mundo por unidad del logo
+      L.mesh.position.set(L.pivot[0] + st.px / k + (o ? o.x / u : 0), L.pivot[1] + bob + st.py / k + pose.dir * a * li * 22 + (o ? o.y / u : 0), 0);
       L.mesh.rotation.set(
         Math.sin(t * 0.8 + L.ph) * 0.06 + tilt.x * 0.6 - (st.py / k) * 0.004,
         Math.sin(t * 0.55 + L.ph * 1.3) * 0.22 + tilt.y * 0.7 + (st.px / k) * 0.006,
-        Math.sin(t * 0.7 + L.ph) * 0.05 - (st.px / k) * 0.004 + a * (li - 1.5) * 0.25
+        Math.sin(t * 0.7 + L.ph) * 0.05 - (st.px / k) * 0.004 + a * (li - 1.5) * 0.25 + (o ? o.r : 0)
       );
       L.mesh.scale.set(st.s, st.s, Math.max(0.02, st.z));
       L.mesh.updateMatrixWorld();
+      // en pantalla: la punta de arriba (para empujar cosas) y el nudo (para colgarlas)
+      tieW.set(0, L.size[1] / 2, 0).applyMatrix4(L.mesh.matrixWorld);
+      const tp = field.project(tieW.x, tieW.y, tieW.z);
+      L.top[0] = tp[0];
+      L.top[1] = tp[1];
+      tieW.set(L.tie[0], L.tie[1], 0).applyMatrix4(L.mesh.matrixWorld);
+      const kp = field.project(tieW.x, tieW.y, tieW.z);
+      L.knot[0] = kp[0];
+      L.knot[1] = kp[1];
       // el hilo cuelga del nudo; si el globo reventó, se cae
       const alive = st.s > 0.05;
       L.line.visible = on && alive;
@@ -427,24 +443,35 @@ export function createGlobos(field, { step = 2 } = {}) {
         L.fresh = true;
         return;
       }
-      tieW.set(L.tie[0], L.tie[1], 0).applyMatrix4(L.mesh.matrixWorld);
       // el hilo: una curva que sale derecha del nudo hacia abajo; la punta llega
       // tarde (resorte amortiguado) y se mece. Cuando el globo se mueve, el hilo
       // se curva solo; nunca se enreda
-      const len = Math.min(pose.w * 0.62, 36);
-      const restX = tieW.x + Math.sin(t * 0.6 + L.ph) * len * 0.05;
-      const restY = tieW.y - len;
+      let len;
+      let restX;
+      let restY;
+      if (pose.ties) {
+        // atado al cartel: la punta va al punto del cartel que le toca (px → mundo, a la altura del nudo)
+        const upp = (2 * (cam.z - tieW.z) * Math.tan((field.camera.fov * Math.PI) / 360)) / window.innerHeight;
+        restX = cam.x + (pose.ties[li][0] - window.innerWidth / 2) * upp;
+        restY = cam.y - (pose.ties[li][1] - window.innerHeight / 2) * upp;
+        len = Math.max(1, Math.hypot(tieW.x - restX, tieW.y - restY));
+      } else {
+        len = Math.min(pose.w * 0.62, 36);
+        restX = tieW.x + Math.sin(t * 0.6 + L.ph) * len * 0.05;
+        restY = tieW.y - len;
+      }
       const e = L.end;
-      if (L.fresh) {
+      if (L.fresh || pose.ties) {
         e.x = restX;
         e.y = restY;
         e.vx = e.vy = 0;
         L.fresh = false;
+      } else {
+        e.vx = (e.vx + (restX - e.x) * 0.03) * 0.9;
+        e.vy = (e.vy + (restY - e.y) * 0.03) * 0.9;
+        e.x += e.vx;
+        e.y += e.vy;
       }
-      e.vx = (e.vx + (restX - e.x) * 0.03) * 0.9;
-      e.vy = (e.vy + (restY - e.y) * 0.03) * 0.9;
-      e.x += e.vx;
-      e.y += e.vy;
       const C = L.chain;
       const top = len * 0.38;
       for (let j = 0; j < L.SEG; j++) {
@@ -514,5 +541,7 @@ export function createGlobos(field, { step = 2 } = {}) {
   const setDark = (d) => {
     letters.forEach((L) => (L.line.material.color.set(d ? 0x9a978f : 0x8a8578)));
   };
-  return { group, pose, tilt, update, pop, inflate, hit, center, allDown, setDark };
+  // en pantalla, por globo: la punta de arriba, el nudo y si está inflado (para la física del corte)
+  const screen = () => letters.map((L) => ({ top: L.top, knot: L.knot, alive: L.st.s > 0.5 }));
+  return { group, pose, tilt, update, pop, inflate, hit, center, allDown, screen, setDark };
 }

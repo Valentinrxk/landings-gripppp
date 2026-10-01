@@ -4,16 +4,10 @@ import deck from './copy.json';
 
 const EXTRA = {
   es: {
-    'tpl.brand': 'Marca', 'tpl.start': 'Empezá gratis', 'tpl.badge': 'Nuevo · ahora con IA', 'tpl.head': 'Llevá tu negocio al siguiente nivel',
-    'tpl.sub': 'La plataforma todo en uno que te ayuda a crecer más rápido. Sin complicaciones.', 'tpl.go': 'Empezá ahora →', 'tpl.demo': 'Ver demo',
-    'tpl.trust': 'Más de 10.000 empresas confían en nosotros', 'tpl.cookie': 'Usamos cookies para mejorar tu experiencia.', 'tpl.ok': 'Aceptar',
     'ui.view': 'ver la landing', 'ui.lang': 'en', 'ui.up': 'arriba', 'pila.a': 'todo eso, junto, es ruido.', 'pila.b': 'y el ruido no se recuerda.',
     'egg.k': '15% off.', 'egg.t': 'reventaste los cuatro. esto no lo encuentra cualquiera.', 'egg.code': 'código', 'egg.note': 'vale para tu landing.',
     'egg.cta': 'pedilo por whatsapp', 'egg.close': 'cerrar' },
   en: {
-    'tpl.brand': 'Brand', 'tpl.start': 'Start for free', 'tpl.badge': 'New · now with AI', 'tpl.head': 'Take your business to the next level',
-    'tpl.sub': 'The all-in-one platform that helps you grow faster. No hassle.', 'tpl.go': 'Get started →', 'tpl.demo': 'Watch demo',
-    'tpl.trust': 'Trusted by 10,000+ companies', 'tpl.cookie': 'We use cookies to improve your experience.', 'tpl.ok': 'Accept',
     'ui.view': 'view the landing', 'ui.lang': 'es', 'ui.up': 'top', 'pila.a': 'all of that, together, is noise.', 'pila.b': 'and noise is never remembered.',
     'egg.k': '15% off.', 'egg.t': 'you popped all four. not everyone finds this.', 'egg.code': 'code', 'egg.note': 'valid on your landing.',
     'egg.cta': 'claim it on whatsapp', 'egg.close': 'close' },

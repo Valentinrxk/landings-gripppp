@@ -43,27 +43,10 @@
     <main id="world">
       <div id="journey">
         <div class="stage">
+          <!-- el corte: la tinta sube, tapa todo y sigue de largo (ver placeTinta) -->
+          <svg class="tinta" aria-hidden="true" preserveAspectRatio="none"><path /></svg>
           <canvas id="field" aria-hidden="true"></canvas>
 
-          <!-- mismo brief: la landing que ya viste, de verdad (DOM, fuera del difference).
-               Botón violeta, blob, el banner de cookies que nunca se va y el chat que rebota -->
-          <div class="tpl-card" aria-hidden="true">
-            <div class="tpl-page">
-              <div class="tpl-nav"><i class="tpl-logo"></i><b data-i18n="tpl.brand">Marca</b><span></span><span></span><span></span><em class="tpl-pill" data-i18n="tpl.start">Empezá gratis</em></div>
-              <div class="tpl-hero">
-                <div>
-                  <small class="tpl-badge" data-i18n="tpl.badge">Nuevo · ahora con IA</small>
-                  <strong class="tpl-head" data-i18n="tpl.head">Llevá tu negocio al siguiente nivel</strong>
-                  <p class="tpl-sub" data-i18n="tpl.sub">La plataforma todo en uno que te ayuda a crecer más rápido. Sin complicaciones.</p>
-                  <div class="tpl-btns"><em class="tpl-pill tpl-go" data-i18n="tpl.go">Empezá ahora →</em><em class="tpl-pill tpl-demo" data-i18n="tpl.demo">Ver demo</em></div>
-                </div>
-                <div class="tpl-art"><i class="tpl-blob"></i><div class="tpl-dash"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
-              </div>
-              <div class="tpl-trust"><span data-i18n="tpl.trust">Más de 10.000 empresas confían en nosotros</span><div class="tpl-logos"><i></i><i></i><i></i><i></i><i></i></div></div>
-              <div class="tpl-cookie"><span data-i18n="tpl.cookie">Usamos cookies para mejorar tu experiencia.</span><em class="tpl-pill" data-i18n="tpl.ok">Aceptar</em></div>
-              <i class="tpl-chat"></i>
-            </div>
-          </div>
           <!-- dónde flotan los globos en 'otro resultado' (solo para medir) -->
           <div class="pl-globos" aria-hidden="true"></div>
           <div id="marca-hit" aria-hidden="true" data-cursor="reventá"></div>
@@ -107,7 +90,7 @@
 
           <!-- beat 4.5: trabajos (título) -->
           <section class="beat beat-trabajos" data-beat="trabajos">
-            <h2 data-i18n="trabajos.h">las que ya salieron.</h2>
+            <h2 data-i18n="trabajos.h">algunas de las que salieron.</h2>
           </section>
           <!-- beats 4.6–10.4: una caption por obra -->
           <section class="beat beat-work" data-beat="w0"><h3>deportivo riestra</h3><p data-i18n="trabajos.items.riestra">el club que subió de la d a primera. la página es la camiseta: escudo, sponsor y el partido en vivo.</p><a class="wlink u-draw mono" href="https://deportivoriestra.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
@@ -117,16 +100,17 @@
           <section class="beat beat-work" data-beat="w4"><h3>feedmakers</h3><p data-i18n="trabajos.items.feedmakers">posts de instagram con ia, con el estilo de tu marca. una línea, un post: hasta el titular está hecho de posts.</p><a class="wlink u-draw mono" href="https://feedmakers.app/es" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
           <section class="beat beat-work" data-beat="w5"><h3>ilove3d</h3><p data-i18n="trabajos.items.ilove3d">herramientas 3D en el navegador: ver, convertir, reparar y crear modelos. gratis, sin cuenta y sin subir nada.</p><a class="wlink u-draw mono" href="https://ilove3d.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
 
-          <!-- beats 10.45–11.95: mismo brief, otro resultado. dos columnas: la
-               plantilla (.tpl-card, apagada) y la marca (los globos) -->
-          <section class="beat beat-plantilla" data-beat="plantilla">
-            <div class="pl-col pl-a">
-              <h2 data-i18n="plantilla.h1">mismo brief.</h2>
-              <p data-i18n="plantilla.tpl">la vende un senior, la arma el que esté libre. cinco llamadas y un deck antes de un píxel. segura, medio on-brand, olvidable.</p>
+          <!-- beats 10.4–12.2: mismo brief, otro resultado. un corte (la tinta tapa todo):
+               los globos suben desde abajo, se llevan el texto de siempre y traen el
+               de ustedes colgando de los hilos (ver placeCorte) -->
+          <section class="beat beat-plantilla" data-beat="plantilla" aria-labelledby="h-pl">
+            <div class="pl-old">
+              <h2 id="h-pl" class="pl-h1" data-i18n="plantilla.h1">mismo brief.</h2>
+              <p class="pl-l" data-i18n="plantilla.tpl">la vende un senior, la arma el que esté libre. cinco llamadas y un deck antes de un píxel. segura, medio on-brand, olvidable.</p>
             </div>
-            <div class="pl-col pl-b">
-              <h2 data-i18n="plantilla.h2">otro resultado.</h2>
-              <p data-i18n="plantilla.marca">hablás con quien la hace. pantallas reales en días. hecha para vos, con opinión, difícil de olvidar.</p>
+            <div class="pl-new">
+              <h2 class="pl-h2" data-i18n="plantilla.h2">otro resultado.</h2>
+              <p class="pl-r" data-i18n="plantilla.marca">hablás con quien la hace. pantallas reales en días. hecha para vos, con opinión, difícil de olvidar.</p>
             </div>
           </section>
 

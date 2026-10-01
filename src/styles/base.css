@@ -155,56 +155,36 @@ html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; -
 .beat-work p { margin-top: 0.7rem; font-size: 1rem; max-width: 42ch; }
 .wlink { display: inline-block; margin-top: 0.9rem; font-size: 0.74rem; letter-spacing: 0.04em; }
 
-/* mismo brief. otro resultado. — dos columnas: la plantilla (apagada) y la marca */
-.beat-plantilla { inset: 0; }
-.pl-col { position: absolute; top: 12svh; }
-.pl-a { left: calc(var(--gutter) + var(--cell) * 1.4); width: min(36vw, 560px); }
-.pl-b { left: 52%; right: var(--gutter); }
-.beat-plantilla h2 { font-size: clamp(2.2rem, 5vw, 5rem); }
-.beat-plantilla p { margin-top: 1.1rem; font-size: clamp(1rem, 1.25vw, 1.2rem); max-width: 34ch; }
-.beat .pl-a h2, .beat .pl-a p { color: var(--tx2); }
-.pl-globos { position: absolute; left: 52%; right: var(--gutter); top: 40svh; height: 34svh; visibility: hidden; pointer-events: none; }
-
-/* la landing que ya viste: todo en cqw, escala con la carta */
-.tpl-card {
-  position: absolute; z-index: 1; left: calc(var(--gutter) + var(--cell) * 1.4); top: 44svh; width: min(36vw, 560px); aspect-ratio: 16 / 10;
-  container-type: inline-size; visibility: hidden; text-transform: none; will-change: transform;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 400; line-height: 1.2;
-}
-.tpl-page { position: absolute; inset: 0; overflow: hidden; background: #fff; color: #0f172a; border-radius: 1.2cqw; box-shadow: 0 3cqw 7cqw rgba(35, 35, 39, 0.24), 0 0 0 1px rgba(15, 23, 42, 0.07); }
-.tpl-card em, .tpl-card b, .tpl-card strong, .tpl-card small { font-style: normal; }
-.tpl-pill { display: inline-flex; align-items: center; justify-content: center; border-radius: 99cqw; font-weight: 600; white-space: nowrap; }
-.tpl-nav { display: flex; align-items: center; gap: 2.4cqw; height: 7.4cqw; padding: 0 4cqw; border-bottom: 1px solid #eef0f4; font-size: 1.7cqw; }
-.tpl-nav b { font-weight: 700; margin-left: -1.2cqw; }
-.tpl-logo { width: 2.6cqw; height: 2.6cqw; border-radius: 50%; background: #7c3aed; }
-.tpl-nav span { width: 5cqw; height: 0.9cqw; border-radius: 1cqw; background: #cbd5e1; }
-.tpl-nav span:first-of-type { margin-left: auto; }
-.tpl-nav .tpl-pill { padding: 1cqw 2cqw; font-size: 1.3cqw; background: #7c3aed; color: #fff; }
-.tpl-hero { display: grid; grid-template-columns: 1.15fr 1fr; gap: 2cqw; padding: 4.4cqw 4cqw 0; }
-.tpl-badge { display: inline-block; padding: 0.6cqw 1.4cqw; border-radius: 99cqw; background: #f1ecff; color: #7c3aed; font-size: 1.2cqw; font-weight: 600; }
-.tpl-head { display: block; margin: 1.8cqw 0 1.4cqw; font-size: 4.3cqw; line-height: 1.06; font-weight: 800; letter-spacing: -0.03em; }
-.tpl-sub { font-size: 1.5cqw; line-height: 1.45; color: #64748b; max-width: 34cqw; }
-.tpl-btns { display: flex; gap: 1.2cqw; margin-top: 2.4cqw; }
-.tpl-btns .tpl-pill { padding: 1.3cqw 2.4cqw; font-size: 1.35cqw; }
-.tpl-go { background: #7c3aed; color: #fff; }
-.tpl-demo { border: 1px solid #cbd5e1; color: #0f172a; }
-.tpl-art { position: relative; height: 30cqw; }
-.tpl-blob { position: absolute; inset: 0.5cqw 0 0 2cqw; background: linear-gradient(135deg, #a78bfa, #f0abfc 60%, #93c5fd); border-radius: 42% 58% 60% 40% / 45% 45% 55% 55%; animation: tpl-blob 9s ease-in-out infinite alternate; }
-.tpl-dash { position: absolute; left: 7cqw; top: 7cqw; width: 26cqw; height: 15cqw; display: flex; align-items: flex-end; gap: 1.6cqw; padding: 2cqw 2.2cqw; border-radius: 1.4cqw; background: #fff; box-shadow: 0 1.6cqw 3.2cqw rgba(15, 23, 42, 0.18); }
-.tpl-dash i { flex: 1; border-radius: 0.5cqw; background: #7c3aed; }
-.tpl-dash i:nth-child(1) { height: 42%; } .tpl-dash i:nth-child(2) { height: 66%; } .tpl-dash i:nth-child(3) { height: 38%; }
-.tpl-dash i:nth-child(4) { height: 84%; } .tpl-dash i:nth-child(5) { height: 58%; } .tpl-dash i:nth-child(6) { height: 96%; }
-.tpl-trust { padding: 2.6cqw 4cqw 0; color: #94a3b8; font-size: 1.2cqw; }
-.tpl-logos { display: flex; gap: 2cqw; margin-top: 1.2cqw; }
-.tpl-logos i { width: 9cqw; height: 2.4cqw; border-radius: 0.6cqw; background: #e2e8f0; }
-.tpl-cookie { position: absolute; left: 4cqw; right: 12cqw; bottom: 2.4cqw; display: flex; align-items: center; justify-content: space-between; gap: 2cqw; padding: 1.4cqw 1.4cqw 1.4cqw 2.2cqw; border-radius: 1.2cqw; background: #0f172a; color: #e2e8f0; font-size: 1.25cqw; animation: tpl-cookie 7s ease-in-out infinite; }
-.tpl-cookie .tpl-pill { padding: 0.9cqw 1.8cqw; background: #7c3aed; color: #fff; font-size: 1.2cqw; }
-.tpl-chat { position: absolute; right: 3cqw; bottom: 2.4cqw; width: 5.6cqw; height: 5.6cqw; border-radius: 50%; background: #7c3aed; box-shadow: 0 1cqw 2cqw rgba(124, 58, 237, 0.35); animation: tpl-chat 2.4s ease-in-out infinite; }
-.tpl-chat::before { content: ''; position: absolute; left: 1.6cqw; top: 1.8cqw; width: 2.4cqw; height: 1.8cqw; border-radius: 0.6cqw; background: #fff; }
-.tpl-chat::after { content: '1'; position: absolute; right: -0.4cqw; top: -0.4cqw; width: 2cqw; height: 2cqw; border-radius: 50%; background: #ef4444; color: #fff; font: 700 1.2cqw/2cqw system-ui, sans-serif; text-align: center; }
-@keyframes tpl-blob { to { border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%; transform: rotate(8deg) scale(1.04); } }
-@keyframes tpl-cookie { 0%, 6% { transform: translateY(170%); } 14%, 80% { transform: none; } 88%, 100% { transform: translateY(170%); } }
-@keyframes tpl-chat { 0%, 70%, 100% { transform: none; } 78% { transform: translateY(-1.2cqw); } 86% { transform: none; } 92% { transform: translateY(-0.5cqw); } }
+/* mismo brief. otro resultado. — un corte: cartel tipográfico sobre la tinta.
+   La tinta es var(--negro) (de noche, clara): este beat no usa difference, pinta
+   directo con los colores al revés */
+.tinta { position: absolute; inset: 0; width: 100%; height: 100%; display: block; visibility: hidden; pointer-events: none; }
+.tinta path { fill: var(--negro); }
+.beat-plantilla { inset: 0; mix-blend-mode: normal; text-align: center; --pl-tx: var(--papel); --pl-dim: color-mix(in srgb, var(--papel) 50%, var(--negro)); }
+/* cada bloque mide lo que su texto: la física lo empuja (lo de siempre) o lo cuelga (lo nuevo) */
+.pl-old, .pl-new { position: absolute; left: 0; right: 0; margin: 0 auto; width: fit-content; max-width: calc(100% - var(--gutter) * 2); will-change: transform; }
+.pl-old { top: 31svh; transform-origin: 50% 100%; }
+/* lo nuevo es una tarjeta de papel que cuelga de los hilos, atada en ojales */
+.pl-new { top: 48svh; transform-origin: 50% 0; padding: 1.7rem 2.6rem 2rem; background: var(--papel); border-radius: 0.4rem; box-shadow: 0 1.8rem 3.4rem rgba(0, 0, 0, 0.45); }
+.beat .pl-new .pl-h2, .beat .pl-new .pl-r { color: var(--negro); }
+.ojal { position: absolute; top: -4px; width: 18px; height: 30px; margin-left: -9px; overflow: visible; pointer-events: none; }
+.ojal .hilo { fill: none; stroke: #8a8578; stroke-width: 1.3; stroke-linecap: round; }
+.ojal .nudo { fill: #8a8578; }
+.ojal .aro { fill: var(--negro); stroke: #a9abb2; stroke-width: 2.6; }
+html[data-theme='dark'] .ojal .hilo { stroke: #9a978f; }
+html[data-theme='dark'] .ojal .nudo { fill: #9a978f; }
+.beat .pl-h1, .beat .pl-h2 { font-size: clamp(3rem, 7.4vw, 8.2rem); line-height: 0.9; letter-spacing: -0.055em; }
+.beat .pl-h1 { color: var(--pl-dim); }
+.beat .pl-h2 { color: var(--pl-tx); }
+.beat-plantilla p { margin: 1.2rem auto 0; max-width: 34ch; font-size: clamp(1.05rem, 1.45vw, 1.35rem); line-height: 1.35; }
+.beat .pl-l { color: var(--pl-dim); }
+.beat .pl-r { color: var(--pl-tx); }
+.pl-globos { position: absolute; left: 30%; right: 30%; top: 13svh; height: 26svh; visibility: hidden; pointer-events: none; }
+/* cuando la tinta pasa por detrás de una pieza del chrome, esa pieza se da vuelta */
+html:not([data-theme='dark']) :is(.brand, .top-tools, #cta-top, .marks, #up).ink { --negro: #ecece6; --papel: #141416; --acero: #8b8c94; --acero-2: #a9aab2; }
+html[data-theme='dark'] :is(.brand, .top-tools, #cta-top, .marks, #up).ink { --negro: #111111; --papel: #f4f1ea; --acero: #75767f; --acero-2: #4c4d55; }
+.brand.ink { mix-blend-mode: normal; }
+.brand, .top-tools button, .marks button, #up { transition: color 0.3s var(--ease-smooth), opacity 0.6s var(--ease-smooth); }
 
 .beat-contacto { left: var(--gutter); bottom: 9svh; right: var(--gutter); padding-left: calc(var(--cell) * 1.4); }
 .beat-contacto h2 { font-size: clamp(3rem, 9vw, 9rem); letter-spacing: -0.05em; }
@@ -253,12 +233,13 @@ html[data-mode='static'] #static { display: block; }
   .steps { gap: 0.6rem; }
   .step p { font-size: 0.9rem; }
   .beat-work { bottom: 6svh; }
-  /* en el celu van de a una: primero la plantilla, después la marca (mismo lugar) */
-  .pl-a, .pl-b { left: 1.2rem; right: 1.2rem; width: auto; }
-  .beat-plantilla h2 { font-size: 11vw; }
-  .beat-plantilla p { max-width: none; font-size: 1rem; }
-  .tpl-card { left: 1.2rem; width: calc(100% - 2.4rem); top: 39svh; }
-  .pl-globos { left: 1.2rem; right: 1.2rem; top: 38svh; height: 30svh; }
+  /* en el celu: lo mismo, más chico (los globos arriba, el cartel colgando) */
+  .pl-old, .pl-new { max-width: calc(100% - 2.4rem); }
+  .pl-old { top: 30svh; }
+  .pl-new { top: 39svh; padding: 1.2rem 1.3rem 1.4rem; }
+  .beat .pl-h1, .beat .pl-h2 { font-size: 12vw; }
+  .beat-plantilla p { font-size: 1rem; margin-top: 0.9rem; }
+  .pl-globos { left: 1.2rem; right: 1.2rem; top: 15svh; height: 18svh; }
   .beat-contacto { left: 1.2rem; right: 1.2rem; bottom: 6svh; }
   .beat-contacto h2 { font-size: 14vw; }
 }

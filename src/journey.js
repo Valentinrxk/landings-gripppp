@@ -34,8 +34,8 @@ export async function initJourney(ctx) {
   const journey = document.getElementById('journey');
   const beats = [...stage.querySelectorAll('.beat')];
   const byKey = Object.fromEntries(beats.map((b) => [b.dataset.beat, b]));
-  const tplCard = stage.querySelector('.tpl-card');
   const plGlobos = stage.querySelector('.pl-globos');
+  const tinta = stage.querySelector('.tinta');
   const mobile = window.innerWidth <= 720;
   const N = ctx.tier === 'lite' ? 5500 : 12000;
   const field = createField(canvas, { count: N, dpr: ctx.tier === 'lite' ? 1.25 : 1.5 });
@@ -64,13 +64,14 @@ export async function initJourney(ctx) {
   let shapes = [];
   let workRects = []; // rect de mundo de cada captura, para posicionar la imagen real
   let slots = {}; // dónde está la marca: la impresión de tinta y los globos comparten el lugar
+  // el corte (mismo brief): cámara quieta, cuánto subieron los globos, medidas del cartel
+  const cut = { ppu: 1, camY: 0, measured: false };
   const build = () => {
     const A = field.aspect;
     const W = 100 * A;
     const hero = { x: mobile ? 0 : W * 0.215, y: mobile ? 21 : 3, w: W * (mobile ? 0.84 : 0.46) };
-    // 'otro resultado': los globos van donde el CSS dejó lugar (.pl-globos) y la
-    // tinta de la plantilla, escondida detrás de la carta (.tpl-card). Se miden
-    // en pantalla y se pasan al mundo con la cámara del partido
+    // 'otro resultado': los globos van donde el CSS les dejó lugar (.pl-globos):
+    // se mide en pantalla y se pasa al mundo con la cámara del partido
     const k = camKeys[END + 1];
     const upp = (2 * k.z * Math.tan((k.fov * Math.PI) / 360)) / window.innerHeight;
     const toWorld = (el) => ({
@@ -79,7 +80,6 @@ export async function initJourney(ctx) {
       w: el.offsetWidth * upp,
     });
     const zone = toWorld(plGlobos);
-    const card = toWorld(tplCard);
     const right = { x: zone.x, y: zone.y, w: zone.w * 0.8 };
     const big = { x: mobile ? 0 : W * 0.14, y: mobile ? 22 : 16, w: W * (mobile ? 0.9 : 0.5) };
     slots = { hero, right, big };
@@ -108,16 +108,14 @@ export async function initJourney(ctx) {
       workRects.push({ cx, cy, rx, ry, w: r.worldW, h: r.worldH });
       return r;
     });
-    // partido: la tinta de la plantilla queda invisible detrás de la carta (DOM) y,
-    // cuando la carta se cae, aparece cayendo a la pila; grip a la derecha
-    const tplL = S.shapeTemplate(N, A, { widthFrac: (card.w * 0.86) / W, seed: 31 });
-    tplL.alpha.fill(0);
-    const gripR = S.shapeGrip(N, A, { widthFrac: right.w / W, seed: 33 });
-    const split = mixHalf(tplL, gripR, N, [card.x, card.y, right.x, right.y]);
-    const pileL = S.shapePile(N, A, 35);
-    const pileGrip = mixHalf(pileL, gripR, N, mobile ? [0, 0, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
+    // el corte: la tinta de la última obra se deshace en polvo (sobre la tinta no se
+    // ve) y en el contacto se arma la marca, en color, debajo de los globos
+    const dust = S.shapeStatic(N, A, 71);
     const gripBig = S.shapeGrip(N, A, { widthFrac: big.w / W, x: big.x, y: big.y, seed: 37 });
-    shapes = [gripHero, noise, pile, rays, sphere, ...works, split, pileGrip, gripBig];
+    shapes = [gripHero, noise, pile, rays, sphere, ...works, dust, dust, gripBig];
+    cut.ppu = 1 / upp;
+    cut.camY = k.y;
+    cut.measured = false;
   };
   // gira una nube de puntos alrededor de (cx, cy) como lo hace three con un Euler
   // XYZ: primero Y, después X (así la tinta calza con la hoja girada)
@@ -137,30 +135,6 @@ export async function initJourney(ctx) {
       pos[i + 2] = y * sX + z1 * cX;
     }
   }
-  // mezcla: primera mitad de puntos de a (desplazada dx1,dy1), segunda mitad de b (dx2,dy2)
-  function mixHalf(a, b, n, [dx1, dy1, dx2, dy2]) {
-    const pos = new Float32Array(n * 3);
-    const col = new Float32Array(n * 3);
-    const alpha = new Float32Array(n);
-    const size = new Float32Array(n);
-    const chroma = new Float32Array(n);
-    const half = n >> 1;
-    for (let i = 0; i < n; i++) {
-      const src = i < half ? a : b;
-      const j = i < half ? i * 2 : (i - half) * 2; // muestrear alternado para no perder densidad
-      const jj = Math.min(n - 1, j);
-      pos[i * 3] = src.pos[jj * 3] + (i < half ? dx1 : dx2);
-      pos[i * 3 + 1] = src.pos[jj * 3 + 1] + (i < half ? dy1 : dy2);
-      pos[i * 3 + 2] = src.pos[jj * 3 + 2];
-      col[i * 3] = src.col[jj * 3];
-      col[i * 3 + 1] = src.col[jj * 3 + 1];
-      col[i * 3 + 2] = src.col[jj * 3 + 2];
-      alpha[i] = src.alpha[jj];
-      size[i] = src.size[jj];
-      chroma[i] = src.chroma ? src.chroma[jj] : 0;
-    }
-    return { pos, col, alpha, size, chroma };
-  }
 
   // ── cámara por beat (NB + 1 keyframes: un beat por tramo + el fin) ──
   const D = field.dist;
@@ -178,7 +152,7 @@ export async function initJourney(ctx) {
         { x: 0, y: 4, z: D, tx: 0, ty: 4, roll: 0, fov: 40 },
         { x: 0, y: 4, z: D * 1.02, tx: 0, ty: 4, roll: -0.01, fov: 40 },
         { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 },
-        { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 }, // quieta: en el celu 'otro resultado' entra recién acá
+        { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 }, // el corte: quieta
         { x: 0, y: 6, z: D * 0.9, tx: 0, ty: 6, roll: 0, fov: 40 },
       ]
     : [
@@ -194,7 +168,7 @@ export async function initJourney(ctx) {
         { x: 6, y: 0, z: D * 0.97, tx: 6, ty: 0, roll: 0, fov: 36 }, // 9 w5
         { x: -8, y: 2, z: D * 1.03, tx: -6, ty: 0, roll: -0.012, fov: 36 }, // 10 w6
         { x: 0, y: 0, z: D * 1.12, tx: 0, ty: 0, roll: 0, fov: 36 }, // 11 partido
-        { x: 12, y: -10, z: D * 1.05, tx: 8, ty: -12, roll: 0.02, fov: 38 }, // 12 la plantilla se cae
+        { x: 0, y: 0, z: D * 1.12, tx: 0, ty: 0, roll: 0, fov: 36 }, // 12 el corte: quieta, el cartel calza con los globos
         { x: 0, y: 2, z: D * 0.85, tx: 0, ty: 2, roll: 0, fov: 36 }, // 13 grip grande: cerca
       ];
 
@@ -209,8 +183,8 @@ export async function initJourney(ctx) {
       gsap.set(field.cam, k);
       return;
     }
-    // el partido se encuadra temprano y queda quieto mientras se lee: el texto y la
-    // carta (DOM) calzan con los globos (mundo)
+    // el corte se encuadra temprano y queda quieto mientras se lee: el cartel (DOM)
+    // calza con los globos (mundo)
     const early = i === END + 1;
     master.to(field.cam, { ...k, duration: early ? 0.5 : 1, ease: 'sine.inOut' }, early ? END : i - 1);
   });
@@ -236,6 +210,305 @@ export async function initJourney(ctx) {
     pila.chars = sb.chars;
   };
   bus.on('i18n:changed', pilaSplit);
+  // el corte: la tinta sube con el borde líquido, tapa la pantalla y, antes del
+  // contacto, sigue de largo hacia arriba. Cada pieza del chrome se da vuelta
+  // cuando la tinta pasa por su altura (si no, desaparece sobre su propio color)
+  const tintaPath = tinta.querySelector('path');
+  let tintaVis = false;
+  let tintaWH = '';
+  const hud = ['.brand', '#cta-top', '.top-tools', '.marks', '#up'].map((q) => ({ el: document.querySelector(q), y: 0, on: false }));
+  const measureHud = () => hud.forEach((h) => {
+    const r = h.el?.getBoundingClientRect();
+    h.y = r ? r.top + r.height / 2 : -1;
+  });
+  const placeTinta = (g, time) => {
+    const up = sm(END + 0.36, END + 0.64, g); // sube el borde de arriba
+    const go = sm(END + 1.94, END + 2.22, g); // sube el borde de abajo: se va
+    const vis = up > 0.001 && go < 0.999;
+    if (vis !== tintaVis) {
+      tintaVis = vis;
+      tinta.style.visibility = vis ? 'visible' : 'hidden';
+      if (vis) measureHud();
+    }
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    hud.forEach((h) => {
+      const on = vis && h.y > H * (1 - up) && h.y < H * (1 - go);
+      if (on !== h.on) {
+        h.on = on;
+        h.el?.classList.toggle('ink', on);
+      }
+    });
+    if (!vis) return;
+    const wh = `0 0 ${W} ${H}`;
+    if (wh !== tintaWH) tinta.setAttribute('viewBox', (tintaWH = wh));
+    // borde líquido: ondula mientras se mueve, quieto cuando llegó
+    const edge = (base, amp, ph) => {
+      const pts = [];
+      for (let i = 0; i <= 32; i++) {
+        const x = (i / 32) * W;
+        const u = x / W;
+        pts.push([x, base + amp * (0.6 * Math.sin(u * 8.2 + time * 2.2 + ph) + 0.4 * Math.sin(u * 17.1 - time * 1.6 + ph))]);
+      }
+      return pts;
+    };
+    const top = edge(H * (1 - up) - 2, 54 * Math.sin(Math.PI * up), 0);
+    const bot = edge(H * (1 - go) + 2, 54 * Math.sin(Math.PI * go), 2.1).reverse();
+    tintaPath.setAttribute('d', 'M' + [...top, ...bot].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join('L') + 'Z');
+  };
+  // el corte, con física. Los globos suben disparejo: cada uno persigue su altura
+  // (que sale del scroll) con un resorte flojo y su propio vaivén, así flotan. El
+  // cartel nuevo cuelga de los cuatro hilos con gravedad: se balancea y se inclina
+  // según qué globo tire. Lo de siempre tiene peso: descansa en su lugar hasta que
+  // los globos lo levantan desde abajo, del lado que llegó primero, y lo sacan por
+  // arriba (de vuelta para atrás, se cae solo). En el contacto sube otro racimo,
+  // también disparejo. Todo en px de pantalla, a 60 pasos por segundo
+  const plOld = T('plantilla').querySelector('.pl-old');
+  const plNew = T('plantilla').querySelector('.pl-new');
+  const BALL = [
+    { d: 0.0, k: 0.011, w: 0.9 }, // g: demora (en g), rigidez del resorte, frecuencia del vaivén
+    { d: 0.04, k: 0.013, w: 1.25 }, // r
+    { d: 0.02, k: 0.009, w: 0.7 }, // i
+    { d: 0.06, k: 0.012, w: 1.05 }, // p
+  ];
+  const KNOT = [[80, 340], [255, 260], [418, 252], [532, 338]]; // nudos en el logo (viewBox)
+  // los ojales de la tarjeta: el hilo baja, se anuda y la atraviesa (el hilo 3D
+  // llega hasta el borde de arriba; desde ahí sigue este, que gira con la tarjeta)
+  const ojales = KNOT.map(() => {
+    const o = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    o.setAttribute('class', 'ojal');
+    o.setAttribute('viewBox', '0 0 18 30');
+    o.setAttribute('aria-hidden', 'true');
+    o.innerHTML = '<path class="hilo" d="M9 -2V12M9 12C5.5 13 5.4 18.5 9 19.6C12.6 18.5 12.5 13 9 12"/><circle class="nudo" cx="9" cy="11.6" r="2.1"/><circle class="aro" cx="9" cy="19" r="5.2"/>';
+    return o;
+  });
+  const GRAV = 0.55; // px por paso²
+  // A, B: el borde de arriba de la tarjeta (los ojales); M: su centro de masa, más
+  // abajo (por eso cuelga derecha y se endereza sola). C, D: el borde de abajo de lo de siempre
+  const fis = { mode: '', acc: 0, last: 0, loose: false, b: BALL.map(() => ({ y: 0, v: 0, x: 0, r: 0 })), A: [0, 0, 0, 0], B: [0, 0, 0, 0], M: [0, 0, 0, 0], C: [0, 0, 0, 0], D: [0, 0, 0, 0] };
+  const offs = BALL.map(() => ({ x: 0, y: 0, r: 0 }));
+  const ties = BALL.map(() => [0, 0]);
+  // un slot del mundo → en pantalla: centro, px por unidad del logo, borde de arriba
+  const slotPx = (sl) => {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const kpx = (sl.w / 700) * cut.ppu;
+    const cx = W / 2 + (sl.x - 0) * cut.ppu;
+    const cy = H / 2 - (sl.y - cut.camY) * cut.ppu;
+    return { cx, cy, kpx, top: cy + (69 - 180) * kpx };
+  };
+  const measureCut = () => {
+    const H = window.innerHeight;
+    const r = slotPx(slots.right);
+    const ow = plOld.offsetWidth;
+    const nw = plNew.offsetWidth;
+    cut.old = { l: plOld.offsetLeft, r: plOld.offsetLeft + ow, b: plOld.offsetTop + plOld.offsetHeight, h: plOld.offsetHeight };
+    cut.sign = { cx: plNew.offsetLeft + nw / 2, top: plNew.offsetTop, R: Math.max(nw / 2, 1), h: plNew.offsetHeight * 0.55, bottom: plNew.offsetTop + plNew.offsetHeight };
+    cut.sign.dm = Math.hypot(cut.sign.R, cut.sign.h);
+    cut.home = { x: (cut.old.l + cut.old.r) / 2, y: cut.old.b };
+    // cada hilo: dónde se ata en el cartel (px desde su centro) y cuánto mide
+    cut.att = KNOT.map(([x, y]) => {
+      const kx = r.cx + (x - 350) * r.kpx;
+      const ky = r.cy + (y - 180) * r.kpx;
+      return { a: kx - cut.sign.cx, L: Math.max(20, cut.sign.top - ky) };
+    });
+    // los ojales, justo debajo de cada nudo
+    cut.att.forEach((at, i) => {
+      if (!ojales[i].isConnected) plNew.appendChild(ojales[i]);
+      ojales[i].style.left = `${(nw / 2 + at.a).toFixed(1)}px`;
+    });
+    cut.below = H + 80 - r.top; // globos, abajo de la pantalla
+    cut.above = cut.sign.bottom + 120; // cartel, arriba de la pantalla
+    cut.belowBig = H + 80 - slotPx(slots.big).top;
+    cut.measured = true;
+  };
+  // la altura que persigue cada globo (px, + abajo del lugar de reposo)
+  const target = (g, i) => {
+    const b = BALL[i];
+    if (fis.mode === 'contacto') return cut.belowBig * Math.pow(1 - clamp01((g - (END + 2.26 + b.d)) / 0.45), 2.4);
+    const up = clamp01((g - (END + 0.95 + b.d)) / 0.5);
+    const drift = clamp01((g - (END + 1.5)) / 0.28);
+    const away = clamp01((g - (END + 1.76 + b.d * 0.4)) / 0.24);
+    return cut.below * Math.pow(1 - up, 2.4) - 22 * drift - cut.above * away * away;
+  };
+  const initFis = (g) => {
+    fis.b.forEach((b, i) => {
+      b.y = target(g, i);
+      b.v = 0;
+    });
+    if (fis.mode !== 'corte') return;
+    const S = cut.sign;
+    const y = S.top + fis.b.reduce((m, b) => m + b.y, 0) / 4;
+    fis.A = [S.cx - S.R, y, S.cx - S.R, y];
+    fis.B = [S.cx + S.R, y, S.cx + S.R, y];
+    fis.M = [S.cx, y + S.h, S.cx, y + S.h];
+    // lo de siempre: en su lugar, o (si ya pasaron los globos) arriba de la pantalla
+    const gone = g >= END + 1.12;
+    const oy = gone ? -40 : cut.old.b;
+    fis.C = [cut.old.l, oy, cut.old.l, oy];
+    fis.D = [cut.old.r, oy, cut.old.r, oy];
+    fis.loose = gone;
+  };
+  // varilla rígida entre dos puntos (cartel / bloque), de largo fijo
+  const rod = (P, Q, len) => {
+    const dx = Q[0] - P[0];
+    const dy = Q[1] - P[1];
+    const d = Math.hypot(dx, dy) || 1;
+    const k = ((d - len) / d) * 0.5;
+    P[0] += dx * k;
+    P[1] += dy * k;
+    Q[0] -= dx * k;
+    Q[1] -= dy * k;
+  };
+  // empuja el punto u (0..1) de la varilla PQ en (dx, dy), repartido entre las puntas
+  const pushAt = (P, Q, u, dx, dy) => {
+    const w = 1 / ((1 - u) * (1 - u) + u * u);
+    P[0] += dx * (1 - u) * w;
+    P[1] += dy * (1 - u) * w;
+    Q[0] += dx * u * w;
+    Q[1] += dy * u * w;
+  };
+  const verlet = (P, damp, gy) => {
+    const vx = (P[0] - P[2]) * damp;
+    const vy = (P[1] - P[3]) * damp;
+    P[2] = P[0];
+    P[3] = P[1];
+    P[0] += vx;
+    P[1] += vy + gy;
+  };
+  const step = (g, time, scr) => {
+    // los globos: resorte flojo hacia su altura + vaivén
+    fis.b.forEach((b, i) => {
+      const B = BALL[i];
+      b.v = (b.v + (target(g, i) - b.y) * B.k) * 0.9;
+      b.y += b.v;
+      b.x = Math.sin(time * B.w + i * 1.7) * 7 + Math.sin(time * B.w * 0.43 + i) * 4;
+      b.r = Math.max(-0.12, Math.min(0.12, -b.v * 0.012)); // se inclinan un poco al subir
+    });
+    if (fis.mode !== 'corte') return;
+    const S = cut.sign;
+    // el cartel: cae, cuelga de los hilos (que no estiran) y es rígido
+    verlet(fis.A, 0.985, GRAV);
+    verlet(fis.B, 0.985, GRAV);
+    verlet(fis.M, 0.985, GRAV);
+    const live = scr && scr.some((s) => s.alive);
+    for (let it = 0; it < 8; it++) {
+      rod(fis.A, fis.B, S.R * 2);
+      rod(fis.A, fis.M, S.dm);
+      rod(fis.B, fis.M, S.dm);
+      if (!live) continue;
+      cut.att.forEach((at, i) => {
+        if (!scr[i].alive) return;
+        const u = (at.a + S.R) / (2 * S.R);
+        const px = fis.A[0] + (fis.B[0] - fis.A[0]) * u;
+        const py = fis.A[1] + (fis.B[1] - fis.A[1]) * u;
+        const [kx, ky] = scr[i].knot;
+        const dx = px - kx;
+        const dy = py - ky;
+        const d = Math.hypot(dx, dy) || 1;
+        if (d <= at.L) return;
+        const c = Math.min(40, d - at.L) / d; // un tirón por paso, no un salto
+        pushAt(fis.A, fis.B, u, -dx * c, -dy * c);
+      });
+    }
+    // lo de siempre: tiene peso y descansa en su lugar; los globos lo empujan desde
+    // abajo y, una vez despegado, queda liviano y sigue subiendo solo (se lo
+    // llevaron). Si volvés para atrás antes de que lleguen, vuelve a su lugar
+    const O = cut.old;
+    const lift = O.b - Math.max(fis.C[1], fis.D[1]); // cuánto lo despegaron
+    if (lift > 36 && g > END + 1.05) fis.loose = true;
+    if (g < END + 1.02) fis.loose = false;
+    const gy = fis.loose ? -0.07 : GRAV;
+    verlet(fis.C, fis.loose ? 0.99 : 0.97, gy);
+    verlet(fis.D, fis.loose ? 0.99 : 0.97, gy);
+    if (!fis.loose && g < END + 1.02) {
+      // de vuelta: a su lugar, con un resorte
+      fis.C[0] += (O.l - fis.C[0]) * 0.08;
+      fis.C[1] += (O.b - fis.C[1]) * 0.08;
+      fis.D[0] += (O.r - fis.D[0]) * 0.08;
+      fis.D[1] += (O.b - fis.D[1]) * 0.08;
+    }
+    for (let it = 0; it < 6; it++) {
+      rod(fis.C, fis.D, O.r - O.l);
+      for (const P of [fis.C, fis.D]) {
+        if (P[1] > O.b) {
+          P[1] = O.b; // el piso: su lugar
+          P[3] = P[1];
+        }
+      }
+      if (!scr) continue;
+      scr.forEach((s) => {
+        if (!s.alive) return;
+        const [tx, ty] = s.top;
+        const u = (tx - fis.C[0]) / (fis.D[0] - fis.C[0] || 1);
+        if (u < 0 || u > 1) return;
+        const ey = fis.C[1] + (fis.D[1] - fis.C[1]) * u;
+        if (ey > ty - 4) pushAt(fis.C, fis.D, u, 0, ty - 4 - ey);
+      });
+    }
+    // roce: no se va de costado
+    const midX = (fis.C[0] + fis.D[0]) / 2;
+    const homeX = (O.l + O.r) / 2;
+    fis.C[0] += (homeX - midX) * 0.04;
+    fis.D[0] += (homeX - midX) * 0.04;
+  };
+  const placeCorte = (g) => {
+    const mode = g >= END + 0.4 && g < END + 2.24 ? 'corte' : g >= END + 2.24 ? 'contacto' : '';
+    if (mode !== fis.mode || !cut.measured) {
+      fis.mode = mode;
+      if (!mode) {
+        cut.measured = false; // al volver a entrar se mide de nuevo (fuentes, ancho)
+        globos.pose.offs = null;
+        globos.pose.ties = null;
+        return;
+      }
+      measureCut();
+      initFis(g);
+      fis.last = performance.now();
+      fis.acc = 0;
+    }
+    if (!mode) return;
+    // pasos fijos de 1/60 s (el ticker puede ir a 60 o a 120)
+    const now = performance.now();
+    fis.acc = Math.min(fis.acc + (now - fis.last) / 1000, 0.1);
+    fis.last = now;
+    const scr = globos.pose.vis > 0.99 ? globos.screen() : null;
+    while (fis.acc >= 1 / 60) {
+      step(g, now / 1000, scr);
+      fis.acc -= 1 / 60;
+    }
+    // a los globos: su corrimiento propio (mundo, z=0)
+    fis.b.forEach((b, i) => {
+      offs[i].x = b.x / cut.ppu;
+      offs[i].y = -b.y / cut.ppu;
+      offs[i].r = b.r;
+    });
+    globos.pose.offs = offs;
+    if (mode !== 'corte') {
+      globos.pose.ties = null;
+      return;
+    }
+    // el cartel nuevo: donde lo dejó la física (gira sobre el centro de su borde de arriba)
+    const S = cut.sign;
+    const mx = (fis.A[0] + fis.B[0]) / 2;
+    const my = (fis.A[1] + fis.B[1]) / 2;
+    const an = Math.atan2(fis.B[1] - fis.A[1], fis.B[0] - fis.A[0]);
+    plNew.style.transform = `translate3d(${(mx - S.cx).toFixed(1)}px, ${(my - S.top).toFixed(1)}px, 0) rotate(${an.toFixed(4)}rad)`;
+    cut.att.forEach((at, i) => {
+      const u = (at.a + S.R) / (2 * S.R);
+      ties[i][0] = fis.A[0] + (fis.B[0] - fis.A[0]) * u;
+      ties[i][1] = fis.A[1] + (fis.B[1] - fis.A[1]) * u;
+    });
+    globos.pose.ties = ties;
+    // lo de siempre: aparece; cuando lo levantan gira sobre el centro de su borde de abajo
+    const O = cut.old;
+    const ox = (fis.C[0] + fis.D[0]) / 2;
+    const oy = (fis.C[1] + fis.D[1]) / 2;
+    const oa = Math.atan2(fis.D[1] - fis.C[1], fis.D[0] - fis.C[0]);
+    const show = clamp01((g - (END + 0.55)) / 0.2);
+    plOld.style.transform = `translate3d(${(ox - (O.l + O.r) / 2).toFixed(1)}px, ${(oy - O.b + 30 * (1 - show)).toFixed(1)}px, 0) rotate(${oa.toFixed(4)}rad)`;
+    plOld.style.opacity = (show * clamp01((oy - 30) / 160)).toFixed(3);
+  };
   const clamp01 = (v) => Math.max(0, Math.min(1, v));
   const bounceOut = (x) => {
     const n = 7.5625;
@@ -284,36 +557,22 @@ export async function initJourney(ctx) {
     master.fromTo(co, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, 3.35);
     master.fromTo(co.querySelector('h2'), { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 3.4);
     steps.forEach((s, i) => master.fromTo(s, { autoAlpha: 0, y: 60, rotate: -1.5 }, { autoAlpha: 1, y: 0, rotate: 0, duration: 0.22, ease: 'power3.out' }, 3.55 + i * 0.16));
-    master.to(co, { autoAlpha: 0, y: -50, duration: 0.3, ease: 'power2.in' }, 4.35);
+    master.to(co, { autoAlpha: 0, y: -50, duration: 0.18, ease: 'power2.in' }, 4.28);
     // trabajos: título breve al entrar; cada caption sube desde abajo cuando su obra está formada
     const tr = T('trabajos');
-    master.fromTo(tr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 4.35).to(tr, { autoAlpha: 0, duration: 0.2 }, 4.8);
+    master.fromTo(tr, { autoAlpha: 0, y: 40 }, { autoAlpha: 1, y: 0, duration: 0.22, ease: 'power3.out' }, 4.45).to(tr, { autoAlpha: 0, duration: 0.2 }, 4.8);
     WORKS.forEach((w, i) => {
       const cap = T('w' + i);
       const from = i % 2 ? { x: 80, y: 30 } : { x: -80, y: 30 };
       master.fromTo(cap, { autoAlpha: 0, ...from }, { autoAlpha: 1, x: 0, y: 0, duration: 0.22, ease: 'power3.out' }, 4.55 + i)
         .to(cap, { autoAlpha: 0, y: -30, duration: 0.18, ease: 'power2.in' }, 5.38 + i);
     });
-    // mismo brief / otro resultado: la plantilla (una landing de verdad) se reparte
-    // como una carta, apagada; la marca son los globos. Después la plantilla se cae
-    // a la pila. En el celu van de a una: primero la plantilla, después la marca.
-    // Cada tween declara todos sus valores de ida y de vuelta (el scrub va y viene)
+    // mismo brief / otro resultado: un corte, otro capítulo. La tinta sube y tapa
+    // todo (placeTinta); aparece lo de siempre, los globos suben desde abajo, se lo
+    // llevan y traen lo de ustedes colgando de los hilos (placeCorte). Antes del
+    // contacto la tinta sigue de largo hacia arriba y vuelve el papel
     const pl = T('plantilla');
-    const pa = pl.querySelector('.pl-a');
-    const pb = pl.querySelector('.pl-b');
-    const fall = mobile ? END + 0.96 : END + 1.2;
-    const bIn = mobile ? END + 1.3 : END + 0.6;
-    const fallDur = mobile ? 0.3 : 0.42; // en el celu se va antes de que suban los globos
-    const cardIn = { autoAlpha: 1, yPercent: 0, rotationX: 6, rotationY: 14, rotation: -1 };
-    gsap.set(tplCard, { transformPerspective: 1600, transformOrigin: '50% 100%' });
-    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.02 }, END + 0.45).to(pl, { autoAlpha: 0, duration: 0.05 }, END + 1.95);
-    master
-      .fromTo(pa, { autoAlpha: 0, x: -50, y: 0, rotation: 0 }, { autoAlpha: 1, x: 0, y: 0, rotation: 0, duration: 0.25, ease: 'power3.out' }, END + 0.5)
-      .fromTo(tplCard, { autoAlpha: 0, yPercent: 35, rotationX: -75, rotationY: 14, rotation: 0 }, { ...cardIn, duration: 0.32, ease: 'back.out(1.3)' }, END + 0.56)
-      .fromTo(pa, { autoAlpha: 1, x: 0, y: 0, rotation: 0 }, { autoAlpha: 0, x: 0, y: 140, rotation: -7, duration: 0.32, ease: 'power2.in', immediateRender: false }, fall)
-      .fromTo(tplCard, cardIn, { autoAlpha: 0, yPercent: 160, rotationX: 70, rotationY: 30, rotation: -24, duration: fallDur, ease: 'power2.in', immediateRender: false }, fall)
-      .fromTo(pb, { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: 'power3.out' }, bIn)
-      .fromTo(pb, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.18, immediateRender: false }, END + 1.76);
+    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.02 }, END + 0.5).to(pl, { autoAlpha: 0, duration: 0.02 }, END + 2.22);
     // contacto: estampa
     const ct = T('contacto');
     master.fromTo(ct, { autoAlpha: 0, scale: 1.2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'steps(3)' }, END + 2.3);
@@ -345,17 +604,18 @@ export async function initJourney(ctx) {
       P.dir = 1;
       P.away = sm(0.3, 0.75, g);
       P.vis = 1 - sm(0.72, 0.8, g);
-    } else {
-      // bajan del cielo para 'mismo brief' y se quedan hasta el contacto, donde crecen
-      const m = sm(END + 2.32, END + 2.72, g);
-      P.x = mixf(slots.right.x, slots.big.x, m);
-      P.y = mixf(slots.right.y, slots.big.y, m);
-      P.w = mixf(slots.right.w, slots.big.w, m);
-      // suben desde abajo (son globos); en el celu, cuando ya se cayó la plantilla
-      const land = mobile ? END + 1.32 : END + 0.5;
+    } else if (g < END + 2.24) {
+      // el corte: el lugar de reposo; cuánto subió cada uno lo pone la física (placeCorte)
+      Object.assign(P, slots.right);
       P.dir = -1;
-      P.away = 1 - sm(land, land + 0.36, g);
-      P.vis = sm(land - 0.06, land + 0.04, g);
+      P.away = 0;
+      P.vis = g > END + 0.9 ? 1 : 0;
+    } else {
+      // contacto: sube otro racimo desde abajo, grande (también disparejo)
+      Object.assign(P, slots.big);
+      P.dir = -1;
+      P.away = 0;
+      P.vis = 1;
     }
     P.vis *= entry.on;
   };
@@ -388,6 +648,8 @@ export async function initJourney(ctx) {
     globos.update(performance.now() / 1000, mouse);
     plantillas.update(g, performance.now() / 1000);
     placePila(g);
+    placeTinta(g, performance.now() / 1000);
+    placeCorte(g);
     // la impresión de color queda tapada por los globos; asoma cuando uno revienta o cuando se van
     field.state.print = 1 - globos.pose.vis * (1 - globos.pose.away) * (1 - inkOut.v);
     const P = globos.pose;
@@ -608,7 +870,7 @@ export async function initJourney(ctx) {
   // asienta, línea por línea, desde la más cercana a los globos
   function jolt() {
     const g = cur.t;
-    const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('.pl-b h2') : T('contacto').querySelector('h2');
+    const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('.pl-h2') : T('contacto').querySelector('h2');
     const lines = el.querySelectorAll('.ln');
     const targets = lines.length ? [...lines].reverse() : [el];
     gsap.timeline()

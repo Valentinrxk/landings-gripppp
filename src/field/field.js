@@ -3,7 +3,8 @@
 // y trayectorias curvas (nada llega en línea recta). La velocidad del scroll
 // las agita y desregistra en tres tintas; al frenar, registran. La cámara la
 // maneja el viaje (journey.js) vía field.cam. La marca (chroma = 1) no se
-// imprime en negro: va en split fountain, rojo·lima·celeste en el mismo rodillo.
+// imprime en negro: va en split fountain, fucsia·dorado·celeste en el mismo rodillo
+// (las tintas de los globos: la tinta que queda debajo no desentona con ellos).
 import * as THREE from 'three';
 
 const VERT = /* glsl */ `
@@ -92,9 +93,13 @@ const FRAG = /* glsl */ `
 // tinta tal cual el token: THREE.Color('#hex') la pasaría a lineal y este shader
 // no la vuelve a convertir (saldría más oscura que en el CSS)
 const srgb = (hex) => new THREE.Vector3(((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255);
-// el lima del token se lava sobre el papel crema: de día va un punto más hondo
-const LIMA = srgb(0xd9e355);
-const LIMA_PAPEL = srgb(0xc2cf2b);
+// las tintas de los globos. Sobre el papel crema el dorado y el celeste flúor se
+// lavan: de día van un punto más hondos
+const FUCSIA = srgb(0xff1fb4);
+const DORADO = srgb(0xffc552);
+const DORADO_PAPEL = srgb(0xe0a21a);
+const CELESTE = srgb(0x14e4ff);
+const CELESTE_PAPEL = srgb(0x00b9e3);
 
 function glyphAtlas() {
   const S = 128;
@@ -163,18 +168,18 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     uDark: { value: 0 },
     uArc: { value: 1 },
     uAtlas: { value: atlas },
-    uInk: { value: new THREE.Color(ink) },
+    uInk: { value: ink instanceof THREE.Vector3 ? ink.clone() : new THREE.Color(ink) }, // el desregistro: fucsia y celeste, como en imprenta
     uUseInk: { value: useInk },
     uOpacity: { value: 1 },
-    uFountA: { value: srgb(0xf0403c) }, // rojo
-    uFountB: { value: LIMA_PAPEL }, // lima
-    uFountC: { value: srgb(0x5fa8e0) }, // celeste
+    uFountA: { value: FUCSIA },
+    uFountB: { value: DORADO_PAPEL },
+    uFountC: { value: CELESTE_PAPEL },
     uInkShift: { value: 0 },
     uPrint: { value: 1 },
   });
   const matK = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#111111', 0), transparent: true, depthWrite: false, depthTest: true });
-  const matR = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#f0403c', 1), transparent: true, depthWrite: false, depthTest: true });
-  const matC = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#5fa8e0', 1), transparent: true, depthWrite: false, depthTest: true });
+  const matR = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor(FUCSIA, 1), transparent: true, depthWrite: false, depthTest: true });
+  const matC = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor(CELESTE_PAPEL, 1), transparent: true, depthWrite: false, depthTest: true });
   const pK = new THREE.Points(geo, matK);
   const pR = new THREE.Points(geo, matR);
   const pC = new THREE.Points(geo, matC);
@@ -262,7 +267,8 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
       m.uniforms.uMouse.value.set(state.mouse[0], state.mouse[1], state.mouse[2]);
       m.uniforms.uBurst.value.set(state.burst.x, state.burst.y, state.burst.r, state.burst.s);
       m.uniforms.uDark.value = state.dark;
-      m.uniforms.uFountB.value = state.dark ? LIMA : LIMA_PAPEL;
+      m.uniforms.uFountB.value = state.dark ? DORADO : DORADO_PAPEL;
+      m.uniforms.uFountC.value = state.dark ? CELESTE : CELESTE_PAPEL;
       m.uniforms.uInkShift.value = state.inkShift;
       m.uniforms.uPrint.value = state.print;
     });
