@@ -35,6 +35,7 @@ export async function initJourney(ctx) {
   const beats = [...stage.querySelectorAll('.beat')];
   const byKey = Object.fromEntries(beats.map((b) => [b.dataset.beat, b]));
   const plGlobos = stage.querySelector('.pl-globos');
+  journey.dataset.nb = NB; // la regla (barra de scroll) marca dónde arranca cada sección
   const tinta = stage.querySelector('.tinta');
   const mobile = window.innerWidth <= 720;
   const N = ctx.tier === 'lite' ? 5500 : 12000;
@@ -216,7 +217,7 @@ export async function initJourney(ctx) {
   const tintaPath = tinta.querySelector('path');
   let tintaVis = false;
   let tintaWH = '';
-  const hud = ['.brand', '#cta-top', '.top-tools', '.marks', '#up'].map((q) => ({ el: document.querySelector(q), y: 0, on: false }));
+  const hud = ['.brand', '#cta-top', '.top-tools', '.marks', '#up', '#regla'].map((q) => ({ el: document.querySelector(q), y: 0, on: false }));
   const measureHud = () => hud.forEach((h) => {
     const r = h.el?.getBoundingClientRect();
     h.y = r ? r.top + r.height / 2 : -1;

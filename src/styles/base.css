@@ -181,8 +181,8 @@ html[data-theme='dark'] .ojal .nudo { fill: #9a978f; }
 .beat .pl-r { color: var(--pl-tx); }
 .pl-globos { position: absolute; left: 30%; right: 30%; top: 13svh; height: 26svh; visibility: hidden; pointer-events: none; }
 /* cuando la tinta pasa por detrás de una pieza del chrome, esa pieza se da vuelta */
-html:not([data-theme='dark']) :is(.brand, .top-tools, #cta-top, .marks, #up).ink { --negro: #ecece6; --papel: #141416; --acero: #8b8c94; --acero-2: #a9aab2; }
-html[data-theme='dark'] :is(.brand, .top-tools, #cta-top, .marks, #up).ink { --negro: #111111; --papel: #f4f1ea; --acero: #75767f; --acero-2: #4c4d55; }
+html:not([data-theme='dark']) :is(.brand, .top-tools, #cta-top, .marks, #up, #regla).ink { --negro: #ecece6; --papel: #141416; --acero: #8b8c94; --acero-2: #a9aab2; }
+html[data-theme='dark'] :is(.brand, .top-tools, #cta-top, .marks, #up, #regla).ink { --negro: #111111; --papel: #f4f1ea; --acero: #75767f; --acero-2: #4c4d55; }
 .brand.ink { mix-blend-mode: normal; }
 .brand, .top-tools button, .marks button, #up { transition: color 0.3s var(--ease-smooth), opacity 0.6s var(--ease-smooth); }
 
@@ -300,4 +300,24 @@ html.splashing .brand, html.splashing #cta-top, html.splashing .marks, html.spla
 html.has-egg #cta-top::after { content: '−15%'; position: absolute; right: -0.7rem; top: -0.75rem; padding: 0.3rem 0.42rem; background: var(--rojo); color: #fff; font: 800 0.74rem/1 var(--font-display); letter-spacing: -0.01em; rotate: 8deg; pointer-events: none; }
 @media (max-width: 720px) {
   #cupon { left: 50%; top: 50%; }
+}
+
+/* ── la regla: la barra de scroll de la casa (ver systems/regla.js) ── */
+#regla { position: fixed; z-index: var(--z-hud); right: 22px; top: 104px; bottom: 84px; width: 26px; cursor: pointer; touch-action: none; }
+.regla-track { position: absolute; right: 12px; top: 0; bottom: 0; width: 1px; background: var(--acero-2); opacity: 0.4; transition: opacity 0.25s var(--ease-smooth); }
+.regla-fill {
+  position: absolute; right: 11px; top: 0; bottom: 0; width: 3px; border-radius: 2px;
+  background: linear-gradient(180deg, #ff1fb4, #ffc552, #14e4ff, #ff1fb4) 0 0 / 100% 300%; animation: regla-tinta 7s linear infinite;
+}
+@keyframes regla-tinta { to { background-position: 0 300%; } }
+.regla-tick { position: absolute; right: 9px; width: 7px; height: 1px; background: var(--acero-2); opacity: 0.7; }
+.regla-head { position: absolute; right: 0; top: 0; display: flex; align-items: center; gap: 7px; margin-top: -6px; will-change: transform; pointer-events: none; }
+.regla-n { order: -1; font-size: 0.62rem; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; color: var(--acero-2); transition: color 0.25s var(--ease-smooth); }
+.regla-gota { width: 11px; height: 11px; margin-right: 7px; border-radius: 50% 50% 50% 50% / 46% 46% 54% 54%; background: var(--negro); box-shadow: 0 0 0 2px var(--papel); transform-origin: 50% 50%; }
+#regla:hover .regla-track, #regla.is-drag .regla-track { opacity: 0.8; }
+#regla:hover .regla-n, #regla.is-drag .regla-n { color: var(--negro); }
+html.splashing #regla { opacity: 0; }
+#regla { transition: opacity 0.6s var(--ease-smooth); }
+@media (max-width: 720px) {
+  #regla { right: 4px; top: 112px; bottom: 74px; }
 }

@@ -17,6 +17,7 @@ import { initGrain } from './systems/grain.js';
 import { initFlash } from './systems/flash.js';
 import { initCursor } from './systems/cursor.js';
 import { initIdle } from './systems/idle.js';
+import { initRegla } from './systems/regla.js';
 import { staticWordmarkSVG } from './ui/logo-paths.js';
 import { initJourney } from './journey.js';
 
@@ -108,6 +109,7 @@ if (ctx.tier === 'static' || !hasGL) {
   initGrain(ctx);
   initCursor(ctx);
   initIdle(ctx);
+  initRegla(ctx, lenis);
 
   // un solo ticker: lenis → obturador (12fps para lo que lo use) → bus 'frame'
   gsap.ticker.add((t) => {
