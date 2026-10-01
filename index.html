@@ -11,9 +11,9 @@
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://landings.gripppp.com/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" as="image" href="/works/gripppp.jpg" />
+    <link rel="preload" as="image" href="/works/riestra.jpg" />
     <!--
-      UNA SOLA ESCENA. El scroll (#journey, 1200vh) recorre 12 beats sobre un
+      UNA SOLA ESCENA. El scroll (#journey, 1625vh) recorre 13 beats sobre un
       escenario sticky de 100vh: el campo de tinta (canvas WebGL, hecho de las
       letras g·r·i·p) se transforma de forma en forma, la cámara viaja y los
       textos entran cada uno a su manera. Del ruido a la marca.
@@ -34,8 +34,8 @@
       <button type="button" data-from="0" data-to="1" data-i18n="nav.0" data-cursor="ir">inicio</button>
       <button type="button" data-from="1" data-to="2" data-i18n="nav.1" data-cursor="ir">ruido</button>
       <button type="button" data-from="2" data-to="4" data-i18n="nav.2" data-cursor="ir">señal</button>
-      <button type="button" data-from="4" data-to="11" data-i18n="nav.3" data-cursor="ir">trabajos</button>
-      <button type="button" data-from="11" data-to="13" data-i18n="nav.4" data-cursor="ir">hola</button>
+      <button type="button" data-from="4" data-to="12" data-i18n="nav.3" data-cursor="ir">trabajos</button>
+      <button type="button" data-from="12" data-to="14" data-i18n="nav.4" data-cursor="ir">hola</button>
     </nav>
 
     <button type="button" id="up" class="mono" aria-label="volver arriba" data-cursor="ir"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="ui.up">arriba</span></button>
@@ -44,12 +44,11 @@
       <div id="journey">
         <div class="stage">
           <canvas id="field" aria-hidden="true"></canvas>
-          <img id="work-real" alt="" aria-hidden="true" decoding="async" />
           <a id="work-link" href="#" target="_blank" rel="noopener" aria-label="ver la landing" data-cursor="ver"></a>
+          <div id="sello-hit" aria-hidden="true" data-cursor="sellá"></div>
 
           <!-- beat 0: hero -->
           <section class="beat beat-hero" data-beat="hero" aria-labelledby="h1">
-            <p class="kicker mono" data-i18n="hero.kicker">grip® × valentín romero — marca y código en la misma mesa.</p>
             <h1 id="h1" data-i18n="hero.claim">no sos una plantilla.</h1>
             <p class="hero-sub" data-i18n="hero.sub">hacemos landings que te hacen frenar y preguntar quién hizo esto. esa reacción es todo el trabajo.</p>
             <a class="cta big" href="https://wa.me/5491121865983?text=hola%20grip%2C%20quiero%20cotizar%20la%20landing%20de%20mi%20marca." target="_blank" rel="noopener" data-cursor="abrir"><span data-i18n="hero.cta">quiero la mía</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
@@ -88,21 +87,22 @@
           <section class="beat beat-trabajos" data-beat="trabajos">
             <h2 data-i18n="trabajos.h">las que ya salieron.</h2>
           </section>
-          <!-- beats 4.6–9.4: una caption por obra -->
-          <section class="beat beat-work" data-beat="w0"><b class="mono">01 / 05 · gripppp.com</b><h3>grip studio</h3><p data-i18n="trabajos.items.grip">la de la agencia: película en stop motion, logo líquido, stickers. cero fotos de stock.</p><a class="wlink u-draw mono" href="https://gripppp.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
-          <section class="beat beat-work" data-beat="w1"><b class="mono">02 / 05 · oclucrm.com</b><h3>oclucrm</h3><p data-i18n="trabajos.items.oclucrm">el crm para clínicas dentales del <b>dr. fernando m. soto</b>, y la landing que lo explica sin dolor.</p><a class="wlink u-draw mono" href="https://www.oclucrm.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
-          <section class="beat beat-work" data-beat="w2"><b class="mono">03 / 05 · taxes.com.ar</b><h3>taxes software</h3><p data-i18n="trabajos.items.taxes">software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.</p><a class="wlink u-draw mono" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
-          <section class="beat beat-work" data-beat="w3"><b class="mono">04 / 05 · lightproject.app</b><h3>the light project</h3><p data-i18n="trabajos.items.lightproject">web y visualizador para casas de iluminación: el cliente se enamora antes de comprar.</p><a class="wlink u-draw mono" href="https://lightproject.app/es" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
-          <section class="beat beat-work" data-beat="w4"><b class="mono">05 / 05 · parell.app</b><h3>parell</h3><p data-i18n="trabajos.items.parell">crm de nutrición con ia para nutricionistas. menos planillas, más pacientes.</p><a class="wlink u-draw mono" href="https://parell.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <!-- beats 4.6–10.4: una caption por obra -->
+          <section class="beat beat-work" data-beat="w0"><h3>deportivo riestra</h3><p data-i18n="trabajos.items.riestra">el club que subió de la d a primera. la página es la camiseta: escudo, sponsor y el partido en vivo.</p><a class="wlink u-draw mono" href="https://deportivoriestra.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w1"><h3>grip studio</h3><p data-i18n="trabajos.items.grip">la de la agencia: película en stop motion, logo líquido, stickers. cero fotos de stock.</p><a class="wlink u-draw mono" href="https://gripppp.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w2"><h3>oclucrm</h3><p data-i18n="trabajos.items.oclucrm">el crm para clínicas dentales del <b>dr. fernando m. soto</b>, y la landing que lo explica sin dolor.</p><a class="wlink u-draw mono" href="https://www.oclucrm.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w3"><h3>taxes software</h3><p data-i18n="trabajos.items.taxes">software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.</p><a class="wlink u-draw mono" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w4"><h3>the light project</h3><p data-i18n="trabajos.items.lightproject">web y visualizador para casas de iluminación: el cliente se enamora antes de comprar.</p><a class="wlink u-draw mono" href="https://lightproject.app/es" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w5"><h3>parell</h3><p data-i18n="trabajos.items.parell">crm de nutrición con ia para nutricionistas. menos planillas, más pacientes.</p><a class="wlink u-draw mono" href="https://parell.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
 
-          <!-- beats 9.5–10.7: de plantilla a marca -->
+          <!-- beats 10.5–11.7: de plantilla a marca -->
           <section class="beat beat-plantilla" data-beat="plantilla">
             <h2 data-i18n="plantilla.h">mismo brief. otro resultado.</h2>
-            <p class="pl-l"><b class="mono" data-i18n="plantilla.l">plantilla</b><span data-i18n="plantilla.tpl">lo mismo que le vendieron a todos, con tu logo arriba.</span></p>
-            <p class="pl-r"><b class="mono" data-i18n="plantilla.r">marca</b><span data-i18n="plantilla.marca">una que solo puede ser tuya. te reconocen sin leer el logo.</span></p>
+            <p class="pl-l" data-i18n="plantilla.tpl">lo mismo que le vendieron a todos, con tu logo arriba.</p>
+            <p class="pl-r" data-i18n="plantilla.marca">una que solo puede ser tuya. te reconocen sin leer el logo.</p>
           </section>
 
-          <!-- beat 11.3: contacto -->
+          <!-- beat 12.3: contacto -->
           <section class="beat beat-contacto" data-beat="contacto" aria-labelledby="h-ct">
             <h2 id="h-ct" data-i18n="contacto.h">¿y la tuya?</h2>
             <p data-i18n="contacto.p">contanos qué vendés y a quién. lo demás lo preguntamos nosotros.</p>

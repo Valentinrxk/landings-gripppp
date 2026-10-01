@@ -3,7 +3,6 @@
   "hero": {
    "claim": "no sos una plantilla.",
    "sub": "hacemos landings que te hacen frenar y preguntar quién hizo esto. esa reacción es todo el trabajo.",
-   "kicker": "grip® × valentín romero — marca y código en la misma mesa.",
    "cta": "quiero la mía",
    "hint": "( bajá que se acomoda )"
   },
@@ -36,6 +35,7 @@
   "trabajos": {
    "h": "las que ya salieron.",
    "items": {
+    "riestra": "el club que subió de la d a primera. la página es la camiseta: escudo, sponsor y el partido en vivo.",
     "grip": "la de la agencia: película en stop motion, logo líquido, stickers. cero fotos de stock.",
     "oclucrm": "el crm para clínicas dentales del <b>dr. fernando m. soto</b>, y la landing que lo explica sin dolor.",
     "taxes": "software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.",
@@ -74,7 +74,6 @@
   "hero": {
    "claim": "you're not a template.",
    "sub": "we make landing pages that make people stop and ask who made this. that reaction is the whole job.",
-   "kicker": "grip® × valentín romero — brand and code at the same table.",
    "cta": "i want mine",
    "hint": "( scroll, it settles )"
   },
@@ -107,6 +106,7 @@
   "trabajos": {
    "h": "already out there.",
    "items": {
+    "riestra": "the club that climbed from the fifth division to the top flight. the page is the jersey: crest, sponsor, live match.",
     "grip": "the agency's own: a stop-motion film, a liquid logo, stickers. zero stock photos.",
     "oclucrm": "<b>dr. fernando m. soto</b>'s crm for dental clinics, and the landing that explains it painlessly.",
     "taxes": "tax filing software. the landing does what taxes never do: make sense.",

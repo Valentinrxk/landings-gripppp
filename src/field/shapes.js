@@ -8,7 +8,7 @@ import { mulberry32 } from '../core/rng.js';
 const H = 100; // alto visible del mundo en z=0
 
 // ── muestreo genérico de un canvas oscuro-sobre-transparente ──
-function sampleCanvas(cv, N, { seed = 1, worldW, worldH, cx = 0, cy = 0, z = 0, colorFrom = null, alphaBase = 1, sizeBase = 1, threshold = 0.12, invert = false } = {}) {
+function sampleCanvas(cv, N, { seed = 1, worldW, worldH, cx = 0, cy = 0, z = 0, colorFrom = null, alphaBase = 1, sizeBase = 1, threshold = 0.12, invert = false, depth = null } = {}) {
   const w = cv.width;
   const h = cv.height;
   const data = cv.getContext('2d').getImageData(0, 0, w, h).data;
@@ -70,10 +70,10 @@ function sampleCanvas(cv, N, { seed = 1, worldW, worldH, cx = 0, cy = 0, z = 0, 
     const k = pick();
     const px = cand[k * 2] + rnd();
     const py = cand[k * 2 + 1] + rnd();
+    const idx = (Math.floor(py) * w + Math.floor(px)) * 4;
     pos[i * 3] = cx + (px - w / 2) * sx;
     pos[i * 3 + 1] = cy - (py - h / 2) * sy;
-    pos[i * 3 + 2] = z + (rnd() - 0.5) * 1.5;
-    const idx = (Math.floor(py) * w + Math.floor(px)) * 4;
+    pos[i * 3 + 2] = z + (depth ? (depth[idx] - 128) / 4 : 0) + (rnd() - 0.5) * 1.5;
     if (colorFrom === 'image') {
       col[i * 3] = data[idx] / 255;
       col[i * 3 + 1] = data[idx + 1] / 255;
@@ -125,8 +125,8 @@ export function shapeNoise(N, aspect, seed = 7) {
   return { pos, col, alpha, size };
 }
 
-// ── texto grande (la palabra) ──
-export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable', Archivo, sans-serif", widthFrac = 0.86, y = 0, x = 0, seed = 11, letterSpacing = '-0.05em' } = {}) {
+// ── texto grande (la palabra). chroma: 1 = se imprime en las tintas de la marca ──
+export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable', Archivo, sans-serif", widthFrac = 0.86, y = 0, x = 0, seed = 11, letterSpacing = '-0.05em', chroma = 0 } = {}) {
   const W = H * aspect;
   const cv = mk(1400, 420);
   const g = cv.getContext('2d');
@@ -144,10 +144,11 @@ export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable
   m = g.measureText(text);
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.05 });
+  const r = sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.05 });
+  return chroma ? { ...r, chroma: new Float32Array(N).fill(chroma) } : r;
 }
 
-// ── el wordmark líquido de grip (blobPath) ──
+// ── el wordmark líquido de grip (blobPath): la marca, siempre en color ──
 export function shapeGrip(N, aspect, { widthFrac = 0.6, y = 0, x = 0, seed = 5, ink = '#000' } = {}) {
   const W = H * aspect;
   const cv = mk(1400, Math.round((1400 * VIEWBOX.h) / VIEWBOX.w));
@@ -158,51 +159,86 @@ export function shapeGrip(N, aspect, { widthFrac = 0.6, y = 0, x = 0, seed = 5, 
   for (const k of GLYPH_ORDER) g.fill(new Path2D(blobPath(GLYPHS[k])));
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.1 });
+  return { ...sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.1 }), chroma: new Float32Array(N).fill(1) };
 }
 
 // ── la plantilla genérica: nav, hero, botón, imagen, 3 cards, cookie ──
-export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13, x = 0, y = 0 } = {}) {
+// explode > 0: despiezada en capas (vista explotada): cada pieza a su altura,
+// el cookie banner flotando encima de todo. Un canvas gris paralelo guarda la
+// z de cada pieza (128 = el plano); sus trazos van más gruesos que la tinta
+// para que cada punto muestreado caiga adentro de su capa
+export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13, x = 0, y = 0, explode = 0 } = {}) {
   const W = H * aspect;
   const cv = mk(1200, 760);
   const g = cv.getContext('2d');
+  const dv = explode ? mk(1200, 760) : null;
+  const d = dv?.getContext('2d', { willReadFrequently: true });
+  if (d) {
+    d.fillStyle = 'rgb(128,128,128)';
+    d.fillRect(0, 0, 1200, 760);
+    d.lineWidth = 11;
+  }
+  const layer = (z) => {
+    if (!d) return;
+    const v = Math.round(128 + z * explode * 4);
+    d.fillStyle = d.strokeStyle = `rgb(${v},${v},${v})`;
+  };
   g.strokeStyle = '#000';
   g.fillStyle = '#000';
   g.lineWidth = 3;
-  const R = (x, y, w, h, fill = false) => (fill ? g.fillRect(x, y, w, h) : g.strokeRect(x, y, w, h));
+  const R = (x, y, w, h, fill = false) => {
+    if (fill) {
+      g.fillRect(x, y, w, h);
+      d?.fillRect(x - 4, y - 4, w + 8, h + 8);
+    } else {
+      g.strokeRect(x, y, w, h);
+      d?.strokeRect(x, y, w, h);
+    }
+  };
+  layer(0);
   R(20, 20, 1160, 720);
   // nav
+  layer(5);
   R(20, 20, 1160, 70);
   R(50, 40, 90, 30, true);
   for (let i = 0; i < 4; i++) R(700 + i * 90, 47, 60, 14, true);
   R(1080, 36, 80, 38, true);
   // hero: título 3 líneas + botón + imagen
+  layer(10);
   R(70, 150, 420, 34, true);
   R(70, 200, 360, 34, true);
   R(70, 250, 300, 34, true);
   R(70, 310, 300, 16, true);
   R(70, 335, 260, 16, true);
+  layer(16);
   R(70, 380, 150, 46, true);
+  layer(-8);
   R(600, 130, 520, 320);
-  g.beginPath();
-  g.moveTo(600, 130);
-  g.lineTo(1120, 450);
-  g.moveTo(1120, 130);
-  g.lineTo(600, 450);
-  g.stroke();
+  for (const c of d ? [g, d] : [g]) {
+    c.beginPath();
+    c.moveTo(600, 130);
+    c.lineTo(1120, 450);
+    c.moveTo(1120, 130);
+    c.lineTo(600, 450);
+    c.stroke();
+  }
   // cards
   for (let i = 0; i < 3; i++) {
     const x = 70 + i * 370;
+    layer(3);
     R(x, 500, 330, 200);
+    layer(8);
     R(x + 24, 528, 60, 60, true);
     R(x + 24, 610, 200, 14, true);
     R(x + 24, 636, 240, 10, true);
   }
-  // cookie
+  // cookie: el que siempre tapa algo
+  layer(24);
   R(300, 660, 600, 50, true);
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 0.9, threshold: 0.2 });
+  const depth = d ? d.getImageData(0, 0, 1200, 760).data : null;
+  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 0.9, threshold: 0.2, depth });
 }
 
 // ── la pila: la plantilla se cae al piso ──

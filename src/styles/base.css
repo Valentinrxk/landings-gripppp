@@ -95,11 +95,11 @@ html[data-theme='dark'] .grain { opacity: 0.12; }
 #up:hover svg { transform: translateY(-3px); }
 
 /* ── el viaje ── */
-#journey { position: relative; height: 1500vh; height: 1500svh; }
+#journey { position: relative; height: 1625vh; height: 1625svh; }
 .stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: var(--papel); isolation: isolate; } /* fondo opaco: difference necesita papel debajo */
 #field { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-#work-real { position: absolute; opacity: 0; object-fit: cover; box-shadow: var(--shadow-mesa); transition: opacity 0.35s var(--ease-smooth); pointer-events: none; }
 #work-link { position: absolute; display: block; pointer-events: none; }
+#sello-hit { position: absolute; pointer-events: none; }
 
 /* beats: bloques de texto en el escenario, cada uno en su lugar.
    Todo el bloque va en mix-blend-mode: difference sobre el escenario: lo que
@@ -109,8 +109,8 @@ html[data-theme='dark'] .grain { opacity: 0.12; }
 .beat { mix-blend-mode: difference; --tx: #f4f1ea; --tx2: #a8a495; --acc: #04b1ae; --cta-bg: #f4f1ea; color: var(--tx); }
 html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; --cta-bg: #e0ddd6; }
 .beat h1, .beat h2, .beat h3, .beat p { color: var(--tx); }
-.beat .kicker, .beat .hint, .beat .after, .beat .credits, .beat-plantilla p b, .beat-pila p { color: var(--tx2); }
-.beat-work > b, .step b, .beat-plantilla .pl-r b { color: var(--acc); }
+.beat .hint, .beat .after, .beat .credits, .beat-pila p { color: var(--tx2); }
+.step b { color: var(--acc); }
 .beat-pila p span { border-color: var(--acc); }
 .beat .cta { background: var(--cta-bg); color: #000; border-color: var(--cta-bg); }
 .beat .cta:hover { background: var(--acc); border-color: var(--acc); color: var(--negro); }
@@ -123,7 +123,6 @@ html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; -
 .beat h2 + p { margin-top: 1.1rem; }
 
 .beat-hero { left: var(--gutter); bottom: 12svh; max-width: 46rem; visibility: visible; opacity: 1; padding-left: calc(var(--cell) * 1.4); }
-.beat-hero .kicker { font-size: 0.72rem; letter-spacing: 0.06em; margin-bottom: 1.2rem; }
 .beat-hero h1 { font-size: clamp(2.8rem, 7.4vw, 7rem); font-weight: 900; letter-spacing: -0.05em; line-height: 0.9; font-variation-settings: 'wdth' 90; }
 .beat-hero .hero-sub { margin-top: 1.2rem; font-size: clamp(1.05rem, 1.5vw, 1.35rem); max-width: 38ch; }
 .beat-hero .cta { margin-top: 1.6rem; }
@@ -146,7 +145,6 @@ html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; -
 
 .beat-trabajos { left: var(--gutter); top: 18svh; padding-left: calc(var(--cell) * 1.4); }
 .beat-work { left: var(--gutter); bottom: 10svh; max-width: 34rem; padding-left: calc(var(--cell) * 1.4); }
-.beat-work > b { display: block; font-size: 0.7rem; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
 .beat-work p b { font-weight: 800; white-space: nowrap; }
 .beat-work h3 { font-size: clamp(1.8rem, 3.4vw, 3rem); font-weight: 900; letter-spacing: -0.04em; line-height: 0.95; }
 .beat-work p { margin-top: 0.7rem; font-size: 1rem; max-width: 42ch; }
@@ -157,7 +155,6 @@ html[data-theme='dark'] .beat { --tx: #d8d8d6; --tx2: #868686; --acc: #ff5753; -
 .beat-plantilla p { position: absolute; top: 58svh; max-width: 30ch; font-size: 1rem; }
 .beat-plantilla .pl-l { left: calc(var(--gutter) + var(--cell) * 1.4); }
 .beat-plantilla .pl-r { right: var(--gutter); text-align: right; }
-.beat-plantilla p b { display: block; font-size: 0.68rem; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
 
 .beat-contacto { left: var(--gutter); bottom: 9svh; right: var(--gutter); padding-left: calc(var(--cell) * 1.4); }
 .beat-contacto h2 { font-size: clamp(3rem, 9vw, 9rem); letter-spacing: -0.05em; }

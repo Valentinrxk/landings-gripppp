@@ -1,23 +1,30 @@
-// El viaje: UNA escena continua. Un escenario sticky de 100vh; el scroll (1200vh)
-// recorre 12 beats. En cada beat el campo de tinta pasa de una forma a la
+// El viaje: UNA escena continua. Un escenario sticky de 100vh; el scroll (1625vh)
+// recorre 13 beats. En cada beat el campo de tinta pasa de una forma a la
 // siguiente (con retardo por punto y arcos: llegan de todos lados), la cámara
 // viaja, y los textos entran cada uno a su manera. Del ruido a la marca.
 import { gsap, ScrollTrigger, SplitText, scrollLean, lenis } from './core/scroll.js';
 import { bus } from './core/bus.js';
 import { shutter, GLYPHS } from './core/beat.js';
 import { createField } from './field/field.js';
+import { createSello } from './field/sello.js';
+import { createPliego } from './field/pliego.js';
 import * as S from './field/shapes.js';
 import { loadImage } from './print/ascii.js';
 import { t } from './data/i18n.js';
 import { spliceFlash } from './systems/flash.js';
 
+// video: el recorrido grabado de la landing (empieza en el mismo cuadro que la captura)
 const WORKS = [
-  { key: 'grip', src: '/works/gripppp.jpg', name: 'grip studio', url: 'https://gripppp.com/', domain: 'gripppp.com' },
-  { key: 'oclucrm', src: '/works/oclucrm.jpg', name: 'oclucrm', url: 'https://www.oclucrm.com/', domain: 'oclucrm.com' },
-  { key: 'taxes', src: '/works/taxes.jpg', name: 'taxes software', url: 'https://www.taxes.com.ar/', domain: 'taxes.com.ar' },
+  { key: 'riestra', src: '/works/riestra.jpg', video: '/works/riestra.mp4', name: 'deportivo riestra', url: 'https://deportivoriestra.com.ar/', domain: 'deportivoriestra.com.ar' },
+  { key: 'grip', src: '/works/grip.jpg', video: '/works/grip.mp4', name: 'grip studio', url: 'https://gripppp.com/', domain: 'gripppp.com' },
+  { key: 'oclucrm', src: '/works/oclucrm.jpg', video: '/works/oclucrm.mp4', name: 'oclucrm', url: 'https://www.oclucrm.com/', domain: 'oclucrm.com' },
+  { key: 'taxes', src: '/works/taxes.jpg', video: '/works/taxes.mp4', name: 'taxes software', url: 'https://www.taxes.com.ar/', domain: 'taxes.com.ar' },
   { key: 'lightproject', src: '/works/lightproject.jpg', name: 'the light project', url: 'https://lightproject.app/es', domain: 'lightproject.app' },
   { key: 'parell', src: '/works/parell.jpg', name: 'parell', url: 'https://parell.app/', domain: 'parell.app' },
 ];
+const NW = WORKS.length;
+const END = 4 + NW; // beat en que la última obra se vuelve el partido plantilla / marca
+const NB = END + 3; // beats: hero, ruido, pila, señal, cómo, obras, partido, pila+marca, contacto
 
 export async function initJourney(ctx) {
   const stage = document.querySelector('.stage');
@@ -29,6 +36,9 @@ export async function initJourney(ctx) {
   const N = ctx.tier === 'lite' ? 5500 : 12000;
   const field = createField(canvas, { count: N, dpr: ctx.tier === 'lite' ? 1.25 : 1.5 });
   window.__field = field;
+  // la marca en 3D: flota sobre su impresión de tinta (ver sello.js)
+  const sello = createSello(field, { step: ctx.tier === 'lite' ? 3 : 2 });
+  window.__sello = sello;
 
   // ── cargar capturas ──
   const imgs = await Promise.all(
@@ -39,46 +49,78 @@ export async function initJourney(ctx) {
       return loadImage(im).then(() => im);
     })
   );
+  // la obra real, en una hoja 3D sobre la tinta (con su recorrido en video si lo hay)
+  const pliego = createPliego(field, WORKS.map((w, i) => ({ img: imgs[i], video: w.video })));
 
   // ── formas (recalculadas al cambiar el aspecto) ──
   let shapes = [];
   let workRects = []; // rect de mundo de cada captura, para posicionar la imagen real
+  let slots = {}; // dónde se apoya la marca: la impresión de tinta y el sello 3D comparten el lugar
   const build = () => {
     const A = field.aspect;
     const W = 100 * A;
+    const hero = { x: mobile ? 0 : W * 0.215, y: mobile ? 21 : 3, w: W * (mobile ? 0.84 : 0.46) };
+    const right = { x: mobile ? 0 : W * 0.24, y: mobile ? -22 : 0, w: W * (mobile ? 0.7 : 0.3) };
+    const big = { x: mobile ? 0 : W * 0.14, y: mobile ? 22 : 16, w: W * (mobile ? 0.9 : 0.5) };
+    slots = { hero, right, big };
     // hero: la marca de grip, líquida, a la derecha del claim
-    const gripHero = S.shapeGrip(N, A, { widthFrac: mobile ? 0.8 : 0.42, x: mobile ? 0 : W * 0.2, y: mobile ? 22 : 8, seed: 41 }); // misma semilla que el splash: el logo VIAJA, no se rearma
-    // la plantilla a la derecha: el texto de ruido vive a la izquierda, sin pisarse
-    const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 14 : 0 });
+    const gripHero = S.shapeGrip(N, A, { widthFrac: hero.w / W, x: hero.x, y: hero.y, seed: 41 }); // misma semilla que el splash: el logo VIAJA, no se rearma
+    // la plantilla a la derecha, despiezada en capas (la cámara gira y se ve su
+    // anatomía); el texto de ruido vive a la izquierda, sin pisarse
+    const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 14 : 0, explode: 1 });
     const pile = S.shapePile(N, A);
-    // señal: la palabra, hecha de grip
-    const word = S.shapeText(N, A, 'landings', { widthFrac: mobile ? 0.94 : 0.62, x: mobile ? 0 : -W * 0.14, y: mobile ? 14 : 0 });
+    // señal: la palabra, hecha de grip — sale de la pila ya en las tintas de la marca
+    const word = S.shapeText(N, A, 'landings', { widthFrac: mobile ? 0.94 : 0.62, x: mobile ? 0 : -W * 0.14, y: mobile ? 14 : 0, chroma: 1 });
     // cómo: la tesis del método, en grande, a la derecha
     const sphere = S.shapeText(N, A, 'una idea.', { widthFrac: mobile ? 0.92 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 16 : 2, seed: 19 });
     workRects = [];
     const works = imgs.map((im, i) => {
-      // a la derecha del caption; alternan un poco de alto para que la cámara tenga a dónde ir
+      // a la derecha del caption; alternan un poco de alto para que la cámara tenga a dónde ir.
+      // Cada hoja está girada hacia el texto (y un poco arriba/abajo, alternando): la
+      // tinta aterriza ya girada, así la hoja calza encima
       const cx = mobile ? 0 : W * 0.12 + (i % 2 ? -1 : 1) * W * 0.02;
       const cy = mobile ? 12 : 6 + (i % 2 ? -3 : 3);
+      const rx = (i % 2 ? -1 : 1) * (mobile ? 0.05 : 0.07);
+      const ry = mobile ? (i % 2 ? 0.12 : -0.12) : -0.26 + (i % 2 ? 0.08 : 0);
       const r = S.shapeImage(N, A, im, { widthFrac: mobile ? 0.9 : 0.54, cx, cy, seed: 23 + i });
-      workRects.push({ cx, cy, w: r.worldW, h: r.worldH });
+      turn(r.pos, cx, cy, rx, ry);
+      workRects.push({ cx, cy, rx, ry, w: r.worldW, h: r.worldH });
       return r;
     });
     // partido: plantilla chica a la izquierda + grip a la derecha (mitad de puntos cada uno)
     const tplL = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.7 : 0.34, seed: 31 });
-    const gripR = S.shapeGrip(N, A, { widthFrac: mobile ? 0.7 : 0.3, seed: 33 });
-    const split = mixHalf(tplL, gripR, N, mobile ? [0, 22, 0, -22] : [-W * 0.24, 0, W * 0.24, 0]);
+    const gripR = S.shapeGrip(N, A, { widthFrac: right.w / W, seed: 33 });
+    const split = mixHalf(tplL, gripR, N, mobile ? [0, 22, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
     const pileL = S.shapePile(N, A, 35);
-    const pileGrip = mixHalf(pileL, gripR, N, mobile ? [0, 0, 0, -22] : [-W * 0.24, 0, W * 0.24, 0]);
-    const gripBig = S.shapeGrip(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.14, y: mobile ? 22 : 16, seed: 37 });
+    const pileGrip = mixHalf(pileL, gripR, N, mobile ? [0, 0, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
+    const gripBig = S.shapeGrip(N, A, { widthFrac: big.w / W, x: big.x, y: big.y, seed: 37 });
     shapes = [gripHero, template, pile, word, sphere, ...works, split, pileGrip, gripBig];
   };
+  // gira una nube de puntos alrededor de (cx, cy) como lo hace three con un Euler
+  // XYZ: primero Y, después X (así la tinta calza con la hoja girada)
+  function turn(pos, cx, cy, rx, ry) {
+    const cY = Math.cos(ry);
+    const sY = Math.sin(ry);
+    const cX = Math.cos(rx);
+    const sX = Math.sin(rx);
+    for (let i = 0; i < pos.length; i += 3) {
+      const x = pos[i] - cx;
+      const y = pos[i + 1] - cy;
+      const z = pos[i + 2];
+      const x1 = x * cY + z * sY;
+      const z1 = -x * sY + z * cY;
+      pos[i] = x1 + cx;
+      pos[i + 1] = y * cX - z1 * sX + cy;
+      pos[i + 2] = y * sX + z1 * cX;
+    }
+  }
   // mezcla: primera mitad de puntos de a (desplazada dx1,dy1), segunda mitad de b (dx2,dy2)
   function mixHalf(a, b, n, [dx1, dy1, dx2, dy2]) {
     const pos = new Float32Array(n * 3);
     const col = new Float32Array(n * 3);
     const alpha = new Float32Array(n);
     const size = new Float32Array(n);
+    const chroma = new Float32Array(n);
     const half = n >> 1;
     for (let i = 0; i < n; i++) {
       const src = i < half ? a : b;
@@ -92,17 +134,18 @@ export async function initJourney(ctx) {
       col[i * 3 + 2] = src.col[jj * 3 + 2];
       alpha[i] = src.alpha[jj];
       size[i] = src.size[jj];
+      chroma[i] = src.chroma ? src.chroma[jj] : 0;
     }
-    return { pos, col, alpha, size };
+    return { pos, col, alpha, size, chroma };
   }
   build();
 
-  // ── cámara por beat (13 keyframes = 12 beats + fin) ──
+  // ── cámara por beat (NB + 1 keyframes: un beat por tramo + el fin) ──
   const D = field.dist;
   const camKeys = mobile
     ? [
         { x: 0, y: 0, z: D, tx: 0, ty: 0, roll: 0, fov: 40 },
-        { x: 0, y: -4, z: D * 1.15, tx: 0, ty: -4, roll: 0.02, fov: 40 },
+        { x: 20, y: 24, z: D * 1.12, tx: 0, ty: 8, roll: 0.02, fov: 40 },
         { x: 0, y: -14, z: D * 1.1, tx: 0, ty: -18, roll: -0.03, fov: 42 },
         { x: 0, y: 0, z: D * 0.95, tx: 0, ty: 0, roll: 0, fov: 40 },
         { x: 6, y: 0, z: D * 1.2, tx: 0, ty: 0, roll: 0, fov: 40 },
@@ -111,13 +154,14 @@ export async function initJourney(ctx) {
         { x: 0, y: 4, z: D * 1.02, tx: 0, ty: 4, roll: -0.01, fov: 40 },
         { x: 0, y: 4, z: D * 0.98, tx: 0, ty: 4, roll: 0.01, fov: 40 },
         { x: 0, y: 4, z: D, tx: 0, ty: 4, roll: 0, fov: 40 },
+        { x: 0, y: 4, z: D * 1.02, tx: 0, ty: 4, roll: -0.01, fov: 40 },
         { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 },
         { x: 0, y: -8, z: D * 1.05, tx: 0, ty: -8, roll: 0, fov: 40 },
         { x: 0, y: 6, z: D * 0.9, tx: 0, ty: 6, roll: 0, fov: 40 },
       ]
     : [
         { x: 0, y: 0, z: D, tx: 0, ty: 0, roll: 0, fov: 36 }, // 0 palabra
-        { x: 8, y: -6, z: D * 1.25, tx: 0, ty: -4, roll: 0.03, fov: 36 }, // 1 plantilla: retrocede, ladea
+        { x: 52, y: 24, z: D * 1.12, tx: 2, ty: 2, roll: 0.03, fov: 36 }, // 1 plantilla: gira para ver las capas
         { x: -10, y: -22, z: D * 1.05, tx: 0, ty: -30, roll: -0.05, fov: 40 }, // 2 pila: cámara baja mirando al piso
         { x: 0, y: 0, z: D * 0.9, tx: 0, ty: 0, roll: 0, fov: 36 }, // 3 grip: frontal, cerca
         { x: 30, y: 4, z: D * 1.15, tx: 12, ty: 0, roll: 0, fov: 36 }, // 4 esfera a la derecha, orbita
@@ -126,11 +170,11 @@ export async function initJourney(ctx) {
         { x: 6, y: -2, z: D * 0.96, tx: 6, ty: 0, roll: -0.015, fov: 36 }, // 7 w3
         { x: -8, y: 2, z: D * 1.04, tx: -6, ty: 0, roll: 0.012, fov: 36 }, // 8 w4
         { x: 6, y: 0, z: D * 0.97, tx: 6, ty: 0, roll: 0, fov: 36 }, // 9 w5
-        { x: 0, y: 0, z: D * 1.12, tx: 0, ty: 0, roll: 0, fov: 36 }, // 10 partido
-        { x: 12, y: -10, z: D * 1.05, tx: 8, ty: -12, roll: 0.02, fov: 38 }, // 11 la plantilla se cae
-        { x: 0, y: 2, z: D * 0.85, tx: 0, ty: 2, roll: 0, fov: 36 }, // 12 grip grande: cerca
+        { x: -8, y: 2, z: D * 1.03, tx: -6, ty: 0, roll: -0.012, fov: 36 }, // 10 w6
+        { x: 0, y: 0, z: D * 1.12, tx: 0, ty: 0, roll: 0, fov: 36 }, // 11 partido
+        { x: 12, y: -10, z: D * 1.05, tx: 8, ty: -12, roll: 0.02, fov: 38 }, // 12 la plantilla se cae
+        { x: 0, y: 2, z: D * 0.85, tx: 0, ty: 2, roll: 0, fov: 36 }, // 13 grip grande: cerca
       ];
-  const NB = 12; // beats
 
   // ── el master: un solo timeline scrubeado sobre #journey ──
   const cur = { t: 0, beat: 0 }; // progreso global 0..NB
@@ -181,15 +225,15 @@ export async function initJourney(ctx) {
     });
     // cierre trabajos + plantilla vs marca: dos columnas se separan desde el centro
     const pl = T('plantilla');
-    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, 9.45).to(pl, { autoAlpha: 0, duration: 0.2 }, 10.95);
-    master.fromTo(pl.querySelector('.pl-l'), { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, 9.55)
-      .fromTo(pl.querySelector('.pl-r'), { autoAlpha: 0, x: -60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, 9.55)
-      .fromTo(pl.querySelector('h2'), { autoAlpha: 0, scale: 1.15 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power3.out' }, 9.5)
-      .to(pl.querySelector('.pl-l'), { autoAlpha: 0, y: 120, rotate: -6, duration: 0.35, ease: 'power2.in' }, 10.25)
-      .to([pl.querySelector('.pl-r'), pl.querySelector('h2')], { autoAlpha: 0, duration: 0.25 }, 10.7);
+    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, END + 0.45).to(pl, { autoAlpha: 0, duration: 0.2 }, END + 1.95);
+    master.fromTo(pl.querySelector('.pl-l'), { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, END + 0.55)
+      .fromTo(pl.querySelector('.pl-r'), { autoAlpha: 0, x: -60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, END + 0.55)
+      .fromTo(pl.querySelector('h2'), { autoAlpha: 0, scale: 1.15 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power3.out' }, END + 0.5)
+      .to(pl.querySelector('.pl-l'), { autoAlpha: 0, y: 120, rotate: -6, duration: 0.35, ease: 'power2.in' }, END + 1.25)
+      .to([pl.querySelector('.pl-r'), pl.querySelector('h2')], { autoAlpha: 0, duration: 0.25 }, END + 1.7);
     // contacto: estampa
     const ct = T('contacto');
-    master.fromTo(ct, { autoAlpha: 0, scale: 1.2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'steps(3)' }, 11.3);
+    master.fromTo(ct, { autoAlpha: 0, scale: 1.2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'steps(3)' }, END + 2.3);
     // marcadores laterales
   };
   setup();
@@ -198,9 +242,41 @@ export async function initJourney(ctx) {
   let lastBeat = -1;
   let lean = 0;
   let introRunning = true; // mientras corre el splash, el ticker no toca el morph
-  const workImg = document.getElementById('work-real');
   const workLink = document.getElementById('work-link');
+  const selloHit = document.getElementById('sello-hit');
+  let hitCss = '';
+  const corner = [[-1, 1], [1, 1], [1, -1], [-1, -1]];
   let mouse = [0, 0, 0];
+  const pointer = { x: 0, y: 0 }; // −1..1, para lo que mira al puntero
+  // el sello: entra en el splash (cae del cielo); después su lugar sale del scroll
+  const entry = { on: 0, lift: 0, spin: 0 };
+  const inkOut = { v: 0 }; // la tinta que sale de abajo del sello en cada golpe
+  let nextStamp = performance.now() + 5200;
+  const sm = (a, b, v) => {
+    const k = Math.max(0, Math.min(1, (v - a) / (b - a)));
+    return k * k * (3 - 2 * k);
+  };
+  const mixf = (a, b, k) => a + (b - a) * k;
+  const placeSello = (g) => {
+    const P = sello.pose;
+    if (g < 5) {
+      // hero: cuando la tinta se va a armar la plantilla, el sello se va volando
+      Object.assign(P, slots.hero);
+      P.away = sm(0.3, 0.75, g);
+      P.vis = 1 - sm(0.72, 0.8, g);
+    } else {
+      // vuelve del cielo para 'mismo brief' y se queda hasta el contacto, donde crece
+      const m = sm(END + 2.32, END + 2.72, g);
+      P.x = mixf(slots.right.x, slots.big.x, m);
+      P.y = mixf(slots.right.y, slots.big.y, m);
+      P.w = mixf(slots.right.w, slots.big.w, m);
+      P.away = 1 - sm(END + 0.35, END + 0.75, g);
+      P.vis = sm(END + 0.3, END + 0.42, g);
+    }
+    P.vis *= entry.on;
+    P.lift = entry.lift;
+    P.spin = entry.spin;
+  };
   gsap.ticker.add(() => {
     const g = Math.min(NB - 0.0001, Math.max(0, cur.t));
     const b = Math.floor(g);
@@ -211,7 +287,7 @@ export async function initJourney(ctx) {
     }
     // cada beat: sostiene la forma armada, viaja en el medio, vuelve a sostener.
     // el sostén manda: las escenas clave se quedan quietas aunque sigas scrolleando
-    const isWork = b >= 4 && b <= 8;
+    const isWork = b >= 4 && b < END;
     const HOLD_IN = isWork ? 0.42 : 0.32;
     const HOLD_OUT = isWork ? 0.64 : 0.72;
     const tt = Math.max(0, Math.min(1, (lt - HOLD_IN) / (HOLD_OUT - HOLD_IN)));
@@ -226,35 +302,63 @@ export async function initJourney(ctx) {
     field.state.turb = Math.max(0.035 + 0.02 * Math.sin(performance.now() / 1400), Math.min(1, lean * 1.6));
     field.state.mis = Math.max(Math.min(1, lean * 1.4), field.state.pulse || 0); // envión o golpe (click/splash)
     field.state.mouse = mouse;
+    placeSello(g);
+    sello.update(performance.now() / 1000);
+    // la impresión de color queda tapada por el sello; se ve cuando salpica o cuando él se va
+    field.state.print = 1 - sello.pose.vis * (1 - sello.pose.away) * (1 - inkOut.v);
+    // quieto en su lugar y sin envión: cada tanto se estampa solo
+    const P = sello.pose;
+    const rest = P.vis > 0.99 && P.away < 0.01 && !introRunning;
+    if (rest && L < 0.02 && performance.now() > nextStamp) stampNow();
+    // la zona del sello: el cursor dice 'sellá' (el click lo maneja el escenario)
+    if (rest) {
+      const hw = P.w / 2;
+      const hh = (P.w * 360) / 700 / 2;
+      const [sx1, sy1] = field.project(P.x - hw, P.y + hh, 0);
+      const [sx2, sy2] = field.project(P.x + hw, P.y - hh, 0);
+      const css = `left:${sx1.toFixed(0)}px;top:${sy1.toFixed(0)}px;width:${(sx2 - sx1).toFixed(0)}px;height:${(sy2 - sy1).toFixed(0)}px;pointer-events:auto`;
+      if (css !== hitCss) selloHit.style.cssText = hitCss = css;
+    } else if (hitCss) selloHit.style.cssText = hitCss = '';
     field.render();
-    // la obra real aparece cuando la forma está armada (sostén) y frenaste
-    let wIdx = -1;
-    if (b >= 4 && b <= 8 && lt >= HOLD_OUT) wIdx = b - 4;
-    else if (b >= 5 && b <= 9 && lt <= HOLD_IN) wIdx = b - 5;
-    if (wIdx >= 0) {
+    // cada obra tiene su tramo: cuando la tinta aterriza pasa la racleta y queda la
+    // hoja 3D con el recorrido corriendo (aunque sigas scrolleando: la hoja se mece
+    // con el scroll); cuando arranca la obra siguiente, se levanta hacia la cámara
+    const wIdx = Math.floor(g - 4.55);
+    if (b >= 3) pliego.prefetch(Math.max(0, Math.min(NW - 1, b - 4)));
+    if (wIdx >= 0 && wIdx < NW) {
+      const q = g - (4.55 + wIdx); // 0..1 a lo largo del tramo de la obra
       const r = workRects[wIdx];
-      const [x1, y1] = field.project(r.cx - r.w / 2, r.cy + r.h / 2, 0);
-      const [x2, y2] = field.project(r.cx + r.w / 2, r.cy - r.h / 2, 0);
-      workImg.style.left = `${x1}px`;
-      workImg.style.top = `${y1}px`;
-      workImg.style.width = `${x2 - x1}px`;
-      workImg.style.height = `${y2 - y1}px`;
-      workLink.style.left = workImg.style.left;
-      workLink.style.top = workImg.style.top;
-      workLink.style.width = workImg.style.width;
-      workLink.style.height = workImg.style.height;
-      if (workImg.dataset.k !== WORKS[wIdx].key) {
-        workImg.dataset.k = WORKS[wIdx].key;
-        workImg.src = WORKS[wIdx].src;
-        workImg.alt = WORKS[wIdx].name;
+      const st = { reveal: sm(0.05, 0.19, q), out: sm(0.82, 0.93, q), drift: q, a: 0 };
+      st.a = 1 - st.out;
+      // el link cubre la hoja proyectada (caja de sus cuatro esquinas giradas)
+      let x1 = Infinity;
+      let y1 = Infinity;
+      let x2 = -Infinity;
+      let y2 = -Infinity;
+      corner.forEach(([sx, sy]) => {
+        const c = [r.cx + (sx * r.w) / 2, r.cy + (sy * r.h) / 2, 0];
+        turn(c, r.cx, r.cy, r.rx, r.ry);
+        const [px, py] = field.project(c[0], c[1], c[2]);
+        x1 = Math.min(x1, px);
+        y1 = Math.min(y1, py);
+        x2 = Math.max(x2, px);
+        y2 = Math.max(y2, py);
+      });
+      workLink.style.left = `${x1}px`;
+      workLink.style.top = `${y1}px`;
+      workLink.style.width = `${x2 - x1}px`;
+      workLink.style.height = `${y2 - y1}px`;
+      if (workLink.dataset.k !== WORKS[wIdx].key) {
+        workLink.dataset.k = WORKS[wIdx].key;
         workLink.href = WORKS[wIdx].url;
+        workLink.setAttribute('aria-label', `${t('ui.view')}: ${WORKS[wIdx].name}`);
       }
-      const a = 1 - Math.min(1, lean * 10);
-      workImg.style.opacity = a.toFixed(2);
-      field.state.opacity = 1 - 0.8 * a; // la tinta se aparta cuando la captura real aparece
-      workLink.style.pointerEvents = a > 0.5 ? 'auto' : 'none';
+      const seen = st.a * st.reveal;
+      pliego.show(wIdx, r, st, pointer, lean, performance.now() / 1000);
+      field.state.opacity = 1 - 0.8 * seen; // la tinta se aparta cuando la hoja queda impresa
+      workLink.style.pointerEvents = seen > 0.5 ? 'auto' : 'none';
     } else {
-      workImg.style.opacity = '0';
+      pliego.hide();
       workLink.style.pointerEvents = 'none';
       field.state.opacity = 1;
     }
@@ -266,10 +370,9 @@ export async function initJourney(ctx) {
   {
     const claim = heroEl.querySelector('h1');
     const sub = heroEl.querySelector('.hero-sub');
-    const kick = heroEl.querySelector('.kicker');
     const cta = heroEl.querySelector('.cta');
     const hint = heroEl.querySelector('.hint');
-    gsap.set([kick, cta, hint], { autoAlpha: 0 });
+    gsap.set([cta, hint], { autoAlpha: 0 });
     let split = new SplitText(claim, { type: 'lines', mask: 'lines', linesClass: 'ln' });
     gsap.set(split.lines, { yPercent: 110 });
     let subSplit = new SplitText(sub, { type: 'lines', mask: 'lines', linesClass: 'ln' });
@@ -288,7 +391,6 @@ export async function initJourney(ctx) {
     heroIn
       .to(split.lines, { yPercent: 0, stagger: 0.09, duration: 0.8, ease: 'expo.out' }, 0)
       .to(subSplit.lines, { yPercent: 0, stagger: 0.07, duration: 0.7, ease: 'expo.out' }, 0.25)
-      .to(kick, { autoAlpha: 1, duration: 0.4 }, 0.5)
       .to(cta, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'expo.out' }, 0.6)
       .to(hint, { autoAlpha: 1, duration: 0.4 }, 0.9);
   }
@@ -321,6 +423,7 @@ export async function initJourney(ctx) {
     if (skipSplash) {
       origSetPair(gripCenter, shapes[0]);
       field.state.t = 1;
+      entry.on = 1;
       finish();
       return;
     }
@@ -365,6 +468,19 @@ export async function initJourney(ctx) {
       .to(field.cam, { z: zoom, duration: 1.2, ease: 'power2.inOut' }, go)
       .to(splash, { autoAlpha: 0, duration: 0.35 }, go + 0.1)
       .add(() => document.documentElement.classList.remove('splashing'), go + 0.35);
+    // el sello cae desde atrás de la cámara, girando, y se estampa sobre la tinta
+    // justo cuando llega: la primera impresión. El claim sube con el golpe
+    const land = go + 1.12;
+    tl.set(entry, { on: 1, lift: 115, spin: -Math.PI * 1.5 }, go + 0.3)
+      .to(entry, { lift: -8.4, duration: land - go - 0.3, ease: 'power3.in' }, go + 0.3)
+      .to(entry, { spin: 0, duration: land - go - 0.3, ease: 'power2.out' }, go + 0.3)
+      .add(() => {
+        inkHit(slots.hero);
+        heroIn.play();
+      }, land)
+      .to(sello.fx, { squash: 1, duration: 0.05, ease: 'power2.out' }, land)
+      .to(sello.fx, { squash: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' }, land + 0.05)
+      .to(entry, { lift: 0, duration: 1.1, ease: 'elastic.out(1, 0.55)' }, land + 0.08);
     const skip = () => {
       if (tl.progress() >= 1) return;
       tl.progress(1);
@@ -390,34 +506,73 @@ export async function initJourney(ctx) {
       const wx = Math.sin(t * 0.55) * W * 0.32;
       const wy = 10 + Math.sin(t * 0.83 + 1.3) * 18;
       mouse = [wx, wy, 0.8];
+      pointer.x = Math.sin(t * 0.55) * 0.6;
+      pointer.y = Math.sin(t * 0.83 + 1.3) * 0.5;
+      sello.tilt.ty = Math.sin(t * 0.55) * 0.35;
+      sello.tilt.tx = -Math.sin(t * 0.83 + 1.3) * 0.2;
     });
   } else {
     window.addEventListener('pointermove', (e) => {
       const [wx, wy] = field.unproject(e.clientX, e.clientY);
       mouse = [wx, wy, 1];
+      pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
+      pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
+      // el sello mira al puntero
+      sello.tilt.ty = (e.clientX / window.innerWidth - 0.5) * 0.9;
+      sello.tilt.tx = (e.clientY / window.innerHeight - 0.5) * 0.6;
     });
     window.addEventListener('pointerleave', () => (mouse = [0, 0, 0]));
   }
 
   // ── tema: la tinta invierte con el modo noche ──
-  const syncTheme = () => (field.state.dark = document.documentElement.dataset.theme === 'dark' ? 1 : 0);
+  const syncTheme = () => {
+    field.state.dark = document.documentElement.dataset.theme === 'dark' ? 1 : 0;
+    sello.setDark(!!field.state.dark);
+  };
   syncTheme();
   bus.on('theme:changed', syncTheme);
 
-  // ── click en la tinta: onda expansiva desde el punto (en touch también) ──
+  // ── click en la tinta: onda expansiva desde el punto (en touch también).
+  // Si el sello está en escena, el click lo estampa ──
   const burst = field.state.burst;
   let burstTl = null;
-  stage.addEventListener('pointerdown', (e) => {
-    if (e.target.closest('a, button')) return;
-    const [wx, wy] = field.unproject(e.clientX, e.clientY);
-    burst.x = wx;
-    burst.y = wy;
+  const wave = (x, y, r0, r1, s0) => {
+    burst.x = x;
+    burst.y = y;
     burstTl?.kill();
     burstTl = gsap.timeline();
-    burstTl
-      .fromTo(burst, { r: 0, s: 1 }, { r: 70, duration: 0.9, ease: 'power2.out' }, 0)
+    return burstTl
+      .fromTo(burst, { r: r0, s: s0 }, { r: r1, duration: 0.9, ease: 'power2.out' }, 0)
       .to(burst, { s: 0, duration: 0.9, ease: 'power1.in' }, 0)
       .fromTo(field.state, { pulse: 0.8 }, { pulse: 0, duration: 0.6, ease: 'expo.out' }, 0);
+  };
+  // el golpe del sello: la tinta de abajo salta en anillo y el rodillo avanza una tinta
+  function inkHit({ x, y, w }) {
+    wave(x, y, w * 0.15, w * 0.95, 1.15)
+      .to(field.state, { inkShift: '+=0.3334', duration: 0.8, ease: 'expo.out' }, 0)
+      .fromTo(inkOut, { v: 1 }, { v: 0, duration: 1.2, ease: 'power2.in' }, 0);
+    jolt();
+  }
+  // el golpe se siente en la tipografía: el titular de la escena salta y se
+  // asienta, línea por línea, desde la más cercana al sello
+  function jolt() {
+    const g = cur.t;
+    const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('h2') : T('contacto').querySelector('h2');
+    const lines = el.querySelectorAll('.ln');
+    const targets = lines.length ? [...lines].reverse() : [el];
+    gsap.timeline()
+      .to(targets, { y: 9, duration: 0.07, ease: 'power3.out', stagger: 0.035 })
+      .to(targets, { y: 0, duration: 0.9, ease: 'elastic.out(1.1, 0.32)', stagger: 0.035 }, 0.07);
+  }
+  function stampNow() {
+    if (sello.stamp(() => inkHit(sello.pose))) nextStamp = performance.now() + 6000 + Math.random() * 3000;
+  }
+  stage.addEventListener('pointerdown', (e) => {
+    if (e.target.closest('a, button')) return;
+    const P = sello.pose;
+    if (P.vis > 0.99 && P.away < 0.01 && !introRunning) return void stampNow();
+    const [wx, wy] = field.unproject(e.clientX, e.clientY);
+    wave(wx, wy, 0, 70, 1);
   });
 
   // ── resize: formas y cámara. En touch la barra de URL cambia el alto al

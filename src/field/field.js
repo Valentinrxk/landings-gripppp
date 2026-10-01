@@ -2,19 +2,24 @@
 // de "grip") sobre papel, que se transforman entre formas con retardo por punto
 // y trayectorias curvas (nada llega en línea recta). La velocidad del scroll
 // las agita y desregistra en tres tintas; al frenar, registran. La cámara la
-// maneja el viaje (journey.js) vía field.cam.
+// maneja el viaje (journey.js) vía field.cam. La marca (chroma = 1) no se
+// imprime en negro: va en split fountain, rojo·lima·celeste en el mismo rodillo.
 import * as THREE from 'three';
 
 const VERT = /* glsl */ `
   attribute vec3 aPosA; attribute vec3 aPosB;
   attribute vec3 aColA; attribute vec3 aColB;
-  attribute float aAlphaA; attribute float aAlphaB;
-  attribute float aSizeA; attribute float aSizeB;
-  attribute float aSeed; attribute float aGlyph; attribute float aInkA; attribute float aInkB;
+  // empaquetado (el límite de atributos es 16 y three declara los suyos):
+  // alpha, tamaño, tinta (1 = negro que se invierte de noche), chroma (1 = la marca, en color)
+  attribute vec4 aPropsA; attribute vec4 aPropsB;
+  attribute float aSeed; attribute float aGlyph;
   uniform float uT; uniform float uTime; uniform float uTurb; uniform float uSize;
   uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc; uniform float uScale;
   uniform vec4 uBurst; // x, y, radio del anillo, fuerza
+  uniform vec3 uFountA; uniform vec3 uFountB; uniform vec3 uFountC; // las tres tintas del rodillo
+  uniform float uInkShift; // cada golpe del sello avanza el rodillo una tinta
   varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
+  varying vec3 vFount; varying float vChroma;
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
   void main() {
     // retardo por punto: cada partícula arranca su viaje en un momento distinto
@@ -23,6 +28,17 @@ const VERT = /* glsl */ `
     // ease suave y arco perpendicular: viaja curvo, no en línea
     float e = t * t * (3.0 - 2.0 * t);
     vec3 p = mix(aPosA, aPosB, e);
+    // split fountain: un degradé de tres tintas que corre en diagonal sobre la
+    // forma (ondula apenas, como el rodillo); un ciclo entero ≈ el ancho del logo.
+    // Cada glifo toma UNA tinta: el degradé es tramado por semilla, no una
+    // mezcla turbia de colores
+    float fl = (p.x * 0.8 + p.y * 0.45 + sin(p.y * 0.07 + uTime * 0.5) * 6.0) / 56.0 - uTime * 0.11 + uInkShift;
+    float f3 = fract(fl) * 3.0;
+    float seg = floor(f3);
+    vec3 inkA = seg < 0.5 ? uFountA : (seg < 1.5 ? uFountB : uFountC);
+    vec3 inkB = seg < 0.5 ? uFountB : (seg < 1.5 ? uFountC : uFountA);
+    vFount = mix(inkA, inkB, step(hash(aSeed * 13.7), smoothstep(0.1, 0.9, f3 - seg)));
+    vChroma = mix(aPropsA.w, aPropsB.w, e);
     vec3 dir = aPosB - aPosA;
     float len = length(dir);
     vec3 side = normalize(vec3(-dir.y, dir.x, dir.z * 0.3) + 0.0001);
@@ -44,18 +60,20 @@ const VERT = /* glsl */ `
     p.xy += uOffset;
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
-    float sz = mix(aSizeA, aSizeB, e);
+    float sz = mix(aPropsA.y, aPropsB.y, e);
     gl_PointSize = uSize * sz * uPR * uScale * (110.0 / max(1.0, -mv.z));
-    vAlpha = mix(aAlphaA, aAlphaB, e);
+    vAlpha = mix(aPropsA.x, aPropsB.x, e);
     vCol = mix(aColA, aColB, e);
     vGlyph = aGlyph;
-    vInk = mix(aInkA, aInkB, e);
+    vInk = mix(aPropsA.z, aPropsB.z, e);
   }
 `;
 const FRAG = /* glsl */ `
   precision mediump float;
   uniform sampler2D uAtlas; uniform vec3 uInk; uniform float uUseInk; uniform float uOpacity; uniform float uDark;
+  uniform float uPrint; // la impresión de la marca: 0 mientras el sello la tapa, 1 cuando salpica
   varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
+  varying vec3 vFount; varying float vChroma;
   void main() {
     vec2 uv = gl_PointCoord;
     uv.x = (uv.x + vGlyph) / 4.0;
@@ -64,10 +82,19 @@ const FRAG = /* glsl */ `
     vec3 c = vCol;
     // modo noche: la tinta negra se vuelve clara; los puntos de captura (color) quedan
     c = mix(c, 1.0 - c * 0.6, uDark * vInk);
+    c = mix(c, vFount, vChroma);
     c = mix(c, uInk, uUseInk);
-    gl_FragColor = vec4(c, min(1.0, a * 1.35) * vAlpha * uOpacity);
+    float print = mix(1.0, uPrint, smoothstep(0.3, 0.7, vChroma));
+    gl_FragColor = vec4(c, min(1.0, a * 1.35) * vAlpha * uOpacity * print);
   }
 `;
+
+// tinta tal cual el token: THREE.Color('#hex') la pasaría a lineal y este shader
+// no la vuelve a convertir (saldría más oscura que en el CSS)
+const srgb = (hex) => new THREE.Vector3(((hex >> 16) & 255) / 255, ((hex >> 8) & 255) / 255, (hex & 255) / 255);
+// el lima del token se lava sobre el papel crema: de día va un punto más hondo
+const LIMA = srgb(0xd9e355);
+const LIMA_PAPEL = srgb(0xc2cf2b);
 
 function glyphAtlas() {
   const S = 128;
@@ -88,9 +115,12 @@ function glyphAtlas() {
 }
 
 export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
+  // antialias: las partículas no lo necesitan, pero el sello y las hojas giradas sí (sin él, sus bordes serruchan)
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dpr));
   renderer.setClearColor(0x000000, 0);
+  // solo lo físico (el sello) pasa por tone mapping: la tinta y las hojas son shaders crudos
+  renderer.toneMapping = THREE.NeutralToneMapping;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(36, 1, 1, 2000);
   // distancia para que a z=0 se vean 100 unidades de alto
@@ -113,14 +143,10 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
   geo.setAttribute('aPosB', mk(3));
   geo.setAttribute('aColA', mk(3));
   geo.setAttribute('aColB', mk(3));
-  geo.setAttribute('aAlphaA', mk(1));
-  geo.setAttribute('aAlphaB', mk(1));
-  geo.setAttribute('aSizeA', mk(1));
-  geo.setAttribute('aSizeB', mk(1));
+  geo.setAttribute('aPropsA', mk(4));
+  geo.setAttribute('aPropsB', mk(4));
   geo.setAttribute('aSeed', mk(1, seeds));
   geo.setAttribute('aGlyph', mk(1, glyphs));
-  geo.setAttribute('aInkA', mk(1, new Float32Array(N).fill(1)));
-  geo.setAttribute('aInkB', mk(1, new Float32Array(N).fill(1)));
   geo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 1e6);
 
   const atlas = glyphAtlas();
@@ -140,10 +166,15 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     uInk: { value: new THREE.Color(ink) },
     uUseInk: { value: useInk },
     uOpacity: { value: 1 },
+    uFountA: { value: srgb(0xf0403c) }, // rojo
+    uFountB: { value: LIMA_PAPEL }, // lima
+    uFountC: { value: srgb(0x5fa8e0) }, // celeste
+    uInkShift: { value: 0 },
+    uPrint: { value: 1 },
   });
-  const matK = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#111111', 0), transparent: true, depthWrite: false, depthTest: false });
-  const matR = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#f0403c', 1), transparent: true, depthWrite: false, depthTest: false });
-  const matC = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#5fa8e0', 1), transparent: true, depthWrite: false, depthTest: false });
+  const matK = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#111111', 0), transparent: true, depthWrite: false, depthTest: true });
+  const matR = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#f0403c', 1), transparent: true, depthWrite: false, depthTest: true });
+  const matC = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniformsFor('#5fa8e0', 1), transparent: true, depthWrite: false, depthTest: true });
   const pK = new THREE.Points(geo, matK);
   const pR = new THREE.Points(geo, matR);
   const pC = new THREE.Points(geo, matC);
@@ -183,11 +214,17 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     };
     set('aPos' + s, shape.pos);
     set('aCol' + s, shape.col);
-    set('aAlpha' + s, shape.alpha);
-    set('aSize' + s, shape.size);
-    set('aInk' + s, shape.ink || ONES);
+    // sin ink: todo es tinta negra (1); sin chroma: nada va en color (0)
+    const props = geo.getAttribute('aProps' + s);
+    const P = props.array;
+    for (let i = 0; i < N; i++) {
+      P[i * 4] = shape.alpha[i];
+      P[i * 4 + 1] = shape.size[i];
+      P[i * 4 + 2] = shape.ink ? shape.ink[i] : 1;
+      P[i * 4 + 3] = shape.chroma ? shape.chroma[i] : 0;
+    }
+    props.needsUpdate = true;
   };
-  const ONES = new Float32Array(N).fill(1);
   let curA = null;
   let curB = null;
   const setPair = (a, b) => {
@@ -201,7 +238,7 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
     }
   };
 
-  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0], burst: { x: 0, y: 0, r: 0, s: 0 }, dark: 0 };
+  const state = { t: 0, turb: 0, mis: 0, opacity: 1, size: 6.5, arc: 1, mouse: [0, 0, 0], burst: { x: 0, y: 0, r: 0, s: 0 }, dark: 0, inkShift: 0, print: 1 };
   const clock = new THREE.Clock();
   const render = () => {
     const time = clock.getElapsedTime();
@@ -225,6 +262,9 @@ export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
       m.uniforms.uMouse.value.set(state.mouse[0], state.mouse[1], state.mouse[2]);
       m.uniforms.uBurst.value.set(state.burst.x, state.burst.y, state.burst.r, state.burst.s);
       m.uniforms.uDark.value = state.dark;
+      m.uniforms.uFountB.value = state.dark ? LIMA : LIMA_PAPEL;
+      m.uniforms.uInkShift.value = state.inkShift;
+      m.uniforms.uPrint.value = state.print;
     });
     matR.uniforms.uOffset.value.set(-mis * 2.2, mis * 1.1);
     matC.uniforms.uOffset.value.set(mis * 2.2, -mis * 0.9);

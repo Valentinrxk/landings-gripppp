@@ -76,7 +76,8 @@ function buildStatic() {
   const L = document.documentElement.lang === 'en' ? 'en' : 'es';
   const c = COPY[L];
   const works = [
-    ['grip studio', 'https://gripppp.com/', '/works/gripppp.jpg', c.trabajos.items.grip],
+    ['deportivo riestra', 'https://deportivoriestra.com.ar/', '/works/riestra.jpg', c.trabajos.items.riestra],
+    ['grip studio', 'https://gripppp.com/', '/works/grip.jpg', c.trabajos.items.grip],
     ['oclucrm', 'https://www.oclucrm.com/', '/works/oclucrm.jpg', c.trabajos.items.oclucrm],
     ['taxes software', 'https://www.taxes.com.ar/', '/works/taxes.jpg', c.trabajos.items.taxes],
     ['the light project', 'https://lightproject.app/es', '/works/lightproject.jpg', c.trabajos.items.lightproject],
@@ -86,7 +87,7 @@ function buildStatic() {
   el.hidden = false;
   document.documentElement.dataset.mode = 'static';
   el.innerHTML = `
-    <section><p class="mono">${c.hero.kicker}</p><h1>${c.hero.claim}</h1><p>${c.hero.sub}</p></section>
+    <section><h1>${c.hero.claim}</h1><p>${c.hero.sub}</p></section>
     <section><h2>${c.ruido.h}</h2><p>${c.ruido.p}</p></section>
     <section><h2>${c.senal.h}</h2><p>${c.senal.p}</p></section>
     <section><h2>${c.como.h}</h2>${c.como.steps.map((s) => `<p><b>${s.t}</b> — ${s.p}</p>`).join('')}<p class="mono">${c.como.after}</p></section>
