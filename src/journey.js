@@ -616,7 +616,7 @@ export async function initJourney(ctx) {
       .to(targets, { y: 0, duration: 0.9, ease: 'elastic.out(1.1, 0.32)', stagger: 0.035 }, 0.07);
   }
   // ── easter egg: si reventás los cuatro globos en menos de 5 segundos, la tinta
-  // festeja y sale un cupón del 20%. Desde ahí el código viaja en cada whatsapp ──
+  // festeja y sale un cupón del 15%. Desde ahí el código viaja en cada whatsapp ──
   const cupon = document.getElementById('cupon');
   const ticket = cupon.firstElementChild;
   const popped = [0, 0, 0, 0];

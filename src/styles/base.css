@@ -316,7 +316,7 @@ html.splashing .brand, html.splashing #cta-top, html.splashing .marks, html.spla
 .cupon-x { position: absolute; right: 1.1rem; top: 1rem; font-size: 0.85rem; font-weight: 700; color: #111; opacity: 0.7; }
 .cupon-x:hover { opacity: 1; }
 /* después de encontrarlo, el CTA de arriba lo recuerda */
-html.has-egg #cta-top::after { content: '−20%'; position: absolute; right: -0.7rem; top: -0.75rem; padding: 0.3rem 0.42rem; background: var(--rojo); color: #fff; font: 800 0.74rem/1 var(--font-display); letter-spacing: -0.01em; rotate: 8deg; pointer-events: none; }
+html.has-egg #cta-top::after { content: '−15%'; position: absolute; right: -0.7rem; top: -0.75rem; padding: 0.3rem 0.42rem; background: var(--rojo); color: #fff; font: 800 0.74rem/1 var(--font-display); letter-spacing: -0.01em; rotate: 8deg; pointer-events: none; }
 @media (max-width: 720px) {
   #cupon { left: 50%; top: 50%; }
 }
