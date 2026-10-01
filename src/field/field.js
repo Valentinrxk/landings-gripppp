@@ -17,7 +17,7 @@ const VERT = /* glsl */ `
   uniform vec2 uOffset; uniform vec3 uMouse; uniform float uPR; uniform float uArc; uniform float uScale;
   uniform vec4 uBurst; // x, y, radio del anillo, fuerza
   uniform vec3 uFountA; uniform vec3 uFountB; uniform vec3 uFountC; // las tres tintas del rodillo
-  uniform float uInkShift; // cada golpe del sello avanza el rodillo una tinta
+  uniform float uInkShift; // cada globo que revienta avanza el rodillo una tinta
   varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
   varying vec3 vFount; varying float vChroma;
   float hash(float n) { return fract(sin(n) * 43758.5453123); }
@@ -71,7 +71,7 @@ const VERT = /* glsl */ `
 const FRAG = /* glsl */ `
   precision mediump float;
   uniform sampler2D uAtlas; uniform vec3 uInk; uniform float uUseInk; uniform float uOpacity; uniform float uDark;
-  uniform float uPrint; // la impresión de la marca: 0 mientras el sello la tapa, 1 cuando salpica
+  uniform float uPrint; // la impresión de la marca: 0 mientras los globos la tapan, 1 cuando salpica
   varying float vAlpha; varying vec3 vCol; varying float vGlyph; varying float vInk;
   varying vec3 vFount; varying float vChroma;
   void main() {
@@ -115,11 +115,11 @@ function glyphAtlas() {
 }
 
 export function createField(canvas, { count = 12000, dpr = 1.5 } = {}) {
-  // antialias: las partículas no lo necesitan, pero el sello y las hojas giradas sí (sin él, sus bordes serruchan)
+  // antialias: las partículas no lo necesitan, pero los globos y las hojas giradas sí (sin él, sus bordes serruchan)
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, dpr));
   renderer.setClearColor(0x000000, 0);
-  // solo lo físico (el sello) pasa por tone mapping: la tinta y las hojas son shaders crudos
+  // solo lo físico (los globos) pasa por tone mapping: la tinta y las hojas son shaders crudos
   renderer.toneMapping = THREE.NeutralToneMapping;
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(36, 1, 1, 2000);

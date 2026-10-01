@@ -8,7 +8,7 @@ import { gsap, scrollLean } from '../core/scroll.js';
 import { bus } from '../core/bus.js';
 import { idleFor } from './idle.js';
 
-const EN = { ver: 'view', arrastrá: 'drag', reimprimir: 'reprint', abrir: 'open', ir: 'go', cambiar: 'switch', sellá: 'stamp' };
+const EN = { ver: 'view', arrastrá: 'drag', reimprimir: 'reprint', abrir: 'open', ir: 'go', cambiar: 'switch', reventá: 'pop' };
 
 export function initCursor(ctx) {
   if (ctx.tier === 'static' || ctx.coarse || !matchMedia('(pointer: fine)').matches) return;

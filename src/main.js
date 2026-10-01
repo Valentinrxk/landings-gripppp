@@ -80,7 +80,7 @@ function buildStatic() {
     ['grip studio', 'https://gripppp.com/', '/works/grip.jpg', c.trabajos.items.grip],
     ['oclucrm', 'https://www.oclucrm.com/', '/works/oclucrm.jpg', c.trabajos.items.oclucrm],
     ['taxes software', 'https://www.taxes.com.ar/', '/works/taxes.jpg', c.trabajos.items.taxes],
-    ['the light project', 'https://lightproject.app/es', '/works/lightproject.jpg', c.trabajos.items.lightproject],
+    ['feedmakers', 'https://feedmakers.app/es', '/works/feedmakers.jpg', c.trabajos.items.feedmakers],
     ['parell', 'https://parell.app/', '/works/parell.jpg', c.trabajos.items.parell],
   ];
   const el = document.getElementById('static');

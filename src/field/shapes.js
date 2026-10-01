@@ -125,8 +125,8 @@ export function shapeNoise(N, aspect, seed = 7) {
   return { pos, col, alpha, size };
 }
 
-// ── texto grande (la palabra). chroma: 1 = se imprime en las tintas de la marca ──
-export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable', Archivo, sans-serif", widthFrac = 0.86, y = 0, x = 0, seed = 11, letterSpacing = '-0.05em', chroma = 0 } = {}) {
+// ── texto grande (la palabra) ──
+export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable', Archivo, sans-serif", widthFrac = 0.86, y = 0, x = 0, seed = 11, letterSpacing = '-0.05em' } = {}) {
   const W = H * aspect;
   const cv = mk(1400, 420);
   const g = cv.getContext('2d');
@@ -144,8 +144,7 @@ export function shapeText(N, aspect, text, { font = "900 200px 'Archivo Variable
   m = g.measureText(text);
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  const r = sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.05 });
-  return chroma ? { ...r, chroma: new Float32Array(N).fill(chroma) } : r;
+  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 1.05 });
 }
 
 // ── el wordmark líquido de grip (blobPath): la marca, siempre en color ──
@@ -163,82 +162,90 @@ export function shapeGrip(N, aspect, { widthFrac = 0.6, y = 0, x = 0, seed = 5, 
 }
 
 // ── la plantilla genérica: nav, hero, botón, imagen, 3 cards, cookie ──
-// explode > 0: despiezada en capas (vista explotada): cada pieza a su altura,
-// el cookie banner flotando encima de todo. Un canvas gris paralelo guarda la
-// z de cada pieza (128 = el plano); sus trazos van más gruesos que la tinta
-// para que cada punto muestreado caiga adentro de su capa
-export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13, x = 0, y = 0, explode = 0 } = {}) {
+export function shapeTemplate(N, aspect, { widthFrac = 0.62, seed = 13, x = 0, y = 0 } = {}) {
   const W = H * aspect;
   const cv = mk(1200, 760);
   const g = cv.getContext('2d');
-  const dv = explode ? mk(1200, 760) : null;
-  const d = dv?.getContext('2d', { willReadFrequently: true });
-  if (d) {
-    d.fillStyle = 'rgb(128,128,128)';
-    d.fillRect(0, 0, 1200, 760);
-    d.lineWidth = 11;
-  }
-  const layer = (z) => {
-    if (!d) return;
-    const v = Math.round(128 + z * explode * 4);
-    d.fillStyle = d.strokeStyle = `rgb(${v},${v},${v})`;
-  };
   g.strokeStyle = '#000';
   g.fillStyle = '#000';
   g.lineWidth = 3;
-  const R = (x, y, w, h, fill = false) => {
-    if (fill) {
-      g.fillRect(x, y, w, h);
-      d?.fillRect(x - 4, y - 4, w + 8, h + 8);
-    } else {
-      g.strokeRect(x, y, w, h);
-      d?.strokeRect(x, y, w, h);
-    }
-  };
-  layer(0);
+  const R = (x, y, w, h, fill = false) => (fill ? g.fillRect(x, y, w, h) : g.strokeRect(x, y, w, h));
   R(20, 20, 1160, 720);
   // nav
-  layer(5);
   R(20, 20, 1160, 70);
   R(50, 40, 90, 30, true);
   for (let i = 0; i < 4; i++) R(700 + i * 90, 47, 60, 14, true);
   R(1080, 36, 80, 38, true);
   // hero: título 3 líneas + botón + imagen
-  layer(10);
   R(70, 150, 420, 34, true);
   R(70, 200, 360, 34, true);
   R(70, 250, 300, 34, true);
   R(70, 310, 300, 16, true);
   R(70, 335, 260, 16, true);
-  layer(16);
   R(70, 380, 150, 46, true);
-  layer(-8);
   R(600, 130, 520, 320);
-  for (const c of d ? [g, d] : [g]) {
-    c.beginPath();
-    c.moveTo(600, 130);
-    c.lineTo(1120, 450);
-    c.moveTo(1120, 130);
-    c.lineTo(600, 450);
-    c.stroke();
-  }
+  g.beginPath();
+  g.moveTo(600, 130);
+  g.lineTo(1120, 450);
+  g.moveTo(1120, 130);
+  g.lineTo(600, 450);
+  g.stroke();
   // cards
   for (let i = 0; i < 3; i++) {
     const x = 70 + i * 370;
-    layer(3);
     R(x, 500, 330, 200);
-    layer(8);
     R(x + 24, 528, 60, 60, true);
     R(x + 24, 610, 200, 14, true);
     R(x + 24, 636, 240, 10, true);
   }
-  // cookie: el que siempre tapa algo
-  layer(24);
+  // cookie
   R(300, 660, 600, 50, true);
   const worldW = W * widthFrac;
   const worldH = worldW * (cv.height / cv.width);
-  const depth = d ? d.getImageData(0, 0, 1200, 760).data : null;
-  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 0.9, threshold: 0.2, depth });
+  return sampleCanvas(cv, N, { seed, worldW, worldH, cx: x, cy: y, sizeBase: 0.9, threshold: 0.2 });
+}
+
+// ── estática: polvo parejo en todo el volumen, apenas visible (el ruido de fondo) ──
+export function shapeStatic(N, aspect, seed = 61) {
+  const rnd = mulberry32(seed);
+  const W = H * aspect;
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  const alpha = new Float32Array(N);
+  const size = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    pos[i * 3] = (rnd() - 0.5) * W * 1.4;
+    pos[i * 3 + 1] = (rnd() - 0.5) * H * 1.3;
+    pos[i * 3 + 2] = -90 + rnd() * 100;
+    col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = 0.067;
+    alpha[i] = 0.12 + rnd() * 0.2;
+    size[i] = 0.5 + rnd() * 0.3;
+  }
+  return { pos, col, alpha, size };
+}
+
+// ── rayos: la señal se nota — tinta de color que sale de un centro en rayos,
+// largos y cortos alternados, como un estallido de historieta ──
+export function shapeRays(N, aspect, { x = 0, y = 0, z = 0, r0 = 20, r1 = 60, rays = 26, seed = 67 } = {}) {
+  const rnd = mulberry32(seed);
+  const pos = new Float32Array(N * 3);
+  const col = new Float32Array(N * 3);
+  const alpha = new Float32Array(N);
+  const size = new Float32Array(N);
+  for (let i = 0; i < N; i++) {
+    const k = Math.floor(rnd() * rays);
+    const a = (k / rays) * Math.PI * 2 + (rnd() - 0.5) * 0.045;
+    const len = k % 2 ? 0.62 : 1;
+    const u = Math.pow(rnd(), 0.8);
+    const r = r0 + u * (r1 - r0) * len;
+    pos[i * 3] = x + Math.cos(a) * r * 1.25;
+    pos[i * 3 + 1] = y + Math.sin(a) * r;
+    pos[i * 3 + 2] = z + (rnd() - 0.5) * 2;
+    col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = 0.067;
+    alpha[i] = 1 - u * 0.75;
+    size[i] = 0.85 + rnd() * 0.3;
+  }
+  return { pos, col, alpha, size, chroma: new Float32Array(N).fill(1) };
 }
 
 // ── la pila: la plantilla se cae al piso ──

@@ -6,12 +6,14 @@ import { gsap, ScrollTrigger, SplitText, scrollLean, lenis } from './core/scroll
 import { bus } from './core/bus.js';
 import { shutter, GLYPHS } from './core/beat.js';
 import { createField } from './field/field.js';
-import { createSello } from './field/sello.js';
+import { createGlobos } from './field/globos.js';
 import { createPliego } from './field/pliego.js';
+import { createPlantillas } from './field/plantillas.js';
 import * as S from './field/shapes.js';
 import { loadImage } from './print/ascii.js';
-import { t } from './data/i18n.js';
+import { t, lang as startLang } from './data/i18n.js';
 import { spliceFlash } from './systems/flash.js';
+import { popSound } from './systems/sound.js';
 
 // video: el recorrido grabado de la landing (empieza en el mismo cuadro que la captura)
 const WORKS = [
@@ -19,7 +21,7 @@ const WORKS = [
   { key: 'grip', src: '/works/grip.jpg', video: '/works/grip.mp4', name: 'grip studio', url: 'https://gripppp.com/', domain: 'gripppp.com' },
   { key: 'oclucrm', src: '/works/oclucrm.jpg', video: '/works/oclucrm.mp4', name: 'oclucrm', url: 'https://www.oclucrm.com/', domain: 'oclucrm.com' },
   { key: 'taxes', src: '/works/taxes.jpg', video: '/works/taxes.mp4', name: 'taxes software', url: 'https://www.taxes.com.ar/', domain: 'taxes.com.ar' },
-  { key: 'lightproject', src: '/works/lightproject.jpg', name: 'the light project', url: 'https://lightproject.app/es', domain: 'lightproject.app' },
+  { key: 'feedmakers', src: '/works/feedmakers.jpg', video: '/works/feedmakers.mp4', name: 'feedmakers', url: 'https://feedmakers.app/es', domain: 'feedmakers.app' },
   { key: 'parell', src: '/works/parell.jpg', name: 'parell', url: 'https://parell.app/', domain: 'parell.app' },
 ];
 const NW = WORKS.length;
@@ -36,9 +38,9 @@ export async function initJourney(ctx) {
   const N = ctx.tier === 'lite' ? 5500 : 12000;
   const field = createField(canvas, { count: N, dpr: ctx.tier === 'lite' ? 1.25 : 1.5 });
   window.__field = field;
-  // la marca en 3D: flota sobre su impresión de tinta (ver sello.js)
-  const sello = createSello(field, { step: ctx.tier === 'lite' ? 3 : 2 });
-  window.__sello = sello;
+  // la marca en 3D: globos de letras metalizados que flotan sobre su impresión de tinta (ver globos.js)
+  const globos = createGlobos(field, { step: ctx.tier === 'lite' ? 3 : 2 });
+  window.__globos = globos;
 
   // ── cargar capturas ──
   const imgs = await Promise.all(
@@ -50,12 +52,16 @@ export async function initJourney(ctx) {
     })
   );
   // la obra real, en una hoja 3D sobre la tinta (con su recorrido en video si lo hay)
-  const pliego = createPliego(field, WORKS.map((w, i) => ({ img: imgs[i], video: w.video })));
+  const pliego = createPliego(field, WORKS, stage);
+  bus.on('i18n:changed', () => pliego.relabel());
+  // ruido / pila / señal: el muro de plantillas, su derrumbe y la que se levanta
+  const plantillas = createPlantillas(field, { stage, mobile, lang: startLang, signal: { video: '/works/grip.mp4', poster: '/works/grip.jpg' } });
+  bus.on('i18n:changed', (L) => plantillas.relang(L));
 
   // ── formas (recalculadas al cambiar el aspecto) ──
   let shapes = [];
   let workRects = []; // rect de mundo de cada captura, para posicionar la imagen real
-  let slots = {}; // dónde se apoya la marca: la impresión de tinta y el sello 3D comparten el lugar
+  let slots = {}; // dónde está la marca: la impresión de tinta y los globos comparten el lugar
   const build = () => {
     const A = field.aspect;
     const W = 100 * A;
@@ -65,12 +71,13 @@ export async function initJourney(ctx) {
     slots = { hero, right, big };
     // hero: la marca de grip, líquida, a la derecha del claim
     const gripHero = S.shapeGrip(N, A, { widthFrac: hero.w / W, x: hero.x, y: hero.y, seed: 41 }); // misma semilla que el splash: el logo VIAJA, no se rearma
-    // la plantilla a la derecha, despiezada en capas (la cámara gira y se ve su
-    // anatomía); el texto de ruido vive a la izquierda, sin pisarse
-    const template = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.9 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 14 : 0, explode: 1 });
+    // ruido: la tinta se vuelve estática, polvo detrás del muro de plantillas
+    plantillas.build(W);
+    const noise = S.shapeStatic(N, A);
     const pile = S.shapePile(N, A);
-    // señal: la palabra, hecha de grip — sale de la pila ya en las tintas de la marca
-    const word = S.shapeText(N, A, 'landings', { widthFrac: mobile ? 0.94 : 0.62, x: mobile ? 0 : -W * 0.14, y: mobile ? 14 : 0, chroma: 1 });
+    // señal: la tinta sale en rayos de color detrás de la que se levanta de la pila
+    const sg = plantillas.signalAt;
+    const rays = S.shapeRays(N, A, { x: sg.x, y: sg.y, z: sg.z - 4, r0: sg.w * 0.42, r1: sg.w * 1.2 });
     // cómo: la tesis del método, en grande, a la derecha
     const sphere = S.shapeText(N, A, 'una idea.', { widthFrac: mobile ? 0.92 : 0.5, x: mobile ? 0 : W * 0.2, y: mobile ? 16 : 2, seed: 19 });
     workRects = [];
@@ -94,7 +101,7 @@ export async function initJourney(ctx) {
     const pileL = S.shapePile(N, A, 35);
     const pileGrip = mixHalf(pileL, gripR, N, mobile ? [0, 0, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
     const gripBig = S.shapeGrip(N, A, { widthFrac: big.w / W, x: big.x, y: big.y, seed: 37 });
-    shapes = [gripHero, template, pile, word, sphere, ...works, split, pileGrip, gripBig];
+    shapes = [gripHero, noise, pile, rays, sphere, ...works, split, pileGrip, gripBig];
   };
   // gira una nube de puntos alrededor de (cx, cy) como lo hace three con un Euler
   // XYZ: primero Y, después X (así la tinta calza con la hoja girada)
@@ -145,7 +152,7 @@ export async function initJourney(ctx) {
   const camKeys = mobile
     ? [
         { x: 0, y: 0, z: D, tx: 0, ty: 0, roll: 0, fov: 40 },
-        { x: 20, y: 24, z: D * 1.12, tx: 0, ty: 8, roll: 0.02, fov: 40 },
+        { x: -6, y: 10, z: D * 1.05, tx: 4, ty: 12, roll: 0.01, fov: 42 },
         { x: 0, y: -14, z: D * 1.1, tx: 0, ty: -18, roll: -0.03, fov: 42 },
         { x: 0, y: 0, z: D * 0.95, tx: 0, ty: 0, roll: 0, fov: 40 },
         { x: 6, y: 0, z: D * 1.2, tx: 0, ty: 0, roll: 0, fov: 40 },
@@ -161,9 +168,9 @@ export async function initJourney(ctx) {
       ]
     : [
         { x: 0, y: 0, z: D, tx: 0, ty: 0, roll: 0, fov: 36 }, // 0 palabra
-        { x: 52, y: 24, z: D * 1.12, tx: 2, ty: 2, roll: 0.03, fov: 36 }, // 1 plantilla: gira para ver las capas
+        { x: -10, y: 6, z: D * 1.02, tx: 16, ty: 0, roll: 0.012, fov: 38 }, // 1 ruido: el muro de plantillas se va al fondo
         { x: -10, y: -22, z: D * 1.05, tx: 0, ty: -30, roll: -0.05, fov: 40 }, // 2 pila: cámara baja mirando al piso
-        { x: 0, y: 0, z: D * 0.9, tx: 0, ty: 0, roll: 0, fov: 36 }, // 3 grip: frontal, cerca
+        { x: 0, y: 0, z: D * 0.94, tx: -4, ty: 0, roll: 0, fov: 36 }, // 3 señal: frontal, la que se levantó
         { x: 30, y: 4, z: D * 1.15, tx: 12, ty: 0, roll: 0, fov: 36 }, // 4 esfera a la derecha, orbita
         { x: 6, y: 0, z: D * 0.95, tx: 6, ty: 0, roll: 0, fov: 36 }, // 5 w1
         { x: -8, y: 2, z: D * 1.02, tx: -6, ty: 0, roll: 0.015, fov: 36 }, // 6 w2
@@ -242,30 +249,27 @@ export async function initJourney(ctx) {
   let lastBeat = -1;
   let lean = 0;
   let introRunning = true; // mientras corre el splash, el ticker no toca el morph
-  const workLink = document.getElementById('work-link');
-  const selloHit = document.getElementById('sello-hit');
+  const marcaHit = document.getElementById('marca-hit');
   let hitCss = '';
-  const corner = [[-1, 1], [1, 1], [1, -1], [-1, -1]];
   let mouse = [0, 0, 0];
   const pointer = { x: 0, y: 0 }; // −1..1, para lo que mira al puntero
-  // el sello: entra en el splash (cae del cielo); después su lugar sale del scroll
-  const entry = { on: 0, lift: 0, spin: 0 };
-  const inkOut = { v: 0 }; // la tinta que sale de abajo del sello en cada golpe
-  let nextStamp = performance.now() + 5200;
+  // los globos: se inflan al final del splash; después su lugar sale del scroll
+  const entry = { on: 0 };
+  const inkOut = { v: 0 }; // la tinta que asoma cuando un globo revienta (o se infla)
   const sm = (a, b, v) => {
     const k = Math.max(0, Math.min(1, (v - a) / (b - a)));
     return k * k * (3 - 2 * k);
   };
   const mixf = (a, b, k) => a + (b - a) * k;
-  const placeSello = (g) => {
-    const P = sello.pose;
+  const placeGlobos = (g) => {
+    const P = globos.pose;
     if (g < 5) {
-      // hero: cuando la tinta se va a armar la plantilla, el sello se va volando
+      // hero: cuando la tinta se va a armar la plantilla, los globos se van volando
       Object.assign(P, slots.hero);
       P.away = sm(0.3, 0.75, g);
       P.vis = 1 - sm(0.72, 0.8, g);
     } else {
-      // vuelve del cielo para 'mismo brief' y se queda hasta el contacto, donde crece
+      // bajan del cielo para 'mismo brief' y se quedan hasta el contacto, donde crecen
       const m = sm(END + 2.32, END + 2.72, g);
       P.x = mixf(slots.right.x, slots.big.x, m);
       P.y = mixf(slots.right.y, slots.big.y, m);
@@ -274,8 +278,6 @@ export async function initJourney(ctx) {
       P.vis = sm(END + 0.3, END + 0.42, g);
     }
     P.vis *= entry.on;
-    P.lift = entry.lift;
-    P.spin = entry.spin;
   };
   gsap.ticker.add(() => {
     const g = Math.min(NB - 0.0001, Math.max(0, cur.t));
@@ -302,23 +304,22 @@ export async function initJourney(ctx) {
     field.state.turb = Math.max(0.035 + 0.02 * Math.sin(performance.now() / 1400), Math.min(1, lean * 1.6));
     field.state.mis = Math.max(Math.min(1, lean * 1.4), field.state.pulse || 0); // envión o golpe (click/splash)
     field.state.mouse = mouse;
-    placeSello(g);
-    sello.update(performance.now() / 1000);
-    // la impresión de color queda tapada por el sello; se ve cuando salpica o cuando él se va
-    field.state.print = 1 - sello.pose.vis * (1 - sello.pose.away) * (1 - inkOut.v);
-    // quieto en su lugar y sin envión: cada tanto se estampa solo
-    const P = sello.pose;
+    placeGlobos(g);
+    globos.update(performance.now() / 1000, mouse);
+    plantillas.update(g, performance.now() / 1000);
+    // la impresión de color queda tapada por los globos; asoma cuando uno revienta o cuando se van
+    field.state.print = 1 - globos.pose.vis * (1 - globos.pose.away) * (1 - inkOut.v);
+    const P = globos.pose;
     const rest = P.vis > 0.99 && P.away < 0.01 && !introRunning;
-    if (rest && L < 0.02 && performance.now() > nextStamp) stampNow();
-    // la zona del sello: el cursor dice 'sellá' (el click lo maneja el escenario)
+    // la zona de los globos: el cursor dice 'reventá' (el click lo maneja el escenario)
     if (rest) {
       const hw = P.w / 2;
       const hh = (P.w * 360) / 700 / 2;
       const [sx1, sy1] = field.project(P.x - hw, P.y + hh, 0);
       const [sx2, sy2] = field.project(P.x + hw, P.y - hh, 0);
       const css = `left:${sx1.toFixed(0)}px;top:${sy1.toFixed(0)}px;width:${(sx2 - sx1).toFixed(0)}px;height:${(sy2 - sy1).toFixed(0)}px;pointer-events:auto`;
-      if (css !== hitCss) selloHit.style.cssText = hitCss = css;
-    } else if (hitCss) selloHit.style.cssText = hitCss = '';
+      if (css !== hitCss) marcaHit.style.cssText = hitCss = css;
+    } else if (hitCss) marcaHit.style.cssText = hitCss = '';
     field.render();
     // cada obra tiene su tramo: cuando la tinta aterriza pasa la racleta y queda la
     // hoja 3D con el recorrido corriendo (aunque sigas scrolleando: la hoja se mece
@@ -330,36 +331,10 @@ export async function initJourney(ctx) {
       const r = workRects[wIdx];
       const st = { reveal: sm(0.05, 0.19, q), out: sm(0.82, 0.93, q), drift: q, a: 0 };
       st.a = 1 - st.out;
-      // el link cubre la hoja proyectada (caja de sus cuatro esquinas giradas)
-      let x1 = Infinity;
-      let y1 = Infinity;
-      let x2 = -Infinity;
-      let y2 = -Infinity;
-      corner.forEach(([sx, sy]) => {
-        const c = [r.cx + (sx * r.w) / 2, r.cy + (sy * r.h) / 2, 0];
-        turn(c, r.cx, r.cy, r.rx, r.ry);
-        const [px, py] = field.project(c[0], c[1], c[2]);
-        x1 = Math.min(x1, px);
-        y1 = Math.min(y1, py);
-        x2 = Math.max(x2, px);
-        y2 = Math.max(y2, py);
-      });
-      workLink.style.left = `${x1}px`;
-      workLink.style.top = `${y1}px`;
-      workLink.style.width = `${x2 - x1}px`;
-      workLink.style.height = `${y2 - y1}px`;
-      if (workLink.dataset.k !== WORKS[wIdx].key) {
-        workLink.dataset.k = WORKS[wIdx].key;
-        workLink.href = WORKS[wIdx].url;
-        workLink.setAttribute('aria-label', `${t('ui.view')}: ${WORKS[wIdx].name}`);
-      }
-      const seen = st.a * st.reveal;
-      pliego.show(wIdx, r, st, pointer, lean, performance.now() / 1000);
-      field.state.opacity = 1 - 0.8 * seen; // la tinta se aparta cuando la hoja queda impresa
-      workLink.style.pointerEvents = seen > 0.5 ? 'auto' : 'none';
+      pliego.show(wIdx, r, st, pointer, performance.now() / 1000);
+      field.state.opacity = 1 - 0.8 * st.a * st.reveal; // la tinta se aparta cuando la hoja queda impresa
     } else {
       pliego.hide();
-      workLink.style.pointerEvents = 'none';
       field.state.opacity = 1;
     }
   });
@@ -468,19 +443,14 @@ export async function initJourney(ctx) {
       .to(field.cam, { z: zoom, duration: 1.2, ease: 'power2.inOut' }, go)
       .to(splash, { autoAlpha: 0, duration: 0.35 }, go + 0.1)
       .add(() => document.documentElement.classList.remove('splashing'), go + 0.35);
-    // el sello cae desde atrás de la cámara, girando, y se estampa sobre la tinta
-    // justo cuando llega: la primera impresión. El claim sube con el golpe
-    const land = go + 1.12;
-    tl.set(entry, { on: 1, lift: 115, spin: -Math.PI * 1.5 }, go + 0.3)
-      .to(entry, { lift: -8.4, duration: land - go - 0.3, ease: 'power3.in' }, go + 0.3)
-      .to(entry, { spin: 0, duration: land - go - 0.3, ease: 'power2.out' }, go + 0.3)
-      .add(() => {
-        inkHit(slots.hero);
-        heroIn.play();
-      }, land)
-      .to(sello.fx, { squash: 1, duration: 0.05, ease: 'power2.out' }, land)
-      .to(sello.fx, { squash: 0, duration: 0.6, ease: 'elastic.out(1, 0.3)' }, land + 0.05)
-      .to(entry, { lift: 0, duration: 1.1, ease: 'elastic.out(1, 0.55)' }, land + 0.08);
+    // cuando la tinta llega a su lugar, se infla: de la lámina chata a los globos,
+    // letra por letra. El claim sube con el último
+    const land = go + 1.1;
+    tl.add(() => {
+      entry.on = 1;
+      globos.inflate();
+      gsap.fromTo(inkOut, { v: 1 }, { v: 0, duration: 0.9, ease: 'power2.in' });
+    }, land).add(() => heroIn.play(), land + 0.3);
     const skip = () => {
       if (tl.progress() >= 1) return;
       tl.progress(1);
@@ -508,8 +478,8 @@ export async function initJourney(ctx) {
       mouse = [wx, wy, 0.8];
       pointer.x = Math.sin(t * 0.55) * 0.6;
       pointer.y = Math.sin(t * 0.83 + 1.3) * 0.5;
-      sello.tilt.ty = Math.sin(t * 0.55) * 0.35;
-      sello.tilt.tx = -Math.sin(t * 0.83 + 1.3) * 0.2;
+      globos.tilt.ty = Math.sin(t * 0.55) * 0.35;
+      globos.tilt.tx = -Math.sin(t * 0.83 + 1.3) * 0.2;
     });
   } else {
     window.addEventListener('pointermove', (e) => {
@@ -517,9 +487,9 @@ export async function initJourney(ctx) {
       mouse = [wx, wy, 1];
       pointer.x = (e.clientX / window.innerWidth) * 2 - 1;
       pointer.y = (e.clientY / window.innerHeight) * 2 - 1;
-      // el sello mira al puntero
-      sello.tilt.ty = (e.clientX / window.innerWidth - 0.5) * 0.9;
-      sello.tilt.tx = (e.clientY / window.innerHeight - 0.5) * 0.6;
+      // los globos miran al puntero (y el aire que mueve los empuja: ver globos.js)
+      globos.tilt.ty = (e.clientX / window.innerWidth - 0.5) * 0.9;
+      globos.tilt.tx = (e.clientY / window.innerHeight - 0.5) * 0.6;
     });
     window.addEventListener('pointerleave', () => (mouse = [0, 0, 0]));
   }
@@ -527,13 +497,13 @@ export async function initJourney(ctx) {
   // ── tema: la tinta invierte con el modo noche ──
   const syncTheme = () => {
     field.state.dark = document.documentElement.dataset.theme === 'dark' ? 1 : 0;
-    sello.setDark(!!field.state.dark);
+    globos.setDark(!!field.state.dark);
   };
   syncTheme();
   bus.on('theme:changed', syncTheme);
 
   // ── click en la tinta: onda expansiva desde el punto (en touch también).
-  // Si el sello está en escena, el click lo estampa ──
+  // Si toca un globo, lo revienta ──
   const burst = field.state.burst;
   let burstTl = null;
   const wave = (x, y, r0, r1, s0) => {
@@ -546,15 +516,15 @@ export async function initJourney(ctx) {
       .to(burst, { s: 0, duration: 0.9, ease: 'power1.in' }, 0)
       .fromTo(field.state, { pulse: 0.8 }, { pulse: 0, duration: 0.6, ease: 'expo.out' }, 0);
   };
-  // el golpe del sello: la tinta de abajo salta en anillo y el rodillo avanza una tinta
+  // un globo revienta: la tinta de abajo salta en anillo y el rodillo avanza una tinta
   function inkHit({ x, y, w }) {
     wave(x, y, w * 0.15, w * 0.95, 1.15)
       .to(field.state, { inkShift: '+=0.3334', duration: 0.8, ease: 'expo.out' }, 0)
       .fromTo(inkOut, { v: 1 }, { v: 0, duration: 1.2, ease: 'power2.in' }, 0);
     jolt();
   }
-  // el golpe se siente en la tipografía: el titular de la escena salta y se
-  // asienta, línea por línea, desde la más cercana al sello
+  // el estallido se siente en la tipografía: el titular de la escena salta y se
+  // asienta, línea por línea, desde la más cercana a los globos
   function jolt() {
     const g = cur.t;
     const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('h2') : T('contacto').querySelector('h2');
@@ -564,14 +534,15 @@ export async function initJourney(ctx) {
       .to(targets, { y: 9, duration: 0.07, ease: 'power3.out', stagger: 0.035 })
       .to(targets, { y: 0, duration: 0.9, ease: 'elastic.out(1.1, 0.32)', stagger: 0.035 }, 0.07);
   }
-  function stampNow() {
-    if (sello.stamp(() => inkHit(sello.pose))) nextStamp = performance.now() + 6000 + Math.random() * 3000;
-  }
   stage.addEventListener('pointerdown', (e) => {
     if (e.target.closest('a, button')) return;
-    const P = sello.pose;
-    if (P.vis > 0.99 && P.away < 0.01 && !introRunning) return void stampNow();
     const [wx, wy] = field.unproject(e.clientX, e.clientY);
+    const li = introRunning ? -1 : globos.hit(wx, wy);
+    if (li >= 0) {
+      // suena en el cuadro en que revienta (el audio se arranca acá, dentro del click)
+      if (globos.pop(li, () => inkHit(globos.center(li)))) popSound(0.12);
+      return;
+    }
     wave(wx, wy, 0, 70, 1);
   });
 
