@@ -25,7 +25,7 @@
 
     <!-- chrome mínimo: la marca de grip + un CTA + marcadores laterales -->
     <a class="brand" href="/" aria-label="grip studio — landings"><span class="brand-mark" aria-hidden="true"></span><span class="brand-txt mono">landings</span></a>
-    <div class="top-tools mono">
+    <div class="top-tools">
       <button type="button" id="lang2" aria-label="cambiar idioma / switch language" data-cursor="cambiar"><span class="tl-es">es</span> / <span class="tl-en">en</span></button>
       <button type="button" id="theme" aria-label="modo día / noche" data-cursor="cambiar">noche</button>
     </div>
@@ -38,12 +38,34 @@
       <button type="button" data-from="12" data-to="14" data-i18n="nav.4" data-cursor="ir">hola</button>
     </nav>
 
-    <button type="button" id="up" class="mono" aria-label="volver arriba" data-cursor="ir"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="ui.up">arriba</span></button>
+    <button type="button" id="up" aria-label="volver arriba" data-cursor="ir"><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 10V2M2.5 5.5 6 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span data-i18n="ui.up">arriba</span></button>
 
     <main id="world">
       <div id="journey">
         <div class="stage">
           <canvas id="field" aria-hidden="true"></canvas>
+
+          <!-- mismo brief: la landing que ya viste, de verdad (DOM, fuera del difference).
+               Botón violeta, blob, el banner de cookies que nunca se va y el chat que rebota -->
+          <div class="tpl-card" aria-hidden="true">
+            <div class="tpl-page">
+              <div class="tpl-nav"><i class="tpl-logo"></i><b data-i18n="tpl.brand">Marca</b><span></span><span></span><span></span><em class="tpl-pill" data-i18n="tpl.start">Empezá gratis</em></div>
+              <div class="tpl-hero">
+                <div>
+                  <small class="tpl-badge" data-i18n="tpl.badge">Nuevo · ahora con IA</small>
+                  <strong class="tpl-head" data-i18n="tpl.head">Llevá tu negocio al siguiente nivel</strong>
+                  <p class="tpl-sub" data-i18n="tpl.sub">La plataforma todo en uno que te ayuda a crecer más rápido. Sin complicaciones.</p>
+                  <div class="tpl-btns"><em class="tpl-pill tpl-go" data-i18n="tpl.go">Empezá ahora →</em><em class="tpl-pill tpl-demo" data-i18n="tpl.demo">Ver demo</em></div>
+                </div>
+                <div class="tpl-art"><i class="tpl-blob"></i><div class="tpl-dash"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+              </div>
+              <div class="tpl-trust"><span data-i18n="tpl.trust">Más de 10.000 empresas confían en nosotros</span><div class="tpl-logos"><i></i><i></i><i></i><i></i><i></i></div></div>
+              <div class="tpl-cookie"><span data-i18n="tpl.cookie">Usamos cookies para mejorar tu experiencia.</span><em class="tpl-pill" data-i18n="tpl.ok">Aceptar</em></div>
+              <i class="tpl-chat"></i>
+            </div>
+          </div>
+          <!-- dónde flotan los globos en 'otro resultado' (solo para medir) -->
+          <div class="pl-globos" aria-hidden="true"></div>
           <div id="marca-hit" aria-hidden="true" data-cursor="reventá"></div>
 
           <!-- beat 0: hero -->
@@ -60,9 +82,10 @@
             <p data-i18n="ruido.p">hero, tres iconitos, botón violeta. la leen, asienten y te olvidan antes de cerrar la pestaña. una plantilla no te hace quedar mal: te hace quedar igual que todos. eso es peor.</p>
           </section>
 
-          <!-- beat 1.75–2.3: la pila — el ruido, nombrado -->
+          <!-- beat 1.85–2.6: la pila — el ruido, nombrado (y olvidado) -->
           <section class="beat beat-pila" data-beat="pila">
-            <p class="mono"><span data-i18n="pila.p">todo eso, junto, es ruido.</span></p>
+            <p class="pila-a" data-i18n="pila.a">todo eso, junto, es ruido.</p>
+            <p class="pila-b" data-i18n="pila.b">y el ruido no se recuerda.</p>
           </section>
 
           <!-- beat 2.15–3.1: señal -->
@@ -92,13 +115,19 @@
           <section class="beat beat-work" data-beat="w2"><h3>oclucrm</h3><p data-i18n="trabajos.items.oclucrm">el crm para clínicas dentales del <b>dr. fernando m. soto</b>, y la landing que lo explica sin dolor.</p><a class="wlink u-draw mono" href="https://www.oclucrm.com/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
           <section class="beat beat-work" data-beat="w3"><h3>taxes software</h3><p data-i18n="trabajos.items.taxes">software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.</p><a class="wlink u-draw mono" href="https://www.taxes.com.ar/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
           <section class="beat beat-work" data-beat="w4"><h3>feedmakers</h3><p data-i18n="trabajos.items.feedmakers">posts de instagram con ia, con el estilo de tu marca. una línea, un post: hasta el titular está hecho de posts.</p><a class="wlink u-draw mono" href="https://feedmakers.app/es" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
-          <section class="beat beat-work" data-beat="w5"><h3>parell</h3><p data-i18n="trabajos.items.parell">crm de nutrición con ia para nutricionistas. menos planillas, más pacientes.</p><a class="wlink u-draw mono" href="https://parell.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
+          <section class="beat beat-work" data-beat="w5"><h3>ilove3d</h3><p data-i18n="trabajos.items.ilove3d">herramientas 3D en el navegador: ver, convertir, reparar y crear modelos. gratis, sin cuenta y sin subir nada.</p><a class="wlink u-draw mono" href="https://ilove3d.app/" target="_blank" rel="noopener" data-cursor="ver"><span data-i18n="ui.view">ver la landing</span> <svg class="ic" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 9.5 9.5 2.5M4.5 2.5h5v5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a></section>
 
-          <!-- beats 10.5–11.7: de plantilla a marca -->
+          <!-- beats 10.45–11.95: mismo brief, otro resultado. dos columnas: la
+               plantilla (.tpl-card, apagada) y la marca (los globos) -->
           <section class="beat beat-plantilla" data-beat="plantilla">
-            <h2 data-i18n="plantilla.h">mismo brief. otro resultado.</h2>
-            <p class="pl-l" data-i18n="plantilla.tpl">lo mismo que le vendieron a todos, con tu logo arriba.</p>
-            <p class="pl-r" data-i18n="plantilla.marca">una que solo puede ser tuya. te reconocen sin leer el logo.</p>
+            <div class="pl-col pl-a">
+              <h2 data-i18n="plantilla.h1">mismo brief.</h2>
+              <p data-i18n="plantilla.tpl">la vende un senior, la arma el que esté libre. cinco llamadas y un deck antes de un píxel. segura, medio on-brand, olvidable.</p>
+            </div>
+            <div class="pl-col pl-b">
+              <h2 data-i18n="plantilla.h2">otro resultado.</h2>
+              <p data-i18n="plantilla.marca">hablás con quien la hace. pantallas reales en días. hecha para vos, con opinión, difícil de olvidar.</p>
+            </div>
           </section>
 
           <!-- beat 12.3: contacto -->
@@ -122,6 +151,17 @@
       <!-- versión quieta (reduced-motion / sin webgl): mismo contenido, en una hoja -->
       <div id="static" hidden></div>
     </main>
+
+    <!-- easter egg: reventá los cuatro globos y te ganás un 20% (ver journey.js) -->
+    <div id="cupon" role="dialog" aria-modal="false" aria-labelledby="cupon-k" hidden>
+      <div class="cupon-in">
+        <button type="button" class="cupon-x" data-cursor="cerrar"><span data-i18n="egg.close">cerrar</span></button>
+        <p id="cupon-k" class="cupon-k" data-i18n="egg.k">20% off.</p>
+        <p class="cupon-t" data-i18n="egg.t">reventaste los cuatro. esto no lo encuentra cualquiera.</p>
+        <p class="cupon-code"><span data-i18n="egg.code">código</span> <b>GLOBOS20</b> · <span data-i18n="egg.note">vale para tu landing.</span></p>
+        <a class="cta big cupon-cta" href="https://wa.me/5491121865983" target="_blank" rel="noopener" data-cursor="abrir"><span data-i18n="egg.cta">pedilo por whatsapp</span><svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 6h8M6.5 2.5 10 6l-3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></a>
+      </div>
+    </div>
 
     <div id="splash" aria-hidden="true">
       <span class="splash-sign mono">grip® × valentín romero</span>

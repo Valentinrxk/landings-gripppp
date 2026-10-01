@@ -11,9 +11,9 @@ import { createPliego } from './field/pliego.js';
 import { createPlantillas } from './field/plantillas.js';
 import * as S from './field/shapes.js';
 import { loadImage } from './print/ascii.js';
-import { t, lang as startLang } from './data/i18n.js';
+import { t, lang as startLang, setEgg } from './data/i18n.js';
 import { spliceFlash } from './systems/flash.js';
-import { popSound } from './systems/sound.js';
+import { popSound, chime } from './systems/sound.js';
 
 // video: el recorrido grabado de la landing (empieza en el mismo cuadro que la captura)
 const WORKS = [
@@ -22,7 +22,7 @@ const WORKS = [
   { key: 'oclucrm', src: '/works/oclucrm.jpg', video: '/works/oclucrm.mp4', name: 'oclucrm', url: 'https://www.oclucrm.com/', domain: 'oclucrm.com' },
   { key: 'taxes', src: '/works/taxes.jpg', video: '/works/taxes.mp4', name: 'taxes software', url: 'https://www.taxes.com.ar/', domain: 'taxes.com.ar' },
   { key: 'feedmakers', src: '/works/feedmakers.jpg', video: '/works/feedmakers.mp4', name: 'feedmakers', url: 'https://feedmakers.app/es', domain: 'feedmakers.app' },
-  { key: 'parell', src: '/works/parell.jpg', name: 'parell', url: 'https://parell.app/', domain: 'parell.app' },
+  { key: 'ilove3d', src: '/works/ilove3d.jpg', video: '/works/ilove3d.mp4', name: 'ilove3d', url: 'https://ilove3d.app/', domain: 'ilove3d.app' },
 ];
 const NW = WORKS.length;
 const END = 4 + NW; // beat en que la última obra se vuelve el partido plantilla / marca
@@ -34,6 +34,8 @@ export async function initJourney(ctx) {
   const journey = document.getElementById('journey');
   const beats = [...stage.querySelectorAll('.beat')];
   const byKey = Object.fromEntries(beats.map((b) => [b.dataset.beat, b]));
+  const tplCard = stage.querySelector('.tpl-card');
+  const plGlobos = stage.querySelector('.pl-globos');
   const mobile = window.innerWidth <= 720;
   const N = ctx.tier === 'lite' ? 5500 : 12000;
   const field = createField(canvas, { count: N, dpr: ctx.tier === 'lite' ? 1.25 : 1.5 });
@@ -66,7 +68,19 @@ export async function initJourney(ctx) {
     const A = field.aspect;
     const W = 100 * A;
     const hero = { x: mobile ? 0 : W * 0.215, y: mobile ? 21 : 3, w: W * (mobile ? 0.84 : 0.46) };
-    const right = { x: mobile ? 0 : W * 0.24, y: mobile ? -22 : 0, w: W * (mobile ? 0.7 : 0.3) };
+    // 'otro resultado': los globos van donde el CSS dejó lugar (.pl-globos) y la
+    // tinta de la plantilla, escondida detrás de la carta (.tpl-card). Se miden
+    // en pantalla y se pasan al mundo con la cámara del partido
+    const k = camKeys[END + 1];
+    const upp = (2 * k.z * Math.tan((k.fov * Math.PI) / 360)) / window.innerHeight;
+    const toWorld = (el) => ({
+      x: k.x + (el.offsetLeft + el.offsetWidth / 2 - window.innerWidth / 2) * upp,
+      y: k.y - (el.offsetTop + el.offsetHeight / 2 - window.innerHeight / 2) * upp,
+      w: el.offsetWidth * upp,
+    });
+    const zone = toWorld(plGlobos);
+    const card = toWorld(tplCard);
+    const right = { x: zone.x, y: zone.y, w: zone.w * 0.8 };
     const big = { x: mobile ? 0 : W * 0.14, y: mobile ? 22 : 16, w: W * (mobile ? 0.9 : 0.5) };
     slots = { hero, right, big };
     // hero: la marca de grip, líquida, a la derecha del claim
@@ -94,10 +108,12 @@ export async function initJourney(ctx) {
       workRects.push({ cx, cy, rx, ry, w: r.worldW, h: r.worldH });
       return r;
     });
-    // partido: plantilla chica a la izquierda + grip a la derecha (mitad de puntos cada uno)
-    const tplL = S.shapeTemplate(N, A, { widthFrac: mobile ? 0.7 : 0.34, seed: 31 });
+    // partido: la tinta de la plantilla queda invisible detrás de la carta (DOM) y,
+    // cuando la carta se cae, aparece cayendo a la pila; grip a la derecha
+    const tplL = S.shapeTemplate(N, A, { widthFrac: (card.w * 0.86) / W, seed: 31 });
+    tplL.alpha.fill(0);
     const gripR = S.shapeGrip(N, A, { widthFrac: right.w / W, seed: 33 });
-    const split = mixHalf(tplL, gripR, N, mobile ? [0, 22, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
+    const split = mixHalf(tplL, gripR, N, [card.x, card.y, right.x, right.y]);
     const pileL = S.shapePile(N, A, 35);
     const pileGrip = mixHalf(pileL, gripR, N, mobile ? [0, 0, right.x, right.y] : [-W * 0.24, 0, right.x, right.y]);
     const gripBig = S.shapeGrip(N, A, { widthFrac: big.w / W, x: big.x, y: big.y, seed: 37 });
@@ -145,7 +161,6 @@ export async function initJourney(ctx) {
     }
     return { pos, col, alpha, size, chroma };
   }
-  build();
 
   // ── cámara por beat (NB + 1 keyframes: un beat por tramo + el fin) ──
   const D = field.dist;
@@ -163,7 +178,7 @@ export async function initJourney(ctx) {
         { x: 0, y: 4, z: D, tx: 0, ty: 4, roll: 0, fov: 40 },
         { x: 0, y: 4, z: D * 1.02, tx: 0, ty: 4, roll: -0.01, fov: 40 },
         { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 },
-        { x: 0, y: -8, z: D * 1.05, tx: 0, ty: -8, roll: 0, fov: 40 },
+        { x: 0, y: 0, z: D * 1.1, tx: 0, ty: 0, roll: 0, fov: 40 }, // quieta: en el celu 'otro resultado' entra recién acá
         { x: 0, y: 6, z: D * 0.9, tx: 0, ty: 6, roll: 0, fov: 40 },
       ]
     : [
@@ -194,25 +209,74 @@ export async function initJourney(ctx) {
       gsap.set(field.cam, k);
       return;
     }
-    master.to(field.cam, { ...k, duration: 1, ease: 'sine.inOut' }, i - 1);
+    // el partido se encuadra temprano y queda quieto mientras se lee: el texto y la
+    // carta (DOM) calzan con los globos (mundo)
+    const early = i === END + 1;
+    master.to(field.cam, { ...k, duration: early ? 0.5 : 1, ease: 'sine.inOut' }, early ? END : i - 1);
   });
+  build();
 
   // ── textos: cada beat entra a su manera (timeline scrubeado por tramo) ──
   const T = (key) => byKey[key];
+  // la pila, tipografía cinética: las palabras caen como las cartas y rebotan; la
+  // segunda línea aparece y se borra letra por letra (el ruido no se recuerda).
+  // Todo sale de g (el progreso del viaje): igual de ida y de vuelta, y al
+  // cambiar el idioma solo se vuelve a partir el texto
+  const pila = { words: [], chars: [], splits: [] };
+  const pilaSplit = () => {
+    const a = T('pila').querySelector('.pila-a');
+    const b = T('pila').querySelector('.pila-b');
+    pila.splits.forEach((sp) => sp.revert());
+    a.textContent = t('pila.a');
+    b.textContent = t('pila.b');
+    const sa = new SplitText(a, { type: 'words', wordsClass: 'w' });
+    const sb = new SplitText(b, { type: 'words,chars', wordsClass: 'w' });
+    pila.splits = [sa, sb];
+    pila.words = sa.words;
+    pila.chars = sb.chars;
+  };
+  bus.on('i18n:changed', pilaSplit);
+  const clamp01 = (v) => Math.max(0, Math.min(1, v));
+  const bounceOut = (x) => {
+    const n = 7.5625;
+    const d = 2.75;
+    if (x < 1 / d) return n * x * x;
+    if (x < 2 / d) return n * (x -= 1.5 / d) * x + 0.75;
+    if (x < 2.5 / d) return n * (x -= 2.25 / d) * x + 0.9375;
+    return n * (x -= 2.625 / d) * x + 0.984375;
+  };
+  const placePila = (g) => {
+    if (g < 1.8 || g > 2.6) return; // fuera de su tramo la sección está oculta
+    pila.words.forEach((w, i) => {
+      const p = clamp01((g - (1.88 + i * 0.035)) / 0.24);
+      const q = clamp01((g - (2.42 + i * 0.012)) / 0.1); // se van cayendo
+      const r = (i % 2 ? 1 : -1) * (7 + ((i * 5) % 9)) * (1 - (1 - (1 - p) * (1 - p)));
+      w.style.transform = `translateY(${(-260 * (1 - bounceOut(p)) + 140 * q * q).toFixed(1)}%) rotate(${r.toFixed(2)}deg)`;
+      w.style.opacity = (Math.min(1, p * 6) * (1 - q)).toFixed(3);
+    });
+    pila.chars.forEach((c, j) => {
+      const pi = clamp01((g - (2.1 + j * 0.004)) / 0.1);
+      const po = clamp01((g - (2.28 + j * 0.007)) / 0.12);
+      const e = 1 - (1 - pi) * (1 - pi) * (1 - pi);
+      c.style.transform = `translateY(${(70 * (1 - e) - 55 * po).toFixed(1)}%)`;
+      c.style.opacity = (pi * (1 - po)).toFixed(3);
+      c.style.filter = po > 0.001 ? `blur(${(10 * po).toFixed(1)}px)` : '';
+    });
+  };
   const setup = () => {
     // hero: visible de entrada (intro temporal), se va en el primer beat
     master.to(T('hero'), { autoAlpha: 0, y: -60, duration: 0.45, ease: 'power2.in' }, 0.15);
     // ruido: título llega desde la izquierda con skew, texto tipeado
     const ru = T('ruido');
     master.fromTo(ru, { autoAlpha: 0, x: -140, skewX: 8 }, { autoAlpha: 1, x: 0, skewX: 0, duration: 0.35, ease: 'power3.out' }, 0.62)
-      .to(ru, { autoAlpha: 0, y: 80, duration: 0.3, ease: 'power2.in' }, 1.7);
-    // la pila: el ruido nombrado (sube desde abajo, mono, y se va con la palabra)
+      .to(ru, { autoAlpha: 0, y: 80, duration: 0.22, ease: 'power2.in' }, 1.64);
+    // la pila: el ruido, nombrado y olvidado (las palabras las mueve placePila)
     const pi = T('pila');
-    master.fromTo(pi, { autoAlpha: 0, y: 30 }, { autoAlpha: 1, y: 0, duration: 0.25, ease: 'power3.out' }, 1.95)
-      .to(pi, { autoAlpha: 0, y: -20, duration: 0.25, ease: 'power2.in' }, 2.45);
+    master.fromTo(pi, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.02 }, 1.86).to(pi, { autoAlpha: 0, duration: 0.03 }, 2.54);
+    pilaSplit();
     // señal: llega desde la derecha por clip, mientras la palabra se levanta de la pila
     const se = T('senal');
-    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.4, ease: 'power3.out' }, 2.4)
+    master.fromTo(se, { autoAlpha: 0, clipPath: 'inset(0 0 0 100%)', x: 40 }, { autoAlpha: 1, clipPath: 'inset(0 0 0 0%)', x: 0, duration: 0.36, ease: 'power3.out' }, 2.52)
       .to(se, { autoAlpha: 0, x: -40, duration: 0.3, ease: 'power2.in' }, 3.15);
     // cómo: pasos suben uno por uno
     const co = T('como');
@@ -230,14 +294,26 @@ export async function initJourney(ctx) {
       master.fromTo(cap, { autoAlpha: 0, ...from }, { autoAlpha: 1, x: 0, y: 0, duration: 0.22, ease: 'power3.out' }, 4.55 + i)
         .to(cap, { autoAlpha: 0, y: -30, duration: 0.18, ease: 'power2.in' }, 5.38 + i);
     });
-    // cierre trabajos + plantilla vs marca: dos columnas se separan desde el centro
+    // mismo brief / otro resultado: la plantilla (una landing de verdad) se reparte
+    // como una carta, apagada; la marca son los globos. Después la plantilla se cae
+    // a la pila. En el celu van de a una: primero la plantilla, después la marca.
+    // Cada tween declara todos sus valores de ida y de vuelta (el scrub va y viene)
     const pl = T('plantilla');
-    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05 }, END + 0.45).to(pl, { autoAlpha: 0, duration: 0.2 }, END + 1.95);
-    master.fromTo(pl.querySelector('.pl-l'), { autoAlpha: 0, x: 60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, END + 0.55)
-      .fromTo(pl.querySelector('.pl-r'), { autoAlpha: 0, x: -60 }, { autoAlpha: 1, x: 0, duration: 0.3, ease: 'power3.out' }, END + 0.55)
-      .fromTo(pl.querySelector('h2'), { autoAlpha: 0, scale: 1.15 }, { autoAlpha: 1, scale: 1, duration: 0.25, ease: 'power3.out' }, END + 0.5)
-      .to(pl.querySelector('.pl-l'), { autoAlpha: 0, y: 120, rotate: -6, duration: 0.35, ease: 'power2.in' }, END + 1.25)
-      .to([pl.querySelector('.pl-r'), pl.querySelector('h2')], { autoAlpha: 0, duration: 0.25 }, END + 1.7);
+    const pa = pl.querySelector('.pl-a');
+    const pb = pl.querySelector('.pl-b');
+    const fall = mobile ? END + 0.96 : END + 1.2;
+    const bIn = mobile ? END + 1.3 : END + 0.6;
+    const fallDur = mobile ? 0.3 : 0.42; // en el celu se va antes de que suban los globos
+    const cardIn = { autoAlpha: 1, yPercent: 0, rotationX: 6, rotationY: 14, rotation: -1 };
+    gsap.set(tplCard, { transformPerspective: 1600, transformOrigin: '50% 100%' });
+    master.fromTo(pl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.02 }, END + 0.45).to(pl, { autoAlpha: 0, duration: 0.05 }, END + 1.95);
+    master
+      .fromTo(pa, { autoAlpha: 0, x: -50, y: 0, rotation: 0 }, { autoAlpha: 1, x: 0, y: 0, rotation: 0, duration: 0.25, ease: 'power3.out' }, END + 0.5)
+      .fromTo(tplCard, { autoAlpha: 0, yPercent: 35, rotationX: -75, rotationY: 14, rotation: 0 }, { ...cardIn, duration: 0.32, ease: 'back.out(1.3)' }, END + 0.56)
+      .fromTo(pa, { autoAlpha: 1, x: 0, y: 0, rotation: 0 }, { autoAlpha: 0, x: 0, y: 140, rotation: -7, duration: 0.32, ease: 'power2.in', immediateRender: false }, fall)
+      .fromTo(tplCard, cardIn, { autoAlpha: 0, yPercent: 160, rotationX: 70, rotationY: 30, rotation: -24, duration: fallDur, ease: 'power2.in', immediateRender: false }, fall)
+      .fromTo(pb, { autoAlpha: 0, x: 50 }, { autoAlpha: 1, x: 0, duration: 0.25, ease: 'power3.out' }, bIn)
+      .fromTo(pb, { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.18, immediateRender: false }, END + 1.76);
     // contacto: estampa
     const ct = T('contacto');
     master.fromTo(ct, { autoAlpha: 0, scale: 1.2 }, { autoAlpha: 1, scale: 1, duration: 0.3, ease: 'steps(3)' }, END + 2.3);
@@ -266,6 +342,7 @@ export async function initJourney(ctx) {
     if (g < 5) {
       // hero: cuando la tinta se va a armar la plantilla, los globos se van volando
       Object.assign(P, slots.hero);
+      P.dir = 1;
       P.away = sm(0.3, 0.75, g);
       P.vis = 1 - sm(0.72, 0.8, g);
     } else {
@@ -274,8 +351,11 @@ export async function initJourney(ctx) {
       P.x = mixf(slots.right.x, slots.big.x, m);
       P.y = mixf(slots.right.y, slots.big.y, m);
       P.w = mixf(slots.right.w, slots.big.w, m);
-      P.away = 1 - sm(END + 0.35, END + 0.75, g);
-      P.vis = sm(END + 0.3, END + 0.42, g);
+      // suben desde abajo (son globos); en el celu, cuando ya se cayó la plantilla
+      const land = mobile ? END + 1.32 : END + 0.5;
+      P.dir = -1;
+      P.away = 1 - sm(land, land + 0.36, g);
+      P.vis = sm(land - 0.06, land + 0.04, g);
     }
     P.vis *= entry.on;
   };
@@ -307,6 +387,7 @@ export async function initJourney(ctx) {
     placeGlobos(g);
     globos.update(performance.now() / 1000, mouse);
     plantillas.update(g, performance.now() / 1000);
+    placePila(g);
     // la impresión de color queda tapada por los globos; asoma cuando uno revienta o cuando se van
     field.state.print = 1 - globos.pose.vis * (1 - globos.pose.away) * (1 - inkOut.v);
     const P = globos.pose;
@@ -527,20 +608,54 @@ export async function initJourney(ctx) {
   // asienta, línea por línea, desde la más cercana a los globos
   function jolt() {
     const g = cur.t;
-    const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('h2') : T('contacto').querySelector('h2');
+    const el = g < 1 ? T('hero').querySelector('h1') : g < END + 2.2 ? T('plantilla').querySelector('.pl-b h2') : T('contacto').querySelector('h2');
     const lines = el.querySelectorAll('.ln');
     const targets = lines.length ? [...lines].reverse() : [el];
     gsap.timeline()
       .to(targets, { y: 9, duration: 0.07, ease: 'power3.out', stagger: 0.035 })
       .to(targets, { y: 0, duration: 0.9, ease: 'elastic.out(1.1, 0.32)', stagger: 0.035 }, 0.07);
   }
+  // ── easter egg: si reventás los cuatro globos en menos de 5 segundos, la tinta
+  // festeja y sale un cupón del 20%. Desde ahí el código viaja en cada whatsapp ──
+  const cupon = document.getElementById('cupon');
+  const ticket = cupon.firstElementChild;
+  const popped = [0, 0, 0, 0];
+  const openCupon = () => {
+    setEgg();
+    chime(0.42); // después del último estallido
+    gsap.delayedCall(0.2, () => {
+      wave(globos.pose.x, globos.pose.y, 0, 130, 1.5);
+      spliceFlash();
+    });
+    cupon.hidden = false;
+    gsap.fromTo(
+      ticket,
+      { autoAlpha: 0, scale: 1.8, rotation: -16 },
+      { autoAlpha: 1, scale: 1, rotation: -3, duration: 0.42, ease: 'steps(4)', delay: 0.32, onComplete: () => cupon.querySelector('.cupon-cta').focus({ preventScroll: true }) }
+    );
+  };
+  const closeCupon = () => {
+    if (cupon.hidden) return;
+    gsap.to(ticket, { autoAlpha: 0, scale: 0.92, duration: 0.2, ease: 'power2.in', onComplete: () => (cupon.hidden = true) });
+  };
+  cupon.querySelector('.cupon-x').addEventListener('click', closeCupon);
+  cupon.querySelector('.cupon-cta').addEventListener('click', () => setTimeout(closeCupon, 400));
+  addEventListener('keydown', (e) => e.key === 'Escape' && closeCupon());
   stage.addEventListener('pointerdown', (e) => {
     if (e.target.closest('a, button')) return;
     const [wx, wy] = field.unproject(e.clientX, e.clientY);
     const li = introRunning ? -1 : globos.hit(wx, wy);
     if (li >= 0) {
       // suena en el cuadro en que revienta (el audio se arranca acá, dentro del click)
-      if (globos.pop(li, () => inkHit(globos.center(li)))) popSound(0.12);
+      if (globos.pop(li, () => inkHit(globos.center(li)))) {
+        popSound(0.12);
+        const now = performance.now();
+        popped[li] = now;
+        if (popped.every((p) => now - p < 5000)) {
+          popped.fill(0);
+          openCupon();
+        }
+      }
       return;
     }
     wave(wx, wy, 0, 70, 1);

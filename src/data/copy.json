@@ -40,12 +40,14 @@
     "oclucrm": "el crm para clínicas dentales del <b>dr. fernando m. soto</b>, y la landing que lo explica sin dolor.",
     "taxes": "software para presentar impuestos. la landing hace lo que los impuestos no: se entiende.",
     "feedmakers": "posts de instagram con ia, con el estilo de tu marca. una línea, un post: hasta el titular está hecho de posts.",
-    "parell": "crm de nutrición con ia para nutricionistas. menos planillas, más pacientes."
+    "ilove3d": "herramientas 3D en el navegador: ver, convertir, reparar y crear modelos. gratis, sin cuenta y sin subir nada."
    },
    "closing": "acá falta la tuya. (todavía)"
   },
   "plantilla": {
    "h": "mismo brief. otro resultado.",
+   "h1": "mismo brief.",
+   "h2": "otro resultado.",
    "tpl": "la vende un senior, la arma el que esté libre. cinco llamadas y un deck antes de un píxel. segura, medio on-brand, olvidable.",
    "marca": "hablás con quien la hace. pantallas reales en días. hecha para vos, con opinión, difícil de olvidar."
   },
@@ -111,12 +113,14 @@
     "oclucrm": "<b>dr. fernando m. soto</b>'s crm for dental clinics, and the landing that explains it painlessly.",
     "taxes": "tax filing software. the landing does what taxes never do: make sense.",
     "feedmakers": "ai instagram posts in your brand's style. one line, one post: even the headline is made of posts.",
-    "parell": "nutrition crm with ai for dietitians. fewer spreadsheets, more patients."
+    "ilove3d": "3D tools in the browser: view, convert, repair and create models. free, no account, nothing gets uploaded."
    },
    "closing": "yours isn't here. (yet)"
   },
   "plantilla": {
    "h": "same brief. different outcome.",
+   "h1": "same brief.",
+   "h2": "different outcome.",
    "tpl": "pitched by a senior, built by whoever is free. five calls and a deck before a single pixel. safe, brand-ish, forgettable.",
    "marca": "you talk to the person making it. real screens in days. built for you, opinionated, hard to forget."
   },

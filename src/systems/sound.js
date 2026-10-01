@@ -62,3 +62,28 @@ export function popSound(delay = 0) {
     burst(c, out, at, { freq: 3000 + Math.random() * 3500, q: 2.5, dur: 0.008 + Math.random() * 0.012, vol: 0.22 * (1 - i / 10) });
   }
 }
+
+// el premio: un arpegio corto y brillante (do · mi · sol · do), campanita de feria
+export function chime(delay = 0) {
+  const c = audio();
+  if (!c) return;
+  const t = c.currentTime + delay;
+  const out = c.createGain();
+  out.gain.value = 0.32;
+  out.connect(c.destination);
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+    const at = t + i * 0.085;
+    [1, 2.01].forEach((h, k) => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = k ? 'sine' : 'triangle';
+      o.frequency.value = f * h;
+      g.gain.setValueAtTime(0.0001, at);
+      g.gain.exponentialRampToValueAtTime(k ? 0.12 : 0.5, at + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, at + (i === 3 ? 0.9 : 0.32));
+      o.connect(g).connect(out);
+      o.start(at);
+      o.stop(at + 1);
+    });
+  });
+}

@@ -370,7 +370,8 @@ export function createGlobos(field, { step = 2 } = {}) {
   field.renderer.compileAsync(field.scene, field.camera).catch(() => {});
 
   // pose: la escribe el viaje (dónde está, qué tan grande, si se fue volando)
-  const pose = { x: 0, y: 0, w: 60, vis: 0, away: 0 };
+  // dir: hacia dónde se van (1, arriba: soltados) o de dónde vienen (−1, de abajo: suben)
+  const pose = { x: 0, y: 0, w: 60, vis: 0, away: 0, dir: 1 };
   const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
   const HOVER = 8;
   const cam = field.camera.position;
@@ -387,7 +388,7 @@ export function createGlobos(field, { step = 2 } = {}) {
     const persp = (cam.z - zb) / cam.z;
     const a = pose.away;
     // soltados: suben, se abren un poco y giran
-    group.position.set(cam.x + (pose.x - cam.x) * persp + a * pose.w * 0.15, cam.y + (pose.y - cam.y) * persp + a * a * 95, zb + a * 12);
+    group.position.set(cam.x + (pose.x - cam.x) * persp + a * pose.w * 0.15, cam.y + (pose.y - cam.y) * persp + pose.dir * a * a * 95, zb + a * 12);
     group.rotation.set(tilt.x * 0.5, tilt.y * 0.5, -a * 0.25);
     k *= persp; // escala real en el mundo (la perspectiva ya compensada)
     group.scale.setScalar(k);
@@ -411,7 +412,7 @@ export function createGlobos(field, { step = 2 } = {}) {
       st.px += (pxw - st.px) * 0.08;
       st.py += (pyw - st.py) * 0.08;
       const bob = Math.sin(t * 1.1 + L.ph) * 5 + Math.sin(t * 0.47 + L.ph * 2) * 3;
-      L.mesh.position.set(L.pivot[0] + st.px / k, L.pivot[1] + bob + st.py / k + a * li * 22, 0);
+      L.mesh.position.set(L.pivot[0] + st.px / k, L.pivot[1] + bob + st.py / k + pose.dir * a * li * 22, 0);
       L.mesh.rotation.set(
         Math.sin(t * 0.8 + L.ph) * 0.06 + tilt.x * 0.6 - (st.py / k) * 0.004,
         Math.sin(t * 0.55 + L.ph * 1.3) * 0.22 + tilt.y * 0.7 + (st.px / k) * 0.006,
@@ -474,7 +475,7 @@ export function createGlobos(field, { step = 2 } = {}) {
       .to(st, { s: 1.14, z: 1.2, duration: 0.07, ease: 'power2.out' })
       .to(st, { s: 0, z: 0, duration: 0.05, ease: 'power2.in' })
       .add(() => onPop?.())
-      .fromTo(st, { s: 0.93, z: 0.03 }, { s: 1, z: 1, duration: 1.2, ease: 'elastic.out(1, 0.45)', immediateRender: false }, '+=1.1');
+      .fromTo(st, { s: 0.93, z: 0.03 }, { s: 1, z: 1, duration: 1.2, ease: 'elastic.out(1, 0.45)', immediateRender: false }, '+=2.4');
     return true;
   };
   // inflar todos (la entrada): de la lámina chata al globo, uno detrás de otro

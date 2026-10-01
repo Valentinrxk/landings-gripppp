@@ -81,7 +81,7 @@ function buildStatic() {
     ['oclucrm', 'https://www.oclucrm.com/', '/works/oclucrm.jpg', c.trabajos.items.oclucrm],
     ['taxes software', 'https://www.taxes.com.ar/', '/works/taxes.jpg', c.trabajos.items.taxes],
     ['feedmakers', 'https://feedmakers.app/es', '/works/feedmakers.jpg', c.trabajos.items.feedmakers],
-    ['parell', 'https://parell.app/', '/works/parell.jpg', c.trabajos.items.parell],
+    ['ilove3d', 'https://ilove3d.app/', '/works/ilove3d.jpg', c.trabajos.items.ilove3d],
   ];
   const el = document.getElementById('static');
   el.hidden = false;
