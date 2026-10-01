@@ -505,6 +505,8 @@ export function createGlobos(field, { step = 2 } = {}) {
     });
     return best;
   };
+  // ¿están los cuatro reventados a la vez? (reventado = todavía no se volvió a inflar)
+  const allDown = () => letters.every((L) => L.st.s < 0.5);
   const center = (li) => {
     const L = letters[li];
     return { x: group.position.x + L.pivot[0] * k, y: group.position.y + L.pivot[1] * k, w: L.size[0] * k };
@@ -512,5 +514,5 @@ export function createGlobos(field, { step = 2 } = {}) {
   const setDark = (d) => {
     letters.forEach((L) => (L.line.material.color.set(d ? 0x9a978f : 0x8a8578)));
   };
-  return { group, pose, tilt, update, pop, inflate, hit, center, setDark };
+  return { group, pose, tilt, update, pop, inflate, hit, center, allDown, setDark };
 }

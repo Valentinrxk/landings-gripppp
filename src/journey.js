@@ -615,14 +615,14 @@ export async function initJourney(ctx) {
       .to(targets, { y: 9, duration: 0.07, ease: 'power3.out', stagger: 0.035 })
       .to(targets, { y: 0, duration: 0.9, ease: 'elastic.out(1.1, 0.32)', stagger: 0.035 }, 0.07);
   }
-  // ── easter egg: si reventás los cuatro globos en menos de 5 segundos, la tinta
-  // festeja y sale un cupón del 15%. Desde ahí el código viaja en cada whatsapp ──
+  // ── easter egg: si los cuatro globos están reventados a la vez (cada uno tarda
+  // ~2.5s en volver a inflarse), la tinta festeja y sale un cupón del 15%. Desde
+  // ahí el código viaja en cada whatsapp ──
   const cupon = document.getElementById('cupon');
   const ticket = cupon.firstElementChild;
-  const popped = [0, 0, 0, 0];
   const openCupon = () => {
     setEgg();
-    chime(0.42); // después del último estallido
+    chime(0.25); // después del último estallido
     gsap.delayedCall(0.2, () => {
       wave(globos.pose.x, globos.pose.y, 0, 130, 1.5);
       spliceFlash();
@@ -647,15 +647,11 @@ export async function initJourney(ctx) {
     const li = introRunning ? -1 : globos.hit(wx, wy);
     if (li >= 0) {
       // suena en el cuadro en que revienta (el audio se arranca acá, dentro del click)
-      if (globos.pop(li, () => inkHit(globos.center(li)))) {
-        popSound(0.12);
-        const now = performance.now();
-        popped[li] = now;
-        if (popped.every((p) => now - p < 5000)) {
-          popped.fill(0);
-          openCupon();
-        }
-      }
+      const popped = globos.pop(li, () => {
+        inkHit(globos.center(li));
+        if (globos.allDown()) openCupon(); // los cuatro abajo al mismo tiempo
+      });
+      if (popped) popSound(0.12);
       return;
     }
     wave(wx, wy, 0, 70, 1);
