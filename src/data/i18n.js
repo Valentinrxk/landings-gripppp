@@ -43,15 +43,10 @@ export function t(key, L = lang) {
   return typeof v === 'string' ? v : key;
 }
 
-// el easter egg de los globos: el código viaja en todos los whatsapp desde que lo encontrás
+// el easter egg de los globos: desde que lo encontrás, el código viaja en todos los
+// whatsapp. Solo en esta visita: al recargar se pierde (hay que volver a ganárselo)
 export const EGG_CODE = 'GLOBOS15';
 let egg = false;
-try {
-  egg = localStorage.getItem('landings:egg') === '1';
-} catch {
-  /* modo privado */
-}
-export const hasEgg = () => egg;
 const WA_TEXT = {
   es: ['hola grip, quiero cotizar la landing de mi marca.', `hola grip, reventé los cuatro globos. quiero cotizar mi landing con el 15% off (código ${EGG_CODE}).`],
   en: ["hi grip, i'd like a quote for my brand's landing page.", `hi grip, i popped all four balloons. i'd like a quote for my landing with the 15% off (code ${EGG_CODE}).`],
@@ -60,15 +55,9 @@ export const waLink = (L = lang) => 'https://wa.me/5491121865983?text=' + encode
 const syncWA = () => document.querySelectorAll('a[href^="https://wa.me/"]').forEach((a) => (a.href = waLink()));
 export function setEgg() {
   egg = true;
-  try {
-    localStorage.setItem('landings:egg', '1');
-  } catch {
-    /* modo privado */
-  }
   document.documentElement.classList.add('has-egg');
   syncWA();
 }
-if (egg) document.documentElement.classList.add('has-egg');
 
 export function applyLang(next) {
   lang = next;
